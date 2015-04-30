@@ -18,7 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.example.braincat.rulepedia.R;
+import edu.stanford.braincat.rulepedia.R;
 
 
 public class ListRuleActivity extends ActionBarActivity {
