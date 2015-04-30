@@ -10,4 +10,6 @@
 
     <string name="action_settings">Settings</string>
     <string name="title_activity_install_rule">InstallRuleActivity</string>
+
+    <string name="generic_execution_error">Failed to run rule</string>
 </resources>
