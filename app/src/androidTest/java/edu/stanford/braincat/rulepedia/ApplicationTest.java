@@ -1,4 +1,4 @@
-package com.example.braincat.rulepedia;
+package edu.stanford.braincat.rulepedia;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

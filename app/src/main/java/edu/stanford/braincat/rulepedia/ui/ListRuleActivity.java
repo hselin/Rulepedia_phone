@@ -1,4 +1,4 @@
-package com.example.braincat.rulepedia;
+package edu.stanford.braincat.rulepedia.ui;
 
 import java.util.Locale;
 
@@ -18,8 +18,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.example.braincat.rulepedia.R;
 
-public class MainActivity extends ActionBarActivity {
+
+public class ListRuleActivity extends ActionBarActivity {
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
