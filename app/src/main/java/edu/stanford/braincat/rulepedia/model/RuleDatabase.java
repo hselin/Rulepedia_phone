@@ -5,14 +5,10 @@ import android.content.Context;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.JSONTokener;
 
-import java.io.BufferedReader;
-import java.io.EOFException;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.CharBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -22,6 +18,7 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import edu.stanford.braincat.rulepedia.channels.Util;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownChannelException;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
 
@@ -131,25 +128,12 @@ public class RuleDatabase {
     }
 
     private void loadHelper(Context ctx, boolean resolve) throws IOException, UnknownObjectException, UnknownChannelException {
-        BufferedReader file = null;
+        FileInputStream file = null;
         try {
-            file = new BufferedReader(new InputStreamReader(ctx.openFileInput("rules.json")));
-            StringBuilder builder = new StringBuilder();
-            while (true) {
-                CharBuffer buffer = CharBuffer.allocate(4096);
-                try {
-                    int read = file.read(buffer);
-                    if (read < 0)
-                        break;
-                } catch (EOFException e) {
-                    break;
-                }
-
-                builder.append(buffer);
-            }
+            file = ctx.openFileInput("rules.json");
 
             try {
-                JSONArray root = (JSONArray) new JSONTokener(builder.toString()).nextValue();
+                JSONArray root = (JSONArray) Util.readJSON(file).nextValue();
 
                 for (int i = 0; i < root.length(); i++)
                     loadRule(root.getJSONObject(i), i, resolve);

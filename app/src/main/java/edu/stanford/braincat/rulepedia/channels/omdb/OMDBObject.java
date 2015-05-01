@@ -1,7 +1,16 @@
 package edu.stanford.braincat.rulepedia.channels.omdb;
 
-import java.io.IOException;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONTokener;
 
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import edu.stanford.braincat.rulepedia.channels.HTTPHelper;
 import edu.stanford.braincat.rulepedia.channels.RefreshableObject;
 import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
 
@@ -49,8 +58,24 @@ public class OMDBObject extends RefreshableObject {
         return released;
     }
 
+    private static Date parseReleaseDate(String dateString) throws ParseException {
+        DateFormat df = new SimpleDateFormat("dd MMM yyyy");
+        return df.parse(dateString);
+    }
+
     @Override
     public void refresh() throws IOException {
-        // TODO
+        try {
+            JSONTokener jt = HTTPHelper.getJSON(getUrl());
+            JSONObject jsonMovie = (JSONObject) jt.nextValue();
+
+            title = jsonMovie.getString("Title");
+            released = parseReleaseDate(jsonMovie.getString("Released")).before(new Date());
+            hasData = true;
+        } catch(ParseException pe) {
+            throw new IOException("Failed to parse web service response", pe);
+        } catch(JSONException je) {
+            throw new IOException("Failed to parse web service response", je);
+        }
     }
 }

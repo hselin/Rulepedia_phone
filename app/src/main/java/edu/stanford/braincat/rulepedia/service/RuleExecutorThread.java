@@ -83,13 +83,11 @@ public class RuleExecutorThread extends Thread {
 
     private void dispatchRules() {
         for (Rule r : database.getAllRules()) {
-            if (r.isFiring()) {
-                try {
+            try {
+                if (r.isFiring())
                     r.fire();
-                } catch (RuleExecutionException e) {
-                    // FIXME: notify the user!
-                    Log.e(RuleExecutorService.LOG_TAG, "Failed to run rule " + r.toHumanString() + ": " + e.getMessage());
-                }
+            } catch (RuleExecutionException e) {
+                Log.e(RuleExecutorService.LOG_TAG, "Failed to run rule " + r.toHumanString() + ": " + e.getMessage());
             }
         }
     }
