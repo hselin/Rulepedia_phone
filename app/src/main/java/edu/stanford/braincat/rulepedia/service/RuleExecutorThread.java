@@ -70,6 +70,17 @@ public class RuleExecutorThread extends Thread {
         selector.wait(timeout);
     }
 
+    private void updateTriggers() {
+        for (Rule r : database.getAllRules()) {
+            try {
+                r.updateTrigger();
+            } catch (IOException e) {
+                // FIXME: notify the user!
+                Log.e(RuleExecutorService.LOG_TAG, "Failed to update the trigger for rule " + r.toHumanString() + ": " + e.getMessage());
+            }
+        }
+    }
+
     private void dispatchRules() {
         for (Rule r : database.getAllRules()) {
             if (r.isFiring()) {
@@ -92,8 +103,7 @@ public class RuleExecutorThread extends Thread {
     public void run() {
         prepareEventSources();
 
-        boolean running = true;
-        while (running) {
+        while (true) {
             try {
                 waitForNextEvent();
             } catch(InterruptedException e) {
@@ -101,10 +111,10 @@ public class RuleExecutorThread extends Thread {
             }
 
             if (terminationSource.checkEvent())
-                running = false;
+                break;
 
+            updateTriggers();
             dispatchRules();
-
             updateEventSourceState();
         }
 

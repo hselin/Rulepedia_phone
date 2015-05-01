@@ -1,5 +1,6 @@
 package edu.stanford.braincat.rulepedia.model;
 
+import java.io.IOException;
 import java.util.Collection;
 
 import edu.stanford.braincat.rulepedia.events.EventSource;
@@ -9,6 +10,8 @@ import edu.stanford.braincat.rulepedia.events.EventSource;
  */
 public interface Trigger {
     Collection<EventSource> getEventSources();
+
+    void update() throws IOException;
 
     boolean isFiring();
 

@@ -1,5 +1,6 @@
 package edu.stanford.braincat.rulepedia.model;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -24,6 +25,11 @@ public abstract class CompositeTrigger implements Trigger {
     protected abstract boolean compose(boolean t1, boolean t2);
 
     protected abstract String getHumanComposeOp();
+
+    public void update() throws IOException {
+        for (Trigger t : children)
+            t.update();
+    }
 
     @Override
     public Collection<EventSource> getEventSources() {
