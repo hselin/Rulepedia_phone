@@ -124,7 +124,12 @@ public class RuleDatabase {
         Collection<Action> actions = parseActionList(jsonActions, resolve);
 
         // -position because lower position is higher priority
-        rules.add(new Rule(name, trigger, actions, -position));
+        Rule rule = new Rule(name, trigger, actions, -position);
+        if (jsonRule.has("enabled"))
+            rule.setEnabled(jsonRule.getBoolean("enabled"));
+        else
+            rule.setEnabled(true);
+        rules.add(rule);
     }
 
     private void loadHelper(Context ctx, boolean resolve) throws IOException, UnknownObjectException, UnknownChannelException {

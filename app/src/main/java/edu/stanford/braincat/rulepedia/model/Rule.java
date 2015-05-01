@@ -14,6 +14,7 @@ public class Rule {
     private final Trigger trigger;
     private final ArrayList<Action> actions;
     private final int priority;
+    private boolean enabled;
 
     public Rule(String name, Trigger trigger, Collection<Action> actions, int priority) {
         if (actions.size() == 0)
@@ -24,6 +25,15 @@ public class Rule {
         this.actions = new ArrayList<Action>();
         this.actions.addAll(actions);
         this.priority = priority;
+        this.enabled = false;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 
     private String getName() {
@@ -39,14 +49,19 @@ public class Rule {
     }
 
     public void updateTrigger() throws RuleExecutionException {
+        if (!enabled)
+            return;
         trigger.update();
     }
 
     public boolean isFiring() throws RuleExecutionException {
-        return trigger.isFiring();
+        return enabled && trigger.isFiring();
     }
 
     public void fire() throws RuleExecutionException {
+        if (!enabled)
+            throw new IllegalStateException("rule not enabled");
+
         for (Action a : actions)
             a.execute();
     }
