@@ -24,7 +24,7 @@ public class RuleExecutorService extends Service {
     public void onCreate() {
         try {
             database = new RuleDatabase();
-            database.load();
+            database.loadForExecution();
         } catch(Exception e) {
             Log.e(LOG_TAG, "Failed to load database: " + e.getMessage());
             stopSelf();

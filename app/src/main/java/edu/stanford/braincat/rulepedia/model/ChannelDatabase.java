@@ -18,6 +18,10 @@ public abstract class ChannelDatabase<C> {
 
     public abstract void load();
 
+    protected void registerFactory(ChannelFactory<C> factory) {
+        knownFactories.put(factory.getName(), factory);
+    }
+
     public C createChannel(String id, ObjectPool.Object on, HashMap<String, Value> params) throws UnknownObjectException, UnknownChannelException {
         ChannelFactory<C> factory = knownFactories.get(id);
 

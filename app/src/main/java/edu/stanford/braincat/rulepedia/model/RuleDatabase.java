@@ -37,10 +37,17 @@ public class RuleDatabase {
         return Collections.unmodifiableSortedSet(rules);
     }
 
-    public void load() throws IOException, UnknownObjectException, UnknownChannelException {
+    public void loadForExecution() throws IOException, UnknownObjectException, UnknownChannelException {
         triggerdb.load();
         actiondb.load();
 
         // FIXME: actually load the rules
+    }
+
+    public void loadForDisplay() throws IOException, UnknownObjectException, UnknownChannelException {
+        triggerdb.load();
+        actiondb.load();
+
+        // FIXME: actually load the rules, but don't resolve placeholders and trigger values
     }
 }

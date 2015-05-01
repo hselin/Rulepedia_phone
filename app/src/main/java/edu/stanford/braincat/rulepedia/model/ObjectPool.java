@@ -16,13 +16,15 @@ public class ObjectPool {
     public ObjectPool() {
         knownObjects = new HashMap<>();
         knownFactories = new ArrayList<>();
+
+        registerFactory(new InternalObjectFactory());
     }
 
-    public synchronized void registerFactory(ObjectFactory factory) {
+    public void registerFactory(ObjectFactory factory) {
         knownFactories.add(factory);
     }
 
-    public synchronized Object getObject(String url) throws UnknownObjectException {
+    public Object getObject(String url) throws UnknownObjectException {
         Object existing = knownObjects.get(url);
         if (existing != null)
             return existing;
@@ -38,6 +40,21 @@ public class ObjectPool {
     /**
      * Created by gcampagn on 4/30/15.
      */
-    public static class Object {
+    public abstract static class Object {
+        private final String url;
+
+        protected Object(String url) {
+            this.url = url;
+        }
+
+        public String getUrl() {
+            return url;
+        }
+
+        public abstract String toHumanString();
+
+        public abstract String getType();
+
+        public abstract void resolve() throws UnknownObjectException;
     }
 }
