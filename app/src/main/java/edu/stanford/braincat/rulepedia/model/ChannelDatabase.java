@@ -3,6 +3,7 @@ package edu.stanford.braincat.rulepedia.model;
 import java.util.HashMap;
 import java.util.Map;
 
+import edu.stanford.braincat.rulepedia.channels.omdb.OMDBTriggerFactory;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownChannelException;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
 
@@ -33,6 +34,7 @@ public abstract class ChannelDatabase<C> {
 
     public static class TriggerDatabase extends ChannelDatabase<Trigger> {
         public void load() {
+            registerFactory(new OMDBTriggerFactory());
             // TODO: fill me with instantiation of the real trigger factories
         }
     }

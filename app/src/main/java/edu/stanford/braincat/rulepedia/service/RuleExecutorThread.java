@@ -74,7 +74,7 @@ public class RuleExecutorThread extends Thread {
         for (Rule r : database.getAllRules()) {
             try {
                 r.updateTrigger();
-            } catch (IOException e) {
+            } catch (RuleExecutionException e) {
                 // FIXME: notify the user!
                 Log.e(RuleExecutorService.LOG_TAG, "Failed to update the trigger for rule " + r.toHumanString() + ": " + e.getMessage());
             }

@@ -1,9 +1,9 @@
 package edu.stanford.braincat.rulepedia.model;
 
-import java.io.IOException;
 import java.util.Collection;
 
 import edu.stanford.braincat.rulepedia.events.EventSource;
+import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
 
 /**
  * Created by gcampagn on 4/30/15.
@@ -11,9 +11,9 @@ import edu.stanford.braincat.rulepedia.events.EventSource;
 public interface Trigger {
     Collection<EventSource> getEventSources();
 
-    void update() throws IOException;
+    void update() throws RuleExecutionException;
 
-    boolean isFiring();
+    boolean isFiring() throws RuleExecutionException;
 
     String toHumanString();
 }

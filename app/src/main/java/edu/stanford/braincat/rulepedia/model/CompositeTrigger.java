@@ -1,12 +1,12 @@
 package edu.stanford.braincat.rulepedia.model;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
 import edu.stanford.braincat.rulepedia.events.EventSource;
+import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
 
 /**
  * Created by gcampagn on 4/30/15.
@@ -26,7 +26,7 @@ public abstract class CompositeTrigger implements Trigger {
 
     protected abstract String getHumanComposeOp();
 
-    public void update() throws IOException {
+    public void update() throws RuleExecutionException {
         for (Trigger t : children)
             t.update();
     }
@@ -42,7 +42,7 @@ public abstract class CompositeTrigger implements Trigger {
         return sources;
     }
 
-    public boolean isFiring() {
+    public boolean isFiring() throws RuleExecutionException {
         boolean v = compose(children.get(0).isFiring(), children.get(1).isFiring());
         for (int i = 2; i <= children.size(); i++)
             v = compose(v, children.get(i).isFiring());

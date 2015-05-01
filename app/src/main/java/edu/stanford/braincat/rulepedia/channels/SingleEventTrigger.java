@@ -26,9 +26,4 @@ public abstract class SingleEventTrigger implements Trigger {
     public Collection<EventSource> getEventSources() {
         return Arrays.asList(new EventSource[] { source });
     }
-
-    @Override
-    public boolean isFiring() {
-        return source.checkEvent();
-    }
 }

@@ -1,6 +1,5 @@
 package edu.stanford.braincat.rulepedia.model;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -39,11 +38,11 @@ public class Rule {
         return trigger.getEventSources();
     }
 
-    public void updateTrigger() throws IOException {
+    public void updateTrigger() throws RuleExecutionException {
         trigger.update();
     }
 
-    public boolean isFiring() {
+    public boolean isFiring() throws RuleExecutionException {
         return trigger.isFiring();
     }
 

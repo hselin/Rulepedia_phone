@@ -11,6 +11,8 @@ import edu.stanford.braincat.rulepedia.events.TimeoutEventSource;
  * determine that)
  */
 public abstract class PollingTrigger extends SingleEventTrigger {
+    public static final long ONE_DAY = 24 * 3600 * 1000;
+
     protected PollingTrigger(long interval) {
         super(new TimeoutEventSource(interval, true));
     }
