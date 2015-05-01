@@ -9,6 +9,7 @@ import org.json.JSONTokener;
 
 import java.io.BufferedReader;
 import java.io.EOFException;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.CharBuffer;
@@ -152,11 +153,13 @@ public class RuleDatabase {
 
                 for (int i = 0; i < root.length(); i++)
                     loadRule(root.getJSONObject(i), i, resolve);
-            } catch(ClassCastException cce) {
+            } catch (ClassCastException cce) {
                 throw new IOException("Invalid database format on disk", cce);
-            } catch(JSONException je) {
+            } catch (JSONException je) {
                 throw new IOException("Invalid database format on disk", je);
             }
+        } catch(FileNotFoundException fnfe) {
+            // if there is no file, it's all good
         } finally {
             if (file != null)
                 file.close();

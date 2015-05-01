@@ -61,13 +61,13 @@ public class RuleExecutorThread extends Thread {
         eventSources.clear();
     }
 
-    private void waitForNextEvent() throws InterruptedException {
+    private void waitForNextEvent() throws InterruptedException, IOException {
         long timeout = Long.MAX_VALUE;
 
         for (EventSource s : eventSources)
             timeout = Math.min(timeout, s.getTimeout());
 
-        selector.wait(timeout);
+        selector.select(timeout);
     }
 
     private void updateTriggers() {
@@ -103,21 +103,25 @@ public class RuleExecutorThread extends Thread {
     public void run() {
         prepareEventSources();
 
-        while (true) {
-            try {
-                waitForNextEvent();
-            } catch(InterruptedException e) {
-                // got an interrupt, probably some helper thread
+        try {
+            while (true) {
+                try {
+                    waitForNextEvent();
+                } catch (InterruptedException e) {
+                    // got an interrupt, probably some helper thread
+                }
+
+                if (terminationSource.checkEvent())
+                    break;
+
+                updateTriggers();
+                dispatchRules();
+                updateEventSourceState();
             }
-
-            if (terminationSource.checkEvent())
-                break;
-
-            updateTriggers();
-            dispatchRules();
-            updateEventSourceState();
+        } catch(IOException e) {
+            Log.e(RuleExecutorService.LOG_TAG, "IOException while processing rule: " + e.getMessage());
+        } finally {
+            destroyEventSources();
         }
-
-        destroyEventSources();
     }
 }

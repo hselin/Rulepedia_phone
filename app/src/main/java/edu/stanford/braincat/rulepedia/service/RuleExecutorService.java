@@ -22,6 +22,8 @@ public class RuleExecutorService extends Service {
 
     @Override
     public void onCreate() {
+        Log.i(LOG_TAG, "Creating service...");
+
         try {
             database = new RuleDatabase();
             database.loadForExecution(this);
@@ -29,10 +31,14 @@ public class RuleExecutorService extends Service {
             Log.e(LOG_TAG, "Failed to load database: " + e.getMessage());
             stopSelf();
         }
+
+        Log.i(LOG_TAG, "Created service");
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.i(LOG_TAG, "Starting service...");
+
         if (executorThread != null)
             throw new IllegalStateException("Executor thread is already running");
 
@@ -40,6 +46,8 @@ public class RuleExecutorService extends Service {
         try {
             executorThread = new RuleExecutorThread(this, database, terminationSource);
             executorThread.start();
+
+            Log.i(LOG_TAG, "Started service");
 
             // We're a background service and we expect to be running
             // most of the time, so ask the system to keep us alive if
@@ -54,6 +62,8 @@ public class RuleExecutorService extends Service {
 
     @Override
     public void onDestroy() {
+        Log.i(LOG_TAG, "Destroying service...");
+
         terminationSource.fireEvent(null);
         while (executorThread.isAlive()) {
             try {
@@ -62,6 +72,8 @@ public class RuleExecutorService extends Service {
             }
         }
         executorThread = null;
+
+        Log.i(LOG_TAG, "Destroyed service");
     }
 
     @Override

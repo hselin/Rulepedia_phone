@@ -6,6 +6,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import edu.stanford.braincat.rulepedia.R;
+import edu.stanford.braincat.rulepedia.service.AutoStarter;
 
 public class InstallRuleActivity extends ActionBarActivity {
 
@@ -13,6 +14,9 @@ public class InstallRuleActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_install_rule);
+
+        // ensure the service is running
+        AutoStarter.startService(this);
     }
 
 
