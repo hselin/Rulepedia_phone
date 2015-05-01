@@ -1,5 +1,6 @@
 package edu.stanford.braincat.rulepedia.model;
 
+import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -11,12 +12,22 @@ import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
  * Handles internal objects (placeholders, trigger values, etc.)
  */
 public class InternalObjectFactory extends ObjectFactory {
+    private static abstract class PredefinedObjectFactory {
+        public abstract ObjectPool.Object create();
+    }
+
+    private final HashMap<String, PredefinedObjectFactory> predefinedObjects;
+    private final Pattern predefinedPattern;
     private final Pattern placeholderPattern;
 
     public InternalObjectFactory() {
-        super("rulepedia:/");
+        super("rulepedia:");
 
-        placeholderPattern = Pattern.compile("^rulepedia:/placeholder/object/([a-b-]+)$");
+        predefinedPattern = Pattern.compile("^rulepedia:predefined/object/([a-b-]+)$");
+        placeholderPattern = Pattern.compile("^rulepedia:placeholder/object/([a-b-]+)$");
+
+        predefinedObjects = new HashMap<>();
+        // FIXME: fill with predefined stuff like weather or phone
     }
 
     public String getName() {
@@ -25,6 +36,16 @@ public class InternalObjectFactory extends ObjectFactory {
 
     public ObjectPool.Object create(String url) throws UnknownObjectException {
         Matcher m;
+
+        m = predefinedPattern.matcher(url);
+        if (m.matches()) {
+            String id = m.group(1);
+            ObjectPool.Object object = predefinedObjects.get(id).create();
+            if (object == null)
+                throw new UnknownObjectException(url);
+
+            return object;
+        }
 
         m = placeholderPattern.matcher(url);
         if (m.matches()) {
