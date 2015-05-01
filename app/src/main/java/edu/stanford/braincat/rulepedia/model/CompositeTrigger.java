@@ -60,7 +60,7 @@ public abstract class CompositeTrigger implements Trigger {
         return builder.toString();
     }
 
-    public class Or extends CompositeTrigger {
+    public static class Or extends CompositeTrigger {
         public Or(Collection<Trigger> children) {
             super(children);
         }
@@ -74,7 +74,7 @@ public abstract class CompositeTrigger implements Trigger {
         protected String getHumanComposeOp() { return " or "; }
     }
 
-    public class And extends CompositeTrigger {
+    public static class And extends CompositeTrigger {
         public And(Collection<Trigger> children) {
             super(children);
         }

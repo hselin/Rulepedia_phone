@@ -22,13 +22,13 @@ public abstract class ChannelDatabase<C> {
         knownFactories.put(factory.getName(), factory);
     }
 
-    public C createChannel(String id, ObjectPool.Object on, HashMap<String, Value> params) throws UnknownObjectException, UnknownChannelException {
+    public C createChannel(String id, String method, ObjectPool.Object on, Map<String, Value> params) throws UnknownObjectException, UnknownChannelException {
         ChannelFactory<C> factory = knownFactories.get(id);
 
         if (factory == null)
             throw new UnknownChannelException(id);
 
-        return factory.createChannel(on, params);
+        return factory.createChannel(method, on, params);
     }
 
     public static class TriggerDatabase extends ChannelDatabase<Trigger> {

@@ -8,5 +8,5 @@ import java.util.Map;
 public abstract class ChannelFactory<C> {
     public abstract String getName();
 
-    public abstract C createChannel(ObjectPool.Object object, Map<String, Value> params);
+    public abstract C createChannel(String method, ObjectPool.Object object, Map<String, Value> params);
 }

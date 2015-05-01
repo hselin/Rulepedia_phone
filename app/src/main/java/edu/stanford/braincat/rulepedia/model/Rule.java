@@ -11,18 +11,24 @@ import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
  * Created by gcampagn on 4/30/15.
  */
 public class Rule {
+    private final String name;
     private final Trigger trigger;
     private final ArrayList<Action> actions;
     private final int priority;
 
-    public Rule(Trigger trigger, Collection<Action> actions, int priority) {
+    public Rule(String name, Trigger trigger, Collection<Action> actions, int priority) {
         if (actions.size() == 0)
             throw new IllegalArgumentException("a rule must have at least one action");
 
+        this.name = name;
         this.trigger = trigger;
         this.actions = new ArrayList<Action>();
         this.actions.addAll(actions);
         this.priority = priority;
+    }
+
+    private String getName() {
+        return name;
     }
 
     public int getPriority() {
