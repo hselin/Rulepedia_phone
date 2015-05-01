@@ -11,14 +11,14 @@ import edu.stanford.braincat.rulepedia.model.Trigger;
  *
  * Helper code for triggers that have only one associated event source.
  */
-public abstract class SingleEventTrigger implements Trigger {
-    private final EventSource source;
+public abstract class SingleEventTrigger<K extends EventSource> implements Trigger {
+    private final K source;
 
-    protected SingleEventTrigger(EventSource source) {
+    protected SingleEventTrigger(K source) {
         this.source = source;
     }
 
-    protected EventSource getSource() {
+    protected K getSource() {
         return source;
     }
 

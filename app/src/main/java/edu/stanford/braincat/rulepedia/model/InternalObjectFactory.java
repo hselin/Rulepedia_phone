@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import edu.stanford.braincat.rulepedia.channels.sms.SMSChannel;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
 
 /**
@@ -27,6 +28,12 @@ public class InternalObjectFactory extends ObjectFactory {
         placeholderPattern = Pattern.compile("^rulepedia:placeholder/object/([a-b-]+)$");
 
         predefinedObjects = new HashMap<>();
+        predefinedObjects.put(SMSChannel.ID, new PredefinedObjectFactory() {
+            @Override
+            public ObjectPool.Object create() {
+                return new SMSChannel();
+            }
+        });
         // FIXME: fill with predefined stuff like weather or phone
     }
 

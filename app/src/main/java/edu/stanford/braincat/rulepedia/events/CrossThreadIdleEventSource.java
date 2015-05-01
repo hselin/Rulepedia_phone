@@ -26,7 +26,7 @@ public class CrossThreadIdleEventSource implements EventSource {
     }
 
     @Override
-    public void uninstall() throws IOException {
+    public synchronized void uninstall() throws IOException {
         runningThread = null;
     }
 

@@ -11,8 +11,8 @@ import edu.stanford.braincat.rulepedia.events.EventSource;
  * The trigger will keep firing or not according to the behavior
  * of the event source (edge triggered vs level trigger)
  */
-public abstract class SimpleEventTrigger extends SingleEventTrigger {
-    protected SimpleEventTrigger(EventSource source) {
+public abstract class SimpleEventTrigger<K extends EventSource> extends SingleEventTrigger<K> {
+    protected SimpleEventTrigger(K source) {
         super(source);
     }
 

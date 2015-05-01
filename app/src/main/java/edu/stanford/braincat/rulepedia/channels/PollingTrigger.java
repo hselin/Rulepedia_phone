@@ -10,7 +10,7 @@ import edu.stanford.braincat.rulepedia.events.TimeoutEventSource;
  * to the subclass, which probably will do something in update() to
  * determine that)
  */
-public abstract class PollingTrigger extends SingleEventTrigger {
+public abstract class PollingTrigger extends SingleEventTrigger<TimeoutEventSource> {
     public static final long ONE_DAY = 24 * 3600 * 1000;
 
     protected PollingTrigger(long interval) {

@@ -142,6 +142,8 @@ public class RuleDatabase {
 
                 for (int i = 0; i < root.length(); i++)
                     loadRule(root.getJSONObject(i), i, resolve);
+            } catch (NullPointerException npe) {
+                throw new IOException("Invalid database format on disk", npe);
             } catch (ClassCastException cce) {
                 throw new IOException("Invalid database format on disk", cce);
             } catch (JSONException je) {

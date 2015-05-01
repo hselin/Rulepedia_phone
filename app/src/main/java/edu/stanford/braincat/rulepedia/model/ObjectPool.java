@@ -64,6 +64,8 @@ public class ObjectPool {
 
         public abstract String getType();
 
-        public abstract void resolve() throws UnknownObjectException;
+        public void resolve() throws UnknownObjectException {
+            // nothing to do
+        }
     }
 }

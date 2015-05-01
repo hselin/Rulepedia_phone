@@ -43,11 +43,6 @@ public class OMDBObject extends RefreshableObject {
         return OMDBObjectFactory.ID;
     }
 
-    @Override
-    public void resolve() {
-        // nothing to do
-    }
-
     private void checkData() throws RuleExecutionException {
         if (!hasData)
             throw new RuleExecutionException("Movie data not available");
