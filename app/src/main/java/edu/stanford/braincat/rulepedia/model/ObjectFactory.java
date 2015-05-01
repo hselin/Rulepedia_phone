@@ -16,5 +16,5 @@ public abstract class ObjectFactory {
         return pattern.matcher(url).matches();
     }
 
-    public abstract ObjectDatabase.Object create(String url);
+    public abstract ObjectPool.Object create(String url);
 }

@@ -9,11 +9,11 @@ import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
 /**
  * Created by gcampagn on 4/30/15.
  */
-public class ObjectDatabase {
+public class ObjectPool {
     private final Map<String, Object> knownObjects;
     private final ArrayList<ObjectFactory> knownFactories;
 
-    public ObjectDatabase() {
+    public ObjectPool() {
         knownObjects = new HashMap<>();
         knownFactories = new ArrayList<>();
     }
