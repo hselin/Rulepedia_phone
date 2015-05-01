@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
+
 /**
  * Created by gcampagn on 4/30/15.
  */
@@ -20,7 +22,7 @@ public class ObjectDatabase {
         knownFactories.add(factory);
     }
 
-    public synchronized Object getObject(String url) {
+    public synchronized Object getObject(String url) throws UnknownObjectException {
         Object existing = knownObjects.get(url);
         if (existing != null)
             return existing;
@@ -29,6 +31,8 @@ public class ObjectDatabase {
             if (factory.acceptsURL(url))
                 return factory.create(url);
         }
+
+        throw new UnknownObjectException(url);
     }
 
     /**

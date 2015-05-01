@@ -9,4 +9,6 @@ import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
  */
 public abstract class AbstractAction {
     public abstract void invoke(ObjectDatabase.Object on, Map<String, Value> params) throws RuleExecutionException;
+
+    public abstract String toHumanString(ObjectDatabase.Object on, Map<String, Value> params);
 }

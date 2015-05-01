@@ -1,9 +1,10 @@
 package edu.stanford.braincat.rulepedia.model;
 
-import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
-
 import java.util.ArrayList;
 import java.util.Collection;
+
+import edu.stanford.braincat.rulepedia.events.EventSource;
+import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
 
 /**
  * Created by gcampagn on 4/30/15.
@@ -11,11 +12,24 @@ import java.util.Collection;
 public class Rule {
     private final Trigger trigger;
     private final ArrayList<Action> actions;
+    private final int priority;
 
-    public Rule(Trigger trigger, Collection<Action> actions) {
+    public Rule(Trigger trigger, Collection<Action> actions, int priority) {
+        if (actions.size() == 0)
+            throw new IllegalArgumentException("a rule must have at least one action");
+
         this.trigger = trigger;
         this.actions = new ArrayList<Action>();
         this.actions.addAll(actions);
+        this.priority = priority;
+    }
+
+    public int getPriority() {
+        return priority;
+    }
+
+    public Collection<EventSource> getEventSources() {
+        return trigger.getEventSources();
     }
 
     public boolean isFiring() {
@@ -25,5 +39,19 @@ public class Rule {
     public void fire() throws RuleExecutionException {
         for (Action a : actions)
             a.execute();
+    }
+
+    public String toHumanString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("when ");
+        builder.append(trigger.toHumanString());
+        builder.append(", do ");
+        builder.append(actions.get(0).toHumanString());
+        for (int i = 1; i < actions.size(); i++) {
+            builder.append(" and ");
+            builder.append(actions.get(i).toHumanString());
+        }
+
+        return builder.toString();
     }
 }

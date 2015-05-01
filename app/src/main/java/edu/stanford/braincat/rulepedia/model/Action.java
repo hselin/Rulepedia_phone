@@ -1,7 +1,5 @@
 package edu.stanford.braincat.rulepedia.model;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,5 +22,9 @@ public class Action {
 
     public void execute() throws RuleExecutionException {
         abstractAction.invoke(object, params);
+    }
+
+    public String toHumanString() {
+        return abstractAction.toHumanString(object, params);
     }
 }
