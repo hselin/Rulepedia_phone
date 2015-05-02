@@ -12,6 +12,8 @@ import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
 public abstract class ChannelFactory<C> {
     public abstract String getName();
 
+    public abstract Class<? extends Value> getParamType(String method, String name) throws UnknownChannelException, TriggerValueTypeException;
+
     public abstract C createChannel(String method, ObjectPool.Object object, Map<String, Value> params) throws
             UnknownObjectException, UnknownChannelException, TriggerValueTypeException;
 }

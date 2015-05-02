@@ -2,6 +2,7 @@ package edu.stanford.braincat.rulepedia.channels.omdb;
 
 import java.util.Map;
 
+import edu.stanford.braincat.rulepedia.exceptions.TriggerValueTypeException;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownChannelException;
 import edu.stanford.braincat.rulepedia.model.ChannelFactory;
 import edu.stanford.braincat.rulepedia.model.ObjectPool;
@@ -15,6 +16,11 @@ public class OMDBTriggerFactory extends ChannelFactory<Trigger> {
     @Override
     public String getName() {
         return OMDBObjectFactory.ID;
+    }
+
+    @Override
+    public Class<? extends Value> getParamType(String method, String name) throws TriggerValueTypeException {
+        throw new TriggerValueTypeException("this trigger has no parameters");
     }
 
     @Override

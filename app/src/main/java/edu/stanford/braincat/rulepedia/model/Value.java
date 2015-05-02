@@ -3,8 +3,6 @@ package edu.stanford.braincat.rulepedia.model;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 import edu.stanford.braincat.rulepedia.exceptions.TriggerValueTypeException;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
@@ -13,39 +11,6 @@ import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
  * Created by gcampagn on 4/30/15.
  */
 public abstract class Value {
-    public static class Mapper {
-        private static final Map<String, String> classNames = createClassNameMap();
-
-        private static Map<String, String> createClassNameMap() {
-            Map<String, String> map = new HashMap<>();
-
-            // Keep these in sync with the website!
-            map.put("object", Object.class.getCanonicalName());
-            map.put(Text.ID, Text.class.getCanonicalName()); // single line text
-            map.put("textarea", Text.class.getCanonicalName()); // multiline text
-            map.put(Number.ID, Number.class.getCanonicalName());
-            //map.put("picture", Picture.class.getCanonicalName());
-            map.put(Contact.ID, Contact.class.getCanonicalName());
-            //map.put("message-destination", MessageDestination.class.getCanonicalName());
-            //map.put("temperature", Temperature.class.getCanonicalName());
-            map.put("select", Select.class.getCanonicalName());
-
-            return map;
-        }
-
-        public static Class<? extends Value> getValueType(String typeName) throws TriggerValueTypeException {
-            String className = classNames.get(typeName);
-            if (className == null)
-                throw new TriggerValueTypeException("unknown type " + typeName);
-
-            try {
-                return (Class<? extends Value>) ClassLoader.getSystemClassLoader().loadClass(className);
-            } catch (ClassNotFoundException cnfe) {
-                throw new TriggerValueTypeException(cnfe);
-            }
-        }
-    }
-
     public void typeCheck(Class<? extends Value> expected) throws TriggerValueTypeException {
         if (!getClass().equals(expected))
             throw new TriggerValueTypeException("invalid value type, expected " + expected.getCanonicalName());
@@ -70,9 +35,9 @@ public abstract class Value {
         private final String name;
         private final Class<? extends Value> type;
 
-        public TriggerValue(String name, String subType) throws TriggerValueTypeException {
+        public TriggerValue(String name, Class<? extends Value> type) throws TriggerValueTypeException {
             this.name = name;
-            this.type = Mapper.getValueType(subType);
+            this.type = type;
         }
 
         // we don't override typeCheck() without a trigger, because if we don't

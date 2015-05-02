@@ -9,6 +9,7 @@ import org.json.JSONObject;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -54,9 +55,34 @@ public class RuleDatabase {
         return Collections.unmodifiableSortedSet(rules);
     }
 
-    private Map<String, Value> parseParams(JSONArray jsonParams) {
-        // TODO: implement me
-        return new HashMap<>();
+    private Value parseParam(ChannelFactory<?> factory, String method, String name, JSONObject jsonParam) throws
+            JSONException, UnknownChannelException, TriggerValueTypeException {
+        Class<? extends Value> valueType = factory.getParamType(method, name);
+
+        if (jsonParam.has("trigger-value")) {
+            return new Value.TriggerValue(jsonParam.getString("trigger-value"), valueType);
+        } else {
+            try {
+                return (Value)valueType.getMethod("fromString", String.class).invoke(null, jsonParam.getString("value"));
+            } catch(IllegalAccessException|InvocationTargetException|NoSuchMethodException|ClassCastException e) {
+                throw new AssertionError(e);
+            }
+        }
+    }
+
+    private Map<String, Value> parseParams(ChannelFactory<?> factory, String method, JSONArray jsonParams) throws
+            JSONException, UnknownChannelException, TriggerValueTypeException {
+        Map<String, Value> params = new HashMap<>();
+
+        for (int i = 0; i < jsonParams.length(); i++) {
+            JSONObject jsonParam = jsonParams.getJSONObject(i);
+
+            String name = jsonParam.getString("name");
+            Value value = parseParam(factory, method, name, jsonParam);
+            params.put(name, value);
+        }
+
+        return params;
     }
 
     private Trigger parseCompositeTrigger(JSONObject jsonTrigger, boolean resolve) throws
@@ -89,7 +115,8 @@ public class RuleDatabase {
         if (resolve)
             object.resolve();
 
-        return triggerdb.createChannel(object.getType(), method, object, parseParams(jsonTrigger.getJSONArray("params")));
+        ChannelFactory<Trigger> factory = triggerdb.getChannelFactory(object.getType());
+        return factory.createChannel(method, object, parseParams(factory, method, jsonTrigger.getJSONArray("params")));
     }
 
     private Trigger parseTrigger(JSONObject jsonTrigger, boolean resolve) throws
@@ -109,7 +136,8 @@ public class RuleDatabase {
         if (resolve)
             object.resolve();
 
-        return actiondb.createChannel(object.getType(), method, object, parseParams(jsonAction.getJSONArray("params")));
+        ChannelFactory<Action> factory = actiondb.getChannelFactory(object.getType());
+        return factory.createChannel(method, object, parseParams(factory, method, jsonAction.getJSONArray("params")));
     }
 
     private Collection<Action> parseActionList(JSONArray jsonActions, boolean resolve) throws

@@ -3,6 +3,7 @@ package edu.stanford.braincat.rulepedia.channels.sms;
 import java.util.Map;
 
 import edu.stanford.braincat.rulepedia.channels.interfaces.Messaging;
+import edu.stanford.braincat.rulepedia.exceptions.TriggerValueTypeException;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownChannelException;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
 import edu.stanford.braincat.rulepedia.model.ChannelFactory;
@@ -17,6 +18,11 @@ public class SMSTriggerFactory extends ChannelFactory<Trigger> {
     @Override
     public String getName() {
         return SMSChannel.ID;
+    }
+
+    @Override
+    public Class<? extends Value> getParamType(String method, String name) throws TriggerValueTypeException {
+        throw new TriggerValueTypeException("this trigger has no parameters");
     }
 
     @Override

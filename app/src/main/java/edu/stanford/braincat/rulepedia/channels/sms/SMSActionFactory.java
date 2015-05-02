@@ -3,6 +3,7 @@ package edu.stanford.braincat.rulepedia.channels.sms;
 import java.util.Map;
 
 import edu.stanford.braincat.rulepedia.channels.interfaces.Messaging;
+import edu.stanford.braincat.rulepedia.exceptions.TriggerValueTypeException;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownChannelException;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
 import edu.stanford.braincat.rulepedia.model.Action;
@@ -27,6 +28,24 @@ public class SMSActionFactory extends ChannelFactory<Action> {
         switch (method) {
             case Messaging.SEND_MESSAGE:
                 return new SMSSendMessageAction(sms, params.get("destination"), params.get("content"));
+
+            default:
+                throw new UnknownChannelException(method);
+        }
+    }
+
+    @Override
+    public Class<? extends Value> getParamType(String method, String name) throws UnknownChannelException, TriggerValueTypeException {
+        switch (method) {
+            case Messaging.SEND_MESSAGE:
+            switch (name) {
+                case Messaging.DESTINATION:
+                    return Value.Contact.class;
+                case Messaging.MESSAGE:
+                    return Value.Text.class;
+                default:
+                    throw new TriggerValueTypeException("unknown parameter " + name);
+            }
 
             default:
                 throw new UnknownChannelException(method);
