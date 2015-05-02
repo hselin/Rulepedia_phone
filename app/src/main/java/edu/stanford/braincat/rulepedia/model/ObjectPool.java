@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import edu.stanford.braincat.rulepedia.channels.omdb.OMDBObjectFactory;
+import edu.stanford.braincat.rulepedia.channels.sms.SMSContactFactory;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
 
 /**
@@ -26,6 +28,8 @@ public class ObjectPool {
         knownFactories = new ArrayList<>();
 
         registerFactory(new InternalObjectFactory());
+        registerFactory(new SMSContactFactory());
+        registerFactory(new OMDBObjectFactory());
     }
 
     public void registerFactory(ObjectFactory factory) {
