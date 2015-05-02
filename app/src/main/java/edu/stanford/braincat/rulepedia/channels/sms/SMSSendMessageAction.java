@@ -1,7 +1,9 @@
 package edu.stanford.braincat.rulepedia.channels.sms;
 
-import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
+import android.telephony.SmsManager;
+
 import edu.stanford.braincat.rulepedia.exceptions.TriggerValueTypeException;
+import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
 import edu.stanford.braincat.rulepedia.model.Action;
 import edu.stanford.braincat.rulepedia.model.ObjectPool;
 import edu.stanford.braincat.rulepedia.model.Trigger;
@@ -28,7 +30,13 @@ public class SMSSendMessageAction implements Action {
     }
 
     @Override
-    public void execute(ObjectPool pool, Trigger trigger) throws RuleExecutionException {
+    public void execute(ObjectPool pool, Trigger trigger) throws UnknownObjectException {
+        Value.Contact resolvedDestination = (Value.Contact) destination.resolve(pool, trigger);
+        Value.Text resolvedMessage = (Value.Text) message.resolve(pool, trigger);
+
+        SmsManager smsManager = SmsManager.getDefault();
+
+        smsManager.sendTextMessage(resolvedDestination.getContact(), null, resolvedMessage.getText(), null, null);
     }
 
     @Override

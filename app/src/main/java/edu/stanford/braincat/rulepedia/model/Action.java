@@ -2,6 +2,7 @@ package edu.stanford.braincat.rulepedia.model;
 
 import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
 import edu.stanford.braincat.rulepedia.exceptions.TriggerValueTypeException;
+import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
 
 /**
  * Created by gcampagn on 4/30/15.
@@ -9,7 +10,7 @@ import edu.stanford.braincat.rulepedia.exceptions.TriggerValueTypeException;
 public interface Action {
     void typeCheck(Trigger trigger) throws TriggerValueTypeException;
 
-    void execute(ObjectPool pool, Trigger trigger) throws RuleExecutionException;
+    void execute(ObjectPool pool, Trigger trigger) throws UnknownObjectException, RuleExecutionException;
 
     String toHumanString();
 }

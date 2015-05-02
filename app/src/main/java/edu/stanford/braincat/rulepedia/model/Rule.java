@@ -5,6 +5,7 @@ import java.util.Collection;
 
 import edu.stanford.braincat.rulepedia.events.EventSource;
 import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
+import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
 
 /**
  * Created by gcampagn on 4/30/15.
@@ -62,8 +63,12 @@ public class Rule {
         if (!enabled)
             throw new IllegalStateException("rule not enabled");
 
-        for (Action a : actions)
-            a.execute(objectdb, trigger);
+        try {
+            for (Action a : actions)
+                a.execute(objectdb, trigger);
+        } catch(UnknownObjectException uoe) {
+            throw new RuleExecutionException(uoe);
+        }
     }
 
     public String toHumanString() {
