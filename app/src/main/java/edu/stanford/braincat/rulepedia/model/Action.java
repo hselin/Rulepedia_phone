@@ -10,7 +10,7 @@ import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
 public interface Action {
     void typeCheck(Trigger trigger) throws TriggerValueTypeException;
 
-    void execute(ObjectPool pool, Trigger trigger) throws UnknownObjectException, RuleExecutionException;
+    void execute(Trigger trigger) throws UnknownObjectException, RuleExecutionException;
 
     String toHumanString();
 }

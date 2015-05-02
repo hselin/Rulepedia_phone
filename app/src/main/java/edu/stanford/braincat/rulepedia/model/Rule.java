@@ -59,13 +59,13 @@ public class Rule {
         return enabled && trigger.isFiring();
     }
 
-    public void fire(ObjectPool objectdb) throws RuleExecutionException {
+    public void fire() throws RuleExecutionException {
         if (!enabled)
             throw new IllegalStateException("rule not enabled");
 
         try {
             for (Action a : actions)
-                a.execute(objectdb, trigger);
+                a.execute(trigger);
         } catch(UnknownObjectException uoe) {
             throw new RuleExecutionException(uoe);
         }

@@ -40,7 +40,7 @@ public class SMSActionFactory extends ChannelFactory<Action> {
             case Messaging.SEND_MESSAGE:
             switch (name) {
                 case Messaging.DESTINATION:
-                    return Value.Contact.class;
+                    return Value.Object.class;
                 case Messaging.MESSAGE:
                     return Value.Text.class;
                 default:

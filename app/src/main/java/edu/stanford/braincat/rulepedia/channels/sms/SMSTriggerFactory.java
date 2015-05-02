@@ -21,8 +21,21 @@ public class SMSTriggerFactory extends ChannelFactory<Trigger> {
     }
 
     @Override
-    public Class<? extends Value> getParamType(String method, String name) throws TriggerValueTypeException {
-        throw new TriggerValueTypeException("this trigger has no parameters");
+    public Class<? extends Value> getParamType(String method, String name) throws UnknownChannelException, TriggerValueTypeException {
+        switch (method) {
+            case Messaging.MESSAGE_RECEIVED:
+                switch (name) {
+                    case Messaging.SENDER_MATCHES:
+                        return Value.Object.class;
+                    case Messaging.CONTENT_CONTAINS:
+                        return Value.Text.class;
+                    default:
+                        throw new TriggerValueTypeException("unknown parameter " + name);
+                }
+
+            default:
+                throw new UnknownChannelException(method);
+        }
     }
 
     @Override
@@ -31,7 +44,7 @@ public class SMSTriggerFactory extends ChannelFactory<Trigger> {
 
         switch (method) {
             case Messaging.MESSAGE_RECEIVED:
-                return new SMSMessageReceivedTrigger(sms);
+                return new SMSMessageReceivedTrigger(sms, params.get(Messaging.CONTENT_CONTAINS), params.get(Messaging.SENDER_MATCHES));
 
             default:
                 throw new UnknownChannelException(method);

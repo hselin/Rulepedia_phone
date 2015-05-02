@@ -21,11 +21,11 @@ public abstract class Value {
     }
 
 
-    public Value resolve(ObjectPool pool, Trigger trigger) throws UnknownObjectException {
+    public Value resolve(Trigger trigger) throws UnknownObjectException {
         return this;
     }
 
-    public Value resolve(ObjectPool pool) throws UnknownObjectException {
+    public Value resolve() throws UnknownObjectException {
         return this;
     }
 
@@ -53,8 +53,8 @@ public abstract class Value {
         // we don't override resolve() without a trigger
         // we should have failed to typecheck anyway
         @Override
-        public Value resolve(ObjectPool pool, Trigger trigger) throws UnknownObjectException {
-            return trigger.getProducedValue(name).resolve(pool, trigger);
+        public Value resolve(Trigger trigger) throws UnknownObjectException {
+            return trigger.getProducedValue(name).resolve(trigger);
         }
     }
 
@@ -97,35 +97,13 @@ public abstract class Value {
         // FIXME: typechecking for objects? right now we would just say "object"
 
         @Override
-        public Value resolve(ObjectPool pool) throws UnknownObjectException {
-            return new DirectObject(pool.getObject(url));
+        public Value resolve() throws UnknownObjectException {
+            return new DirectObject(ObjectPool.get().getObject(url));
         }
 
         @Override
-        public Value resolve(ObjectPool pool, Trigger trigger) throws UnknownObjectException {
-            return new DirectObject(pool.getObject(url)).resolve(pool, trigger);
-        }
-    }
-
-    public static class Contact extends Value {
-        public static final String ID = "contact";
-
-        private final String rep;
-
-        public Contact(String rep) {
-            this.rep = rep;
-        }
-
-        public static Contact fromString(String string) {
-            return new Contact(string);
-        }
-
-        public String toString() {
-            return rep;
-        }
-
-        public String getContact() {
-            return rep;
+        public Value resolve(Trigger trigger) throws UnknownObjectException {
+            return new DirectObject(ObjectPool.get().getObject(url)).resolve(trigger);
         }
     }
 

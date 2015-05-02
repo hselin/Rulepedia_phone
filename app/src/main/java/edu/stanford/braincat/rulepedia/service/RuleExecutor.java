@@ -88,7 +88,7 @@ public class RuleExecutor extends Handler {
         for (Rule r : database.getAllRules()) {
             try {
                 if (r.isFiring())
-                    r.fire(database.getObjectPool());
+                    r.fire();
             } catch (RuleExecutionException e) {
                 Log.e(RuleExecutorService.LOG_TAG, "Failed to run rule " + r.toHumanString() + ": " + e.getMessage());
             }

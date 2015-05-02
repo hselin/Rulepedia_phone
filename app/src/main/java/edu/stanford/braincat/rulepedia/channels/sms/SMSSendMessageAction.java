@@ -5,7 +5,6 @@ import android.telephony.SmsManager;
 import edu.stanford.braincat.rulepedia.exceptions.TriggerValueTypeException;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
 import edu.stanford.braincat.rulepedia.model.Action;
-import edu.stanford.braincat.rulepedia.model.ObjectPool;
 import edu.stanford.braincat.rulepedia.model.Trigger;
 import edu.stanford.braincat.rulepedia.model.Value;
 
@@ -25,18 +24,23 @@ public class SMSSendMessageAction implements Action {
 
     @Override
     public void typeCheck(Trigger trigger) throws TriggerValueTypeException {
-        destination.typeCheck(trigger, Value.Contact.class);
+        destination.typeCheck(trigger, Value.Object.class);
         message.typeCheck(trigger, Value.Text.class);
     }
 
     @Override
-    public void execute(ObjectPool pool, Trigger trigger) throws UnknownObjectException {
-        Value.Contact resolvedDestination = (Value.Contact) destination.resolve(pool, trigger);
-        Value.Text resolvedMessage = (Value.Text) message.resolve(pool, trigger);
+    public void execute(Trigger trigger) throws UnknownObjectException {
+        Value.DirectObject resolvedDestination = (Value.DirectObject) destination.resolve(trigger);
+        Value.Text resolvedMessage = (Value.Text) message.resolve(trigger);
 
         SmsManager smsManager = SmsManager.getDefault();
 
-        smsManager.sendTextMessage(resolvedDestination.getContact(), null, resolvedMessage.getText(), null, null);
+        try {
+            SMSContact smsContact = (SMSContact) resolvedDestination.getObject();
+            smsManager.sendTextMessage(smsContact.getAddress(), null, resolvedMessage.getText(), null, null);
+        } catch(ClassCastException e) {
+            throw new UnknownObjectException(resolvedDestination.getObject().getUrl());
+        }
     }
 
     @Override

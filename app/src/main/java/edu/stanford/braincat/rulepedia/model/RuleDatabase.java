@@ -31,7 +31,6 @@ public class RuleDatabase {
     private final SortedSet<Rule> rules;
     private final ChannelDatabase<Trigger> triggerdb;
     private final ChannelDatabase<Action> actiondb;
-    private final ObjectPool objectdb;
 
     public RuleDatabase() {
         rules = new TreeSet<>(new Comparator<Rule>() {
@@ -42,13 +41,8 @@ public class RuleDatabase {
             }
         });
 
-        objectdb = new ObjectPool();
         triggerdb = new ChannelDatabase.TriggerDatabase();
         actiondb = new ChannelDatabase.ActionDatabase();
-    }
-
-    public ObjectPool getObjectPool() {
-        return objectdb;
     }
 
     public Collection<Rule> getAllRules() {
@@ -111,7 +105,7 @@ public class RuleDatabase {
         String objectUrl = jsonTrigger.getString("object");
         String method = jsonTrigger.getString("trigger");
 
-        ObjectPool.Object object = objectdb.getObject(objectUrl);
+        ObjectPool.Object object = ObjectPool.get().getObject(objectUrl);
         if (resolve)
             object.resolve();
 
@@ -132,7 +126,7 @@ public class RuleDatabase {
         String objectUrl = jsonAction.getString("object");
         String method = jsonAction.getString("method");
 
-        ObjectPool.Object object = objectdb.getObject(objectUrl);
+        ObjectPool.Object object = ObjectPool.get().getObject(objectUrl);
         if (resolve)
             object.resolve();
 

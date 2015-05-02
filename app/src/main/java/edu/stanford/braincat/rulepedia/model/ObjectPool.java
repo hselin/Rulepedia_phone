@@ -15,7 +15,13 @@ public class ObjectPool {
     private final Map<String, Object> knownObjects;
     private final ArrayList<ObjectFactory> knownFactories;
 
-    public ObjectPool() {
+    private static final ObjectPool instance = new ObjectPool();
+
+    public static ObjectPool get() {
+        return instance;
+    }
+
+    private ObjectPool() {
         knownObjects = new HashMap<>();
         knownFactories = new ArrayList<>();
 
@@ -66,6 +72,22 @@ public class ObjectPool {
 
         public void resolve() throws UnknownObjectException {
             // nothing to do
+        }
+
+        @Override
+        public boolean equals(java.lang.Object object) {
+            if (object == null)
+                return false;
+            if (object == this)
+                return true;
+            if (!(object instanceof Object))
+                return false;
+            return url.equals(((Object) object).getUrl());
+        }
+
+        @Override
+        public int hashCode() {
+            return url.hashCode();
         }
     }
 }
