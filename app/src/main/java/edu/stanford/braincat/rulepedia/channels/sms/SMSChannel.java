@@ -8,6 +8,8 @@ import edu.stanford.braincat.rulepedia.model.ObjectPool;
 public class SMSChannel extends ObjectPool.Object {
     public static final String ID = "sms";
 
+    private SMSEventSource eventSource;
+
     public SMSChannel() {
         super("rulepedia:predefined/object/sms");
     }
@@ -20,5 +22,16 @@ public class SMSChannel extends ObjectPool.Object {
     @Override
     public String getType() {
         return ID;
+    }
+
+    private void ensureEventSource() {
+        if (eventSource != null)
+            return;
+        eventSource = new SMSEventSource();
+    }
+
+    public SMSEventSource getEventSource() {
+        ensureEventSource();
+        return eventSource;
     }
 }

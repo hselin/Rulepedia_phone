@@ -11,7 +11,7 @@ public class SMSMessageReceivedTrigger extends SimpleEventTrigger<SMSEventSource
     private SmsMessage receivedMessage;
 
     public SMSMessageReceivedTrigger(SMSChannel channel) {
-        super(new SMSEventSource(channel));
+        super(channel.getEventSource());
     }
 
     @Override

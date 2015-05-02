@@ -3,16 +3,14 @@ package edu.stanford.braincat.rulepedia.service;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
+import android.os.Looper;
 import android.util.Log;
 
-import java.io.IOException;
-
-import edu.stanford.braincat.rulepedia.events.CrossThreadIdleEventSource;
 import edu.stanford.braincat.rulepedia.model.RuleDatabase;
 
 public class RuleExecutorService extends Service {
-    private Thread executorThread;
-    private CrossThreadIdleEventSource terminationSource;
+    private RuleExecutorThread executorThread;
+    private Looper executorLooper;
     private RuleDatabase database;
 
     public static final String LOG_TAG = "rulepedia.Service";
@@ -27,7 +25,7 @@ public class RuleExecutorService extends Service {
         try {
             database = new RuleDatabase();
             database.loadForExecution(this);
-        } catch(Exception e) {
+        } catch (Exception e) {
             Log.e(LOG_TAG, "Failed to load database: " + e.getMessage());
             stopSelf();
         }
@@ -42,33 +40,37 @@ public class RuleExecutorService extends Service {
         if (executorThread != null)
             throw new IllegalStateException("Executor thread is already running");
 
-        terminationSource = new CrossThreadIdleEventSource();
-        try {
-            executorThread = new RuleExecutorThread(this, database, terminationSource);
-            executorThread.start();
+        executorThread = new RuleExecutorThread(this, database);
+        executorThread.start();
 
-            Log.i(LOG_TAG, "Started service");
-
-            // We're a background service and we expect to be running
-            // most of the time, so ask the system to keep us alive if
-            // memory is not a problem
-            return START_STICKY;
-        } catch(IOException e) {
-            Log.e(LOG_TAG, "Failed to start execution thread: " + e.getMessage());
-            stopSelf();
-            return START_STICKY;
+        while (executorLooper == null) {
+            try {
+                executorLooper = executorThread.getLooper();
+            } catch (InterruptedException ie) {
+                Log.w(LOG_TAG, "Interrupted exception while starting service!");
+                // not much we can do, let's try again...
+            }
         }
+
+        Log.i(LOG_TAG, "Started service");
+
+        // We're a background service and we expect to be running
+        // most of the time, so ask the system to keep us alive if
+        // memory is not a problem
+        return START_STICKY;
     }
 
     @Override
     public void onDestroy() {
         Log.i(LOG_TAG, "Destroying service...");
 
-        terminationSource.fireEvent(null);
+        executorLooper.quit();
         while (executorThread.isAlive()) {
             try {
                 executorThread.join();
             } catch (InterruptedException e) {
+                Log.w(LOG_TAG, "Interrupted exception while stopping service!");
+                // not much we can do, let's try again...
             }
         }
         executorThread = null;

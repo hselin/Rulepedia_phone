@@ -2,7 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="edu.stanford.braincat.rulepedia" >
 
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
 
     <application
         android:allowBackup="true"
@@ -23,11 +24,12 @@
             android:label="@string/title_activity_install_rule" >
         </activity>
 
-        <receiver android:name=".service.AutoStarter">
+        <receiver android:name=".service.AutoStarter" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
+
         <service
             android:name=".service.RuleExecutorService"
             android:enabled="true"

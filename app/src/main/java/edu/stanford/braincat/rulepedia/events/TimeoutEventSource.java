@@ -1,15 +1,15 @@
 package edu.stanford.braincat.rulepedia.events;
 
-import java.nio.channels.Selector;
+import android.content.Context;
+import android.os.Handler;
 
 /**
  * Created by gcampagn on 4/30/15.
  */
-public class TimeoutEventSource implements EventSource {
+public class TimeoutEventSource implements EventSource, Runnable {
     private final long timeout;
-    private final boolean repeat;
-    private boolean active;
-    private long endTime;
+    private Handler handler;
+    private boolean triggered;
 
     public TimeoutEventSource(long timeout) {
         this(timeout, false);
@@ -20,41 +20,40 @@ public class TimeoutEventSource implements EventSource {
             throw new IllegalArgumentException("timeout must be positive");
 
         this.timeout = timeout;
-        this.repeat = repeat;
-    }
-
-    private void start() {
-        endTime = System.currentTimeMillis() + timeout;
-        active = true;
     }
 
     @Override
-    public void install(Selector sel) {
-        start();
+    public void run() {
+        if (handler != null)
+            triggered = true;
+    }
+
+    private void post() {
+        handler = null;
+        handler.postAtTime(this, timeout);
     }
 
     @Override
-    public void uninstall() {
-        active = false;
+    public void install(Context ctx, Handler handler) {
+        this.handler = handler;
+        post();
     }
 
     @Override
-    public long getTimeout() {
-        return System.currentTimeMillis() - endTime;
+    public void uninstall(Context ctx) {
+        handler = null;
+        triggered = false;
     }
 
     @Override
     public boolean checkEvent() {
-        return active && System.currentTimeMillis() >= endTime;
+        return triggered;
     }
 
     @Override
     public void updateState() {
         if (checkEvent()) {
-            if (repeat)
-                start();
-            else
-                uninstall();
+            post();
         }
     }
 }
