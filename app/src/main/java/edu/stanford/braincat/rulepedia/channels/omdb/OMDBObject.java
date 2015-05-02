@@ -18,15 +18,12 @@ import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
  * Created by gcampagn on 5/1/15.
  */
 public class OMDBObject extends RefreshableObject {
-    private final String id;
-
     private boolean hasData;
     private boolean released;
     private String title;
 
-    public OMDBObject(String url, String id) {
+    public OMDBObject(String url) {
         super(url);
-        this.id = id;
         this.title = null;
     }
 
@@ -46,6 +43,11 @@ public class OMDBObject extends RefreshableObject {
     private void checkData() throws RuleExecutionException {
         if (!hasData)
             throw new RuleExecutionException("Movie data not available");
+    }
+
+    public String getTitle() throws RuleExecutionException {
+        checkData();
+        return title;
     }
 
     public boolean isReleased() throws RuleExecutionException {

@@ -4,6 +4,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
 
+import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
 import edu.stanford.braincat.rulepedia.exceptions.TriggerValueTypeException;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
 
@@ -21,7 +22,7 @@ public abstract class Value {
     }
 
 
-    public Value resolve(Trigger trigger) throws UnknownObjectException {
+    public Value resolve(Trigger trigger) throws RuleExecutionException, UnknownObjectException {
         return this;
     }
 
@@ -53,7 +54,7 @@ public abstract class Value {
         // we don't override resolve() without a trigger
         // we should have failed to typecheck anyway
         @Override
-        public Value resolve(Trigger trigger) throws UnknownObjectException {
+        public Value resolve(Trigger trigger) throws RuleExecutionException, UnknownObjectException {
             return trigger.getProducedValue(name).resolve(trigger);
         }
     }
@@ -102,7 +103,7 @@ public abstract class Value {
         }
 
         @Override
-        public Value resolve(Trigger trigger) throws UnknownObjectException {
+        public Value resolve(Trigger trigger) throws RuleExecutionException, UnknownObjectException {
             return new DirectObject(ObjectPool.get().getObject(url)).resolve(trigger);
         }
     }

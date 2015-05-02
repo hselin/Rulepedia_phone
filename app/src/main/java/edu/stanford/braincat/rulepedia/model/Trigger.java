@@ -19,5 +19,5 @@ public interface Trigger {
 
     boolean producesValue(String name, Class<? extends Value> type);
 
-    Value getProducedValue(String name);
+    Value getProducedValue(String name) throws RuleExecutionException;
 }

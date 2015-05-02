@@ -20,14 +20,22 @@ public class OMDBMovieReleasedTrigger extends RefreshingPollingTrigger<OMDBObjec
 
     @Override
     public boolean producesValue(String name, Class<? extends Value> type) {
-        // we could reasonably produce a "movie-title" of type "text"
-        // but for now no need
-        return false;
+        switch (name) {
+            case OMDBObjectFactory.MOVIE_TITLE:
+                return type.equals(Value.Text.class);
+            default:
+                return false;
+        }
     }
 
     @Override
-    public Value getProducedValue(String name) {
-        throw new RuntimeException("this trigger produces no value");
+    public Value getProducedValue(String name) throws RuleExecutionException {
+        switch (name) {
+            case OMDBObjectFactory.MOVIE_TITLE:
+                return new Value.Text(getObject().getTitle());
+            default:
+                throw new RuntimeException("sms trigger does not produce " + name);
+        }
     }
 
     @Override

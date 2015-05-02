@@ -28,7 +28,7 @@ public class OMDBTriggerFactory extends ChannelFactory<Trigger> {
         OMDBObject omdbObject = (OMDBObject)object;
 
         switch (method) {
-            case "movie-released":
+            case OMDBObjectFactory.MOVIE_RELEASED:
                 return new OMDBMovieReleasedTrigger(omdbObject);
 
             default:
