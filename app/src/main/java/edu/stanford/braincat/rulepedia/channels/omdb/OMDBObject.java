@@ -45,12 +45,12 @@ public class OMDBObject extends RefreshableObject {
             throw new RuleExecutionException("Movie data not available");
     }
 
-    public String getTitle() throws RuleExecutionException {
+    public synchronized String getTitle() throws RuleExecutionException {
         checkData();
         return title;
     }
 
-    public boolean isReleased() throws RuleExecutionException {
+    public synchronized boolean isReleased() throws RuleExecutionException {
         checkData();
         return released;
     }
@@ -61,7 +61,7 @@ public class OMDBObject extends RefreshableObject {
     }
 
     @Override
-    public void refresh() throws IOException {
+    public synchronized void refresh() throws IOException {
         try {
             JSONTokener jt = HTTPHelper.getJSON(getUrl());
             JSONObject jsonMovie = (JSONObject) jt.nextValue();

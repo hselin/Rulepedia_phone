@@ -36,7 +36,7 @@ public class ObjectPool {
         knownFactories.add(factory);
     }
 
-    public Object getObject(String url) throws UnknownObjectException {
+    public synchronized Object getObject(String url) throws UnknownObjectException {
         Object existing = knownObjects.get(url);
         if (existing != null)
             return existing;
