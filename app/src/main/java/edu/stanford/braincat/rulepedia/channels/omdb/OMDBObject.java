@@ -69,10 +69,8 @@ public class OMDBObject extends RefreshableObject {
             title = jsonMovie.getString("Title");
             released = parseReleaseDate(jsonMovie.getString("Released")).before(new Date());
             hasData = true;
-        } catch(ParseException pe) {
-            throw new IOException("Failed to parse web service response", pe);
-        } catch(JSONException je) {
-            throw new IOException("Failed to parse web service response", je);
+        } catch(ParseException|JSONException e) {
+            throw new IOException("Failed to parse web service response", e);
         }
     }
 }

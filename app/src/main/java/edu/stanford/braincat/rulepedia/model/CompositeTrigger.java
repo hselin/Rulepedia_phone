@@ -71,7 +71,7 @@ public abstract class CompositeTrigger implements Trigger {
     }
 
     @Override
-    public Value getProducedValue(String name) {
+    public Value getProducedValue(String name) throws RuleExecutionException {
         for (Trigger t : children) {
             if (t.producesValue(name, null))
                 return t.getProducedValue(name);
