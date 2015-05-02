@@ -1,25 +1,153 @@
 package edu.stanford.braincat.rulepedia.model;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
+import edu.stanford.braincat.rulepedia.exceptions.TriggerValueTypeException;
+import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
+
 /**
  * Created by gcampagn on 4/30/15.
  */
 public abstract class Value {
-    public Contact asContact() {
-        return (Contact)this;
+    public static class Mapper {
+        private static final Map<String, String> classNames = createClassNameMap();
+
+        private static Map<String, String> createClassNameMap() {
+            Map<String, String> map = new HashMap<>();
+
+            // Keep these in sync with the website!
+            map.put("object", Object.class.getCanonicalName());
+            map.put(Text.ID, Text.class.getCanonicalName()); // single line text
+            map.put("textarea", Text.class.getCanonicalName()); // multiline text
+            map.put(Number.ID, Number.class.getCanonicalName());
+            //map.put("picture", Picture.class.getCanonicalName());
+            map.put(Contact.ID, Contact.class.getCanonicalName());
+            //map.put("message-destination", MessageDestination.class.getCanonicalName());
+            //map.put("temperature", Temperature.class.getCanonicalName());
+            map.put("select", Select.class.getCanonicalName());
+
+            return map;
+        }
+
+        public static Class<? extends Value> getValueType(String typeName) throws TriggerValueTypeException {
+            String className = classNames.get(typeName);
+            if (className == null)
+                throw new TriggerValueTypeException("unknown type " + typeName);
+
+            try {
+                return (Class<? extends Value>) ClassLoader.getSystemClassLoader().loadClass(className);
+            } catch (ClassNotFoundException cnfe) {
+                throw new TriggerValueTypeException(cnfe);
+            }
+        }
     }
 
-    public Text asText() {
-        return (Text)this;
+    public void typeCheck(Class<? extends Value> expected) throws TriggerValueTypeException {
+        if (!getClass().equals(expected))
+            throw new TriggerValueTypeException("invalid value type, expected " + expected.getCanonicalName());
     }
 
-    public Number asNumber() {
-        return (Number)this;
+    public void typeCheck(Trigger trigger, Class<? extends Value> expected) throws TriggerValueTypeException {
+        typeCheck(expected);
+    }
+
+
+    public Value resolve(ObjectPool pool, Trigger trigger) throws UnknownObjectException {
+        return this;
+    }
+
+    public Value resolve(ObjectPool pool) throws UnknownObjectException {
+        return this;
+    }
+
+    public static class TriggerValue extends Value {
+        public static final String ID = "trigger-value";
+
+        private final String name;
+        private final Class<? extends Value> type;
+
+        public TriggerValue(String name, String subType) throws TriggerValueTypeException {
+            this.name = name;
+            this.type = Mapper.getValueType(subType);
+        }
+
+        // we don't override typeCheck() without a trigger, because if we don't
+        // have a trigger to get a value from we should fail to typecheck
+        @Override
+        public void typeCheck(Trigger trigger, Class<? extends Value> expected) throws TriggerValueTypeException {
+            if (!trigger.producesValue(name, type))
+                throw new TriggerValueTypeException("trigger does not produce value " + name);
+            if (!type.equals(expected))
+                throw new TriggerValueTypeException("invalid value type, expected " + expected.getCanonicalName());
+        }
+
+        // we don't override resolve() without a trigger
+        // we should have failed to typecheck anyway
+        @Override
+        public Value resolve(ObjectPool pool, Trigger trigger) throws UnknownObjectException {
+            return trigger.getProducedValue(name).resolve(pool, trigger);
+        }
+    }
+
+    public static class DirectObject extends Value {
+        public static final String ID = "direct-object";
+
+        private final ObjectPool.Object object;
+
+        public DirectObject(ObjectPool.Object object) {
+            this.object = object;
+        }
+
+        public String toString() {
+            return object.getUrl();
+        }
+
+        public ObjectPool.Object getObject() {
+            return object;
+        }
+    }
+
+    public static class Object extends Value {
+        public static final String ID = "object";
+
+        private final String url;
+
+        public Object(String rep) throws MalformedURLException {
+            new URL(rep);
+            url = rep;
+        }
+
+        public static Object fromString(String string) throws MalformedURLException {
+            return new Object(string);
+        }
+
+        public String toString() {
+            return url;
+        }
+
+        // FIXME: typechecking for objects? right now we would just say "object"
+
+        @Override
+        public Value resolve(ObjectPool pool) throws UnknownObjectException {
+            return new DirectObject(pool.getObject(url));
+        }
+
+        @Override
+        public Value resolve(ObjectPool pool, Trigger trigger) throws UnknownObjectException {
+            return new DirectObject(pool.getObject(url)).resolve(pool, trigger);
+        }
     }
 
     public static class Contact extends Value {
+        public static final String ID = "contact";
+
         private final String rep;
 
-        private Contact(String rep) {
+        public Contact(String rep) {
             this.rep = rep;
         }
 
@@ -37,9 +165,11 @@ public abstract class Value {
     }
 
     public static class Text extends Value {
+        public static final String ID = "text";
+
         private final String rep;
 
-        private Text(String rep) {
+        public Text(String rep) {
             this.rep = rep;
         }
 
@@ -56,10 +186,38 @@ public abstract class Value {
         }
     }
 
+    public static class Select extends Value {
+        public static final String ID = "select";
+
+        private final String rep;
+
+        public Select(String rep) {
+            this.rep = rep;
+        }
+
+        public static Select fromString(String string) {
+            return new Select(string);
+        }
+
+        public String toString() {
+            return rep;
+        }
+
+        public boolean typeCheck(Collection<String> allowed) {
+            return allowed.contains(rep);
+        }
+
+        public String getSelect() {
+            return rep;
+        }
+    }
+
     public static class Number extends Value {
+        public static final String ID = "number";
+
         private final String rep; // FIXME
 
-        private Number(String rep) {
+        public Number(String rep) {
             this.rep = rep;
         }
 

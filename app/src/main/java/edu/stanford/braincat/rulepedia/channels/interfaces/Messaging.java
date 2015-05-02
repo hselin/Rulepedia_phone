@@ -8,4 +8,7 @@ public interface Messaging {
 
     String MESSAGE_RECEIVED = "message-received";
     String SEND_MESSAGE = "send-message";
+
+    String SENDER = "sender";
+    String MESSAGE = "message";
 }

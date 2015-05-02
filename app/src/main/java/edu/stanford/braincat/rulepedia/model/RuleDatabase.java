@@ -19,6 +19,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import edu.stanford.braincat.rulepedia.channels.Util;
+import edu.stanford.braincat.rulepedia.exceptions.TriggerValueTypeException;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownChannelException;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
 
@@ -45,6 +46,10 @@ public class RuleDatabase {
         actiondb = new ChannelDatabase.ActionDatabase();
     }
 
+    public ObjectPool getObjectPool() {
+        return objectdb;
+    }
+
     public Collection<Rule> getAllRules() {
         return Collections.unmodifiableSortedSet(rules);
     }
@@ -54,7 +59,8 @@ public class RuleDatabase {
         return new HashMap<>();
     }
 
-    private Trigger parseCompositeTrigger(JSONObject jsonTrigger, boolean resolve) throws JSONException, UnknownObjectException, UnknownChannelException {
+    private Trigger parseCompositeTrigger(JSONObject jsonTrigger, boolean resolve) throws
+            JSONException, UnknownObjectException, UnknownChannelException, TriggerValueTypeException {
         ArrayList<Trigger> children = new ArrayList<>();
 
         String combinator = jsonTrigger.getString("combinator");
@@ -74,7 +80,8 @@ public class RuleDatabase {
         }
     }
 
-    private Trigger parseSingleTrigger(JSONObject jsonTrigger, boolean resolve) throws JSONException, UnknownObjectException, UnknownChannelException {
+    private Trigger parseSingleTrigger(JSONObject jsonTrigger, boolean resolve) throws
+            JSONException, UnknownObjectException, UnknownChannelException, TriggerValueTypeException {
         String objectUrl = jsonTrigger.getString("object");
         String method = jsonTrigger.getString("trigger");
 
@@ -85,14 +92,16 @@ public class RuleDatabase {
         return triggerdb.createChannel(object.getType(), method, object, parseParams(jsonTrigger.getJSONArray("params")));
     }
 
-    private Trigger parseTrigger(JSONObject jsonTrigger, boolean resolve) throws JSONException, UnknownObjectException, UnknownChannelException {
+    private Trigger parseTrigger(JSONObject jsonTrigger, boolean resolve) throws
+            JSONException, UnknownObjectException, UnknownChannelException, TriggerValueTypeException {
         if (jsonTrigger.has("combinator"))
             return parseCompositeTrigger(jsonTrigger, resolve);
         else
             return parseSingleTrigger(jsonTrigger, resolve);
     }
 
-    private Action parseAction(JSONObject jsonAction, boolean resolve) throws JSONException, UnknownObjectException, UnknownChannelException {
+    private Action parseAction(JSONObject jsonAction, boolean resolve) throws
+            JSONException, UnknownObjectException, UnknownChannelException, TriggerValueTypeException {
         String objectUrl = jsonAction.getString("object");
         String method = jsonAction.getString("method");
 
@@ -103,7 +112,8 @@ public class RuleDatabase {
         return actiondb.createChannel(object.getType(), method, object, parseParams(jsonAction.getJSONArray("params")));
     }
 
-    private Collection<Action> parseActionList(JSONArray jsonActions, boolean resolve) throws JSONException, UnknownObjectException, UnknownChannelException {
+    private Collection<Action> parseActionList(JSONArray jsonActions, boolean resolve) throws
+            JSONException, UnknownObjectException, UnknownChannelException, TriggerValueTypeException {
         ArrayList<Action> actions = new ArrayList<>();
 
         for (int i = 0; i < jsonActions.length(); i++)
@@ -112,7 +122,8 @@ public class RuleDatabase {
         return actions;
     }
 
-    private void loadRule(JSONObject jsonRule, int position, boolean resolve) throws JSONException, UnknownObjectException, UnknownChannelException {
+    private void loadRule(JSONObject jsonRule, int position, boolean resolve) throws
+            JSONException, UnknownObjectException, UnknownChannelException, TriggerValueTypeException {
         String name = jsonRule.getString("name");
         // just to validate the format, we don't do anything with it really
         String description = jsonRule.getString("description");
@@ -122,6 +133,9 @@ public class RuleDatabase {
 
         JSONArray jsonActions = jsonRule.getJSONArray("actions");
         Collection<Action> actions = parseActionList(jsonActions, resolve);
+
+        for (Action a : actions)
+                a.typeCheck(trigger);
 
         // -position because lower position is higher priority
         Rule rule = new Rule(name, trigger, actions, -position);
@@ -142,6 +156,8 @@ public class RuleDatabase {
 
                 for (int i = 0; i < root.length(); i++)
                     loadRule(root.getJSONObject(i), i, resolve);
+            } catch (TriggerValueTypeException tvte) {
+                throw new IOException("Invalid database format on disk", tvte);
             } catch (NullPointerException npe) {
                 throw new IOException("Invalid database format on disk", npe);
             } catch (ClassCastException cce) {

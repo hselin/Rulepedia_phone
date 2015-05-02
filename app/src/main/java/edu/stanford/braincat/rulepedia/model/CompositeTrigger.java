@@ -60,6 +60,26 @@ public abstract class CompositeTrigger implements Trigger {
         return builder.toString();
     }
 
+    @Override
+    public boolean producesValue(String name, Class<? extends Value> type) {
+        for (Trigger t : children) {
+            if (t.producesValue(name, type))
+                return true;
+        }
+
+        return false;
+    }
+
+    @Override
+    public Value getProducedValue(String name) {
+        for (Trigger t : children) {
+            if (t.producesValue(name, null))
+                return t.getProducedValue(name);
+        }
+
+        throw new AssertionError("code should not be reached");
+    }
+
     public static class Or extends CompositeTrigger {
         public Or(Collection<Trigger> children) {
             super(children);

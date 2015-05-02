@@ -16,4 +16,8 @@ public interface Trigger {
     boolean isFiring() throws RuleExecutionException;
 
     String toHumanString();
+
+    boolean producesValue(String name, Class<? extends Value> type);
+
+    Value getProducedValue(String name);
 }

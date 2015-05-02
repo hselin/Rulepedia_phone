@@ -1,7 +1,10 @@
 package edu.stanford.braincat.rulepedia.channels.sms;
 
 import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
+import edu.stanford.braincat.rulepedia.exceptions.TriggerValueTypeException;
 import edu.stanford.braincat.rulepedia.model.Action;
+import edu.stanford.braincat.rulepedia.model.ObjectPool;
+import edu.stanford.braincat.rulepedia.model.Trigger;
 import edu.stanford.braincat.rulepedia.model.Value;
 
 /**
@@ -9,18 +12,23 @@ import edu.stanford.braincat.rulepedia.model.Value;
  */
 public class SMSSendMessageAction implements Action {
     private final SMSChannel channel;
-    private final String destination;
-    private Value message;
+    private final Value destination;
+    private final Value message;
 
-    public SMSSendMessageAction(SMSChannel channel, String destination, Value message) {
+    public SMSSendMessageAction(SMSChannel channel, Value destination, Value message) {
         this.channel = channel;
         this.destination = destination;
         this.message = message;
     }
 
     @Override
-    public void execute() throws RuleExecutionException {
-        // TODO
+    public void typeCheck(Trigger trigger) throws TriggerValueTypeException {
+        destination.typeCheck(trigger, Value.Contact.class);
+        message.typeCheck(trigger, Value.Text.class);
+    }
+
+    @Override
+    public void execute(ObjectPool pool, Trigger trigger) throws RuleExecutionException {
     }
 
     @Override

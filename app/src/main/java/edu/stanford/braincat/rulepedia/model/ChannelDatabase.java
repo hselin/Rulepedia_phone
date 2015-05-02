@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import edu.stanford.braincat.rulepedia.channels.omdb.OMDBTriggerFactory;
+import edu.stanford.braincat.rulepedia.exceptions.TriggerValueTypeException;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownChannelException;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
 
@@ -23,7 +24,8 @@ public abstract class ChannelDatabase<C> {
         knownFactories.put(factory.getName(), factory);
     }
 
-    public C createChannel(String id, String method, ObjectPool.Object on, Map<String, Value> params) throws UnknownObjectException, UnknownChannelException {
+    public C createChannel(String id, String method, ObjectPool.Object on, Map<String, Value> params) throws
+            UnknownObjectException, UnknownChannelException, TriggerValueTypeException {
         ChannelFactory<C> factory = knownFactories.get(id);
 
         if (factory == null)

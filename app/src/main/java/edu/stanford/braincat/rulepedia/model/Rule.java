@@ -58,12 +58,12 @@ public class Rule {
         return enabled && trigger.isFiring();
     }
 
-    public void fire() throws RuleExecutionException {
+    public void fire(ObjectPool objectdb) throws RuleExecutionException {
         if (!enabled)
             throw new IllegalStateException("rule not enabled");
 
         for (Action a : actions)
-            a.execute();
+            a.execute(objectdb, trigger);
     }
 
     public String toHumanString() {

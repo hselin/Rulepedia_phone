@@ -20,12 +20,13 @@ public class SMSActionFactory extends ChannelFactory<Action> {
     }
 
     @Override
-    public Action createChannel(String method, ObjectPool.Object object, Map<String, Value> params) throws UnknownObjectException, UnknownChannelException {
+    public Action createChannel(String method, ObjectPool.Object object, Map<String, Value> params) throws
+            UnknownObjectException, UnknownChannelException {
         SMSChannel sms = (SMSChannel) object;
 
         switch (method) {
             case Messaging.SEND_MESSAGE:
-                return new SMSSendMessageAction(sms, params.get("destination").asContact().getContact(), params.get("content"));
+                return new SMSSendMessageAction(sms, params.get("destination"), params.get("content"));
 
             default:
                 throw new UnknownChannelException(method);
