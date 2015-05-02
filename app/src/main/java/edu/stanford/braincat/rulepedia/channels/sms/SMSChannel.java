@@ -1,5 +1,6 @@
 package edu.stanford.braincat.rulepedia.channels.sms;
 
+import edu.stanford.braincat.rulepedia.model.InternalObjectFactory;
 import edu.stanford.braincat.rulepedia.model.ObjectPool;
 
 /**
@@ -11,7 +12,7 @@ public class SMSChannel extends ObjectPool.Object {
     private SMSEventSource eventSource;
 
     public SMSChannel() {
-        super("rulepedia:predefined/object/sms");
+        super(InternalObjectFactory.PREDEFINED_PREFIX + ID);
     }
 
     @Override

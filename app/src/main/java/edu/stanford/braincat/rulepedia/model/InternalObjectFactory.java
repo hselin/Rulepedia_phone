@@ -17,6 +17,8 @@ public class InternalObjectFactory extends ObjectFactory {
         public abstract ObjectPool.Object create();
     }
 
+    public static final String PREDEFINED_PREFIX = "rulepedia:predefined/object/";
+
     private final HashMap<String, PredefinedObjectFactory> predefinedObjects;
     private final Pattern predefinedPattern;
     private final Pattern placeholderPattern;

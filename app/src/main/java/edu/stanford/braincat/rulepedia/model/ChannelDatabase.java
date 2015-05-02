@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import edu.stanford.braincat.rulepedia.channels.omdb.OMDBTriggerFactory;
+import edu.stanford.braincat.rulepedia.channels.sms.SMSActionFactory;
+import edu.stanford.braincat.rulepedia.channels.sms.SMSTriggerFactory;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownChannelException;
 
 /**
@@ -34,13 +36,13 @@ public abstract class ChannelDatabase<C> {
     public static class TriggerDatabase extends ChannelDatabase<Trigger> {
         public void load() {
             registerFactory(new OMDBTriggerFactory());
-            // TODO: fill me with instantiation of the real trigger factories
+            registerFactory(new SMSTriggerFactory());
         }
     }
 
     public static class ActionDatabase extends ChannelDatabase<Action> {
         public void load() {
-            // TODO: fill me with instantiation of the real action factories
+            registerFactory(new SMSActionFactory());
         }
     }
 }

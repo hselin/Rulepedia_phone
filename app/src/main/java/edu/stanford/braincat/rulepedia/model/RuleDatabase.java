@@ -184,16 +184,10 @@ public class RuleDatabase {
 
                 for (int i = 0; i < root.length(); i++)
                     loadRule(root.getJSONObject(i), i, resolve);
-            } catch (TriggerValueTypeException tvte) {
-                throw new IOException("Invalid database format on disk", tvte);
-            } catch (NullPointerException npe) {
-                throw new IOException("Invalid database format on disk", npe);
-            } catch (ClassCastException cce) {
-                throw new IOException("Invalid database format on disk", cce);
-            } catch (JSONException je) {
-                throw new IOException("Invalid database format on disk", je);
+            } catch (TriggerValueTypeException|NullPointerException|ClassCastException|JSONException e) {
+                throw new IOException("Invalid database format on disk", e);
             }
-        } catch(FileNotFoundException fnfe) {
+        } catch(FileNotFoundException e) {
             // if there is no file, it's all good
         } finally {
             if (file != null)
