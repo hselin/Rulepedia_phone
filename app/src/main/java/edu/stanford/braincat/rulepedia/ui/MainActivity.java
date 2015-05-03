@@ -8,6 +8,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -56,8 +57,14 @@ public class MainActivity extends ActionBarActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
+        /*
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
+        */
+
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_main, menu);
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
@@ -65,6 +72,7 @@ public class MainActivity extends ActionBarActivity {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
+        /*
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
@@ -73,6 +81,21 @@ public class MainActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+        */
+
+        // Handle presses on the action bar items
+        switch (item.getItemId()) {
+            case R.id.action_browse:
+                //openSearch();
+                return true;
+            case R.id.action_install:
+                return true;
+            case R.id.action_manage:
+                //composeMessage();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
 
