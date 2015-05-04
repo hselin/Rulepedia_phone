@@ -4,12 +4,15 @@ import android.app.Activity;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.TextView;
+import android.content.Context;
 
 import edu.stanford.braincat.rulepedia.R;
 
@@ -76,7 +79,8 @@ public class BrowseFragment extends Fragment {
         WebView myWebView = (WebView) v.findViewById(R.id.webview);
         WebSettings webSettings = myWebView.getSettings();
         webSettings.setJavaScriptEnabled(true);
-        myWebView.loadUrl("http://www.example.com");
+        myWebView.addJavascriptInterface(new WebAppInterface(), "Android");
+        myWebView.loadUrl("http://192.168.1.123:3000/create");
 
         return v;
     }
@@ -119,5 +123,21 @@ public class BrowseFragment extends Fragment {
         // TODO: Update argument type and name
         public void onFragmentInteraction(Uri uri);
     }
+
+    public class WebAppInterface {
+        Context mContext;
+
+        /** Instantiate the interface and set the context */
+        /*
+        WebAppInterface(Context c) {
+            mContext = c;
+        }*/
+
+        @JavascriptInterface
+        public void installRule(String ruleJSON) {
+            Log.d("myTag", ruleJSON);
+        }
+    }
+
 
 }
