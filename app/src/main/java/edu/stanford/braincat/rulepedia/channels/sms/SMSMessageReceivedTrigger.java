@@ -2,10 +2,18 @@ package edu.stanford.braincat.rulepedia.channels.sms;
 
 import android.telephony.SmsMessage;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.net.MalformedURLException;
+
 import edu.stanford.braincat.rulepedia.channels.SimpleEventTrigger;
 import edu.stanford.braincat.rulepedia.channels.interfaces.Messaging;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
+import edu.stanford.braincat.rulepedia.model.InternalObjectFactory;
 import edu.stanford.braincat.rulepedia.model.ObjectPool;
+import edu.stanford.braincat.rulepedia.model.Trigger;
 import edu.stanford.braincat.rulepedia.model.Value;
 
 /**
@@ -62,6 +70,26 @@ public class SMSMessageReceivedTrigger extends SimpleEventTrigger<SMSEventSource
     @Override
     public String toHumanString() {
         return "a text message is received";
+    }
+
+    @Override
+    public JSONObject toJSON() throws JSONException {
+        JSONObject json = new JSONObject();
+        json.put(Trigger.OBJECT, InternalObjectFactory.PREDEFINED_PREFIX + SMSChannel.ID);
+        json.put(Trigger.TRIGGER, Messaging.MESSAGE_RECEIVED);
+
+        JSONArray jsonParams = new JSONArray();
+        if (senderMatches != null) {
+            try {
+                jsonParams.put(new Value.Object(senderMatches.getUrl()).toJSON(Messaging.SENDER_MATCHES));
+            } catch (MalformedURLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        if (contentContains != null)
+            jsonParams.put(new Value.Text(contentContains).toJSON(Messaging.CONTENT_CONTAINS));
+        json.put(Trigger.PARAMS, jsonParams);
+        return json;
     }
 
     @Override

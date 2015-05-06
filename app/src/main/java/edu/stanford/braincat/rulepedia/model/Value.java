@@ -1,5 +1,8 @@
 package edu.stanford.braincat.rulepedia.model;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
@@ -30,6 +33,13 @@ public abstract class Value {
         return this;
     }
 
+    public JSONObject toJSON(String name) throws JSONException {
+        JSONObject json = new JSONObject();
+        json.put("name", name);
+        json.put("value", toString());
+        return json;
+    }
+
     public static class TriggerValue extends Value {
         public static final String ID = "trigger-value";
 
@@ -56,6 +66,14 @@ public abstract class Value {
         @Override
         public Value resolve(Trigger trigger) throws RuleExecutionException, UnknownObjectException {
             return trigger.getProducedValue(name).resolve(trigger);
+        }
+
+        @Override
+        public JSONObject toJSON(String paramName) throws JSONException {
+            JSONObject json = new JSONObject();
+            json.put("name", paramName);
+            json.put("trigger-value", name);
+            return json;
         }
     }
 

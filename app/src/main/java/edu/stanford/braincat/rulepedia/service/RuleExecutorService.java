@@ -6,12 +6,18 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.util.Log;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONTokener;
+
 import edu.stanford.braincat.rulepedia.model.RuleDatabase;
 
 public class RuleExecutorService extends Service {
     private RuleExecutorThread executorThread;
     private Looper executorLooper;
     private RuleDatabase database;
+
+    public static final String INSTALL_RULE_INTENT = "edu.stanford.braincat.rulepedia.INSTALL_RULE";
 
     public static final String LOG_TAG = "rulepedia.Service";
 
@@ -23,8 +29,8 @@ public class RuleExecutorService extends Service {
         Log.i(LOG_TAG, "Creating service...");
 
         try {
-            database = new RuleDatabase();
-            database.loadForExecution(this);
+            database = new RuleDatabase(true);
+            database.load(this);
         } catch (Exception e) {
             Log.e(LOG_TAG, "Failed to load database: " + e.getMessage());
             stopSelf();
@@ -33,12 +39,8 @@ public class RuleExecutorService extends Service {
         Log.i(LOG_TAG, "Created service");
     }
 
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
+    private void doStartService() {
         Log.i(LOG_TAG, "Starting service...");
-
-        if (executorThread != null)
-            throw new IllegalStateException("Executor thread is already running");
 
         executorThread = new RuleExecutorThread(this, database);
         executorThread.start();
@@ -53,6 +55,54 @@ public class RuleExecutorService extends Service {
         }
 
         Log.i(LOG_TAG, "Started service");
+    }
+
+    private void doInstallRule(Intent intent) {
+        try {
+            JSONObject jsonObject;
+
+            if (intent.getData().toString().equals("rulepedia:json")) {
+                jsonObject = (JSONObject)new JSONTokener(intent.getStringExtra("json")).nextValue();
+                executorThread.installRule(jsonObject);
+            } else {
+                // FIXME
+                throw new UnsupportedOperationException();
+            }
+        } catch(JSONException e) {
+            // FIXME: log a message to the user!
+            Log.e(LOG_TAG, "Failed to add rule to the database: " + e.getMessage());
+        }
+    }
+
+    private void ensureService() {
+        if (executorThread != null)
+            return;
+
+        doStartService();
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        String action;
+        if (intent == null || (action = intent.getAction()) == null)
+            return onStartService();
+
+        switch (action) {
+            case INSTALL_RULE_INTENT:
+                return onInstallRule(intent);
+            default:
+                throw new UnsupportedOperationException("service cannot handle action " + action);
+        }
+    }
+
+    private int onInstallRule(Intent intent) {
+        ensureService();
+        doInstallRule(intent);
+        return START_STICKY;
+    }
+
+    private int onStartService() {
+        ensureService();
 
         // We're a background service and we expect to be running
         // most of the time, so ask the system to keep us alive if

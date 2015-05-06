@@ -1,5 +1,9 @@
 package edu.stanford.braincat.rulepedia.model;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -12,6 +16,9 @@ import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
  * Created by gcampagn on 4/30/15.
  */
 public abstract class CompositeTrigger implements Trigger {
+    public static final String COMBINATOR = "combinator";
+    public static final String OPERANDS = "operands";
+
     private final ArrayList<Trigger> children;
 
     protected CompositeTrigger(Collection<Trigger> children) {
@@ -25,6 +32,8 @@ public abstract class CompositeTrigger implements Trigger {
     protected abstract boolean compose(boolean t1, boolean t2);
 
     protected abstract String getHumanComposeOp();
+
+    protected abstract String getJSONComposeOp();
 
     public void update() throws RuleExecutionException {
         for (Trigger t : children)
@@ -60,6 +69,18 @@ public abstract class CompositeTrigger implements Trigger {
         return builder.toString();
     }
 
+    public JSONObject toJSON() throws JSONException {
+        JSONObject json = new JSONObject();
+        json.put(COMBINATOR, getJSONComposeOp());
+
+        JSONArray jsonChildren = new JSONArray();
+        for (Trigger t : children)
+            jsonChildren.put(t.toJSON());
+        json.put(OPERANDS, jsonChildren);
+
+        return json;
+    }
+
     @Override
     public boolean producesValue(String name, Class<? extends Value> type) {
         for (Trigger t : children) {
@@ -81,6 +102,8 @@ public abstract class CompositeTrigger implements Trigger {
     }
 
     public static class Or extends CompositeTrigger {
+        public static final String OP = "or";
+
         public Or(Collection<Trigger> children) {
             super(children);
         }
@@ -92,9 +115,14 @@ public abstract class CompositeTrigger implements Trigger {
 
         @Override
         protected String getHumanComposeOp() { return " or "; }
+
+        @Override
+        protected String getJSONComposeOp() { return OP; }
     }
 
     public static class And extends CompositeTrigger {
+        public static final String OP = "and";
+
         public And(Collection<Trigger> children) {
             super(children);
         }
@@ -104,5 +132,8 @@ public abstract class CompositeTrigger implements Trigger {
 
         @Override
         protected String getHumanComposeOp() { return " and "; }
+
+        @Override
+        protected String getJSONComposeOp() { return OP; }
     }
 }

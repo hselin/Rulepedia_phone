@@ -6,7 +6,10 @@ import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 
+import org.json.JSONObject;
+
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -28,6 +31,36 @@ public class RuleExecutor extends Handler {
         context = ctx;
         database = db;
         eventSources = new HashSet<>();
+    }
+
+    public void installRule(final JSONObject jsonRule) {
+        post(new Runnable() {
+            public void run() {
+                doInstallRule(jsonRule);
+            }
+        });
+    }
+
+    private void doInstallRule(final JSONObject jsonRule) {
+        try {
+            Rule rule = database.addRule(jsonRule);
+
+            boolean anyFailed = false;
+            Collection<EventSource> sources = rule.getEventSources();
+            for (EventSource s : sources) {
+                try {
+                    s.install(context, this);
+                } catch (IOException e) {
+                    Log.e(RuleExecutorService.LOG_TAG, "Failed to install event source " + s.toString() + ": " + e.getMessage());
+                    anyFailed = true;
+                }
+            }
+            if (!anyFailed)
+                eventSources.addAll(sources);
+        } catch(Exception e) {
+            // FIXME: dispatch back to the UI thread
+            Log.e(RuleExecutorService.LOG_TAG, "Failed to add rule to the database: " + e.getMessage());
+        }
     }
 
     public void prepare() {

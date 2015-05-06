@@ -1,13 +1,17 @@
 package edu.stanford.braincat.rulepedia.channels;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONTokener;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.nio.CharBuffer;
 
 /**
@@ -31,5 +35,10 @@ public class Util {
         }
 
         return new JSONTokener(builder.toString());
+    }
+
+    public static void writeJSON(OutputStream output, JSONArray array) throws IOException {
+        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(output));
+        writer.write(array.toString());
     }
 }

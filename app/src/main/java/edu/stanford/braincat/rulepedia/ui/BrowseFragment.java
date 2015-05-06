@@ -1,6 +1,7 @@
 package edu.stanford.braincat.rulepedia.ui;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -12,11 +13,9 @@ import android.view.ViewGroup;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
-import android.widget.TextView;
-import android.content.Context;
 
 import edu.stanford.braincat.rulepedia.R;
-import edu.stanford.braincat.rulepedia.model.RuleDatabase;
+import edu.stanford.braincat.rulepedia.service.RuleExecutorService;
 
 
 /**
@@ -126,12 +125,10 @@ public class BrowseFragment extends Fragment {
         public void onFragmentInteraction(Uri uri);
     }
 
-    public final static String INSTALL_RULE = "edu.stanford.braincat.rulepedia.INSTALL_RULE";
-
     private void sendIntentToRuleEngine(String ruleJSON) {
         //getActivity().getApplicationContext()
-        Intent intent = new Intent(null, RuleDatabase.class);
-        intent.putExtra(INSTALL_RULE, ruleJSON);
+        Intent intent = new Intent(RuleExecutorService.INSTALL_RULE_INTENT, Uri.parse("rulepedia:json"));
+        intent.putExtra("json", ruleJSON);
         startActivity(intent);
     }
 

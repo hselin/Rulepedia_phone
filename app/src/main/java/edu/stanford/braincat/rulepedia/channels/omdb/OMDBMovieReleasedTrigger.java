@@ -1,8 +1,13 @@
 package edu.stanford.braincat.rulepedia.channels.omdb;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import edu.stanford.braincat.rulepedia.channels.PollingTrigger;
 import edu.stanford.braincat.rulepedia.channels.RefreshingPollingTrigger;
 import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
+import edu.stanford.braincat.rulepedia.model.Trigger;
 import edu.stanford.braincat.rulepedia.model.Value;
 
 /**
@@ -16,6 +21,15 @@ public class OMDBMovieReleasedTrigger extends RefreshingPollingTrigger<OMDBObjec
     @Override
     public String toHumanString() {
         return getObject().toHumanString() + " is released";
+    }
+
+    @Override
+    public JSONObject toJSON() throws JSONException {
+        JSONObject json = new JSONObject();
+        json.put(Trigger.OBJECT, getObject().getUrl());
+        json.put(Trigger.TRIGGER, OMDBObjectFactory.MOVIE_RELEASED);
+        json.put(Trigger.PARAMS, new JSONArray());
+        return json;
     }
 
     @Override

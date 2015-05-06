@@ -3,6 +3,8 @@ package edu.stanford.braincat.rulepedia.service;
 import android.content.Context;
 import android.os.Looper;
 
+import org.json.JSONObject;
+
 import edu.stanford.braincat.rulepedia.model.RuleDatabase;
 
 /**
@@ -35,6 +37,12 @@ public class RuleExecutorThread extends Thread {
             notify();
         }
 
+        executor.prepare();
         Looper.loop();
+        executor.destroy();
+    }
+
+    public void installRule(JSONObject jsonRule) {
+        executor.installRule(jsonRule);
     }
 }
