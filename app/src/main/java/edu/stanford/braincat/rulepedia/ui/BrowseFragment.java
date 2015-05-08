@@ -81,7 +81,8 @@ public class BrowseFragment extends Fragment {
         WebSettings webSettings = myWebView.getSettings();
         webSettings.setJavaScriptEnabled(true);
         myWebView.addJavascriptInterface(new WebAppInterface(), "Android");
-        myWebView.loadUrl("http://192.168.1.123:3000/create");
+        //myWebView.loadUrl("http://192.168.1.123:3000/create");
+        myWebView.loadUrl("http://10.34.170.111:3000/create");
 
         return v;
     }
@@ -129,7 +130,8 @@ public class BrowseFragment extends Fragment {
         //getActivity().getApplicationContext()
         Intent intent = new Intent(RuleExecutorService.INSTALL_RULE_INTENT, Uri.parse("rulepedia:json"));
         intent.putExtra("json", ruleJSON);
-        startActivity(intent);
+        //startActivity(intent);
+        //startService(intent);
     }
 
     public class WebAppInterface {

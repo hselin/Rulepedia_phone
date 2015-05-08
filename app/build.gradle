@@ -4,12 +4,22 @@ android {
     compileSdkVersion 21
     buildToolsVersion "21.1.2"
 
+    lintOptions {
+        abortOnError false
+    }
+
     defaultConfig {
         applicationId "edu.stanford.braincat.rulepedia"
         minSdkVersion 19
         targetSdkVersion 21
         versionCode 1
         versionName "1.0"
+
+        ndk {
+            moduleName = "Duktape"
+            cFlags = "-std=c++11 -std=c99"
+            stl = "gnustl_shared"
+        }
     }
     buildTypes {
         release {
@@ -23,3 +33,5 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.support:appcompat-v7:22.1.1'
 }
+
+
