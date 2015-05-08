@@ -20,7 +20,7 @@ import edu.stanford.braincat.rulepedia.R;
 import edu.stanford.braincat.rulepedia.service.AutoStarter;
 
 
-public class MainActivity extends ActionBarActivity implements BrowseFragment.OnFragmentInteractionListener {
+public class MainActivity extends ActionBarActivity implements BrowseFragment.OnFragmentInteractionListener, RuleManageFragment.OnFragmentInteractionListener {
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -130,7 +130,7 @@ public class MainActivity extends ActionBarActivity implements BrowseFragment.On
                 case 0:
                     return fragment = new BrowseFragment();
                 case 1:
-                    return fragment = new BrowseFragment();
+                    return fragment = new RuleManageFragment();
                 case 2:
                     return fragment = new BrowseFragment();
                 default:
