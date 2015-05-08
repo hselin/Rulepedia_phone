@@ -7,7 +7,10 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import edu.stanford.braincat.rulepedia.R;
@@ -56,6 +59,8 @@ public class RuleManageFragment extends Fragment {
         // Required empty public constructor
     }
 
+    ListView ruleListView;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,12 +70,30 @@ public class RuleManageFragment extends Fragment {
         }
     }
 
+    //LIST OF ARRAY STRINGS WHICH WILL SERVE AS LIST ITEMS
+    ArrayList<String> listItems = new ArrayList<String>();
+
+    //DEFINING A STRING ADAPTER WHICH WILL HANDLE THE DATA OF THE LISTVIEW
+    ArrayAdapter<String> listAdapter;
+
     private void loadRules()
     {
+
         try{
             RuleDatabase db = new RuleDatabase(false);
             db.load(this.getActivity().getApplicationContext());
             Collection <Rule> rules = db.getAllRules();
+
+            ArrayList<String> ruletList = new ArrayList<String>();
+
+            for (Rule rule : rules) {
+                //listItems.add(rule.);
+            }
+
+            listAdapter.add("1");
+            listAdapter.add("2");
+
+            listAdapter.notifyDataSetChanged();
         } catch (Exception e) {
             System.out.println(e);
         }
@@ -80,7 +103,14 @@ public class RuleManageFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_rule_manage, container, false);
+        View v =  inflater.inflate(R.layout.fragment_rule_manage, container, false);
+
+        ruleListView = (ListView) v.findViewById( R.id.rule_list );
+        listAdapter = new ArrayAdapter<String>(this.getActivity().getApplicationContext(), android.R.layout.simple_list_item_1, listItems);
+        ruleListView.setAdapter(listAdapter);
+
+        //loadRules();
+        return v;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
