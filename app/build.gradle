@@ -14,12 +14,6 @@ android {
         targetSdkVersion 21
         versionCode 1
         versionName "1.0"
-
-        ndk {
-            moduleName = "Duktape"
-            cFlags = "-std=c++11 -std=c99"
-            stl = "gnustl_shared"
-        }
     }
     buildTypes {
         release {
