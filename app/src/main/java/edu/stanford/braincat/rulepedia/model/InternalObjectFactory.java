@@ -1,10 +1,13 @@
 package edu.stanford.braincat.rulepedia.model;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import edu.stanford.braincat.rulepedia.channels.sms.SMSChannel;
+import edu.stanford.braincat.rulepedia.exceptions.TriggerValueTypeException;
+import edu.stanford.braincat.rulepedia.exceptions.UnknownChannelException;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
 
 /**
@@ -80,6 +83,24 @@ public class InternalObjectFactory extends ObjectFactory {
 
         public void resolve() throws UnknownObjectException {
             throw new UnknownObjectException(getUrl());
+        }
+
+        @Override
+        public Class<? extends Value> getParamType(String method, String name) throws
+                UnknownChannelException, TriggerValueTypeException {
+            throw new UnknownChannelException(method);
+        }
+
+        @Override
+        public Trigger createTrigger(String method, Map<String, Value> params) throws
+                UnknownObjectException, UnknownChannelException, TriggerValueTypeException {
+            throw new UnknownChannelException(method);
+        }
+
+        @Override
+        public Action createAction(String method, Map<String, Value> params) throws
+                UnknownObjectException, UnknownChannelException, TriggerValueTypeException {
+            throw new UnknownChannelException(method);
         }
 
         public String toHumanString() {

@@ -2,23 +2,21 @@
 #include <jni.h>
 #include <duktape.h>
 
-/* 
- * replace com_example_whatever with your package name
- *
- * HelloJni should be the name of the activity that will 
- * call this function
- *
- * change the returned string to be one that exercises
- * some functionality in your wrapped library to test that
- * it all works
- *
- */
-
 extern "C" {
-    JNIEXPORT jstring JNICALL
-    Java_com_example_hellojni_HelloJni_stringFromJNI(JNIEnv *env, 
-                                                     jobject thiz)
+    JNIEXPORT jlong JNICALL
+    Java_org_duktape_Duktape_createContext(JNIEnv *env,
+                                           jobject thiz)
     {
-        return env->NewStringUTF("Hello from C++ JNI !");
+        duk_context *ctx = duk_create_heap_default();
+        return (jlong)ctx;
+    }
+
+    JNIEXPORT jlong JNICALL
+    Java_org_duktape_Duktape_destroyContext(JNIEnv *env,
+                                            jobject thiz,
+                                            jlong   context)
+    {
+        duk_context *ctx = (duk_context*)ctx;
+        duk_destroy_heap(ctx);
     }
 }
