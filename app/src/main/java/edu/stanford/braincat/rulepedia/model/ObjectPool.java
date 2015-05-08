@@ -8,6 +8,8 @@ import java.util.Map;
 
 import edu.stanford.braincat.rulepedia.channels.omdb.OMDBObjectFactory;
 import edu.stanford.braincat.rulepedia.channels.sms.SMSContactFactory;
+import edu.stanford.braincat.rulepedia.exceptions.TriggerValueTypeException;
+import edu.stanford.braincat.rulepedia.exceptions.UnknownChannelException;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
 
 /**
@@ -32,7 +34,7 @@ public class ObjectPool {
         registerFactory(new OMDBObjectFactory());
     }
 
-    public void registerFactory(ObjectFactory factory) {
+    private void registerFactory(ObjectFactory factory) {
         knownFactories.add(factory);
     }
 
@@ -77,6 +79,14 @@ public class ObjectPool {
         public void resolve() throws UnknownObjectException {
             // nothing to do
         }
+
+        public abstract Class<? extends Value> getParamType(String method, String name) throws UnknownChannelException, TriggerValueTypeException;
+
+        public abstract Trigger createTrigger(String method, Map<String, Value> params)
+                throws UnknownObjectException, UnknownChannelException, TriggerValueTypeException;
+
+        public abstract Action createAction(String method, Map<String, Value> params)
+                throws UnknownObjectException, UnknownChannelException, TriggerValueTypeException;
 
         @Override
         public boolean equals(java.lang.Object object) {

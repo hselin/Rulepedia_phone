@@ -30,8 +30,6 @@ import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
  */
 public class RuleDatabase {
     private final SortedSet<Rule> rules;
-    private final ChannelDatabase<Trigger> triggerdb;
-    private final ChannelDatabase<Action> actiondb;
     private final boolean resolve;
     private boolean dirty;
 
@@ -44,8 +42,6 @@ public class RuleDatabase {
             }
         });
 
-        triggerdb = new ChannelDatabase.TriggerDatabase();
-        actiondb = new ChannelDatabase.ActionDatabase();
         this.resolve = resolve;
     }
 
@@ -53,9 +49,9 @@ public class RuleDatabase {
         return Collections.unmodifiableSortedSet(rules);
     }
 
-    private Value parseParam(ChannelFactory<?> factory, String method, String name, JSONObject jsonParam) throws
+    private Value parseParam(ObjectPool.Object object, String method, String name, JSONObject jsonParam) throws
             JSONException, UnknownChannelException, TriggerValueTypeException {
-        Class<? extends Value> valueType = factory.getParamType(method, name);
+        Class<? extends Value> valueType = object.getParamType(method, name);
 
         if (jsonParam.has("trigger-value")) {
             return new Value.TriggerValue(jsonParam.getString("trigger-value"), valueType);
@@ -68,7 +64,7 @@ public class RuleDatabase {
         }
     }
 
-    private Map<String, Value> parseParams(ChannelFactory<?> factory, String method, JSONArray jsonParams) throws
+    private Map<String, Value> parseParams(ObjectPool.Object object, String method, JSONArray jsonParams) throws
             JSONException, UnknownChannelException, TriggerValueTypeException {
         Map<String, Value> params = new HashMap<>();
 
@@ -76,7 +72,7 @@ public class RuleDatabase {
             JSONObject jsonParam = jsonParams.getJSONObject(i);
 
             String name = jsonParam.getString("name");
-            Value value = parseParam(factory, method, name, jsonParam);
+            Value value = parseParam(object, method, name, jsonParam);
             params.put(name, value);
         }
 
@@ -113,8 +109,7 @@ public class RuleDatabase {
         if (resolve)
             object.resolve();
 
-        ChannelFactory<Trigger> factory = triggerdb.getChannelFactory(object.getType());
-        return factory.createChannel(method, object, parseParams(factory, method, jsonTrigger.getJSONArray(Trigger.PARAMS)));
+        return object.createTrigger(method, parseParams(object, method, jsonTrigger.getJSONArray(Trigger.PARAMS)));
     }
 
     private Trigger parseTrigger(JSONObject jsonTrigger) throws
@@ -134,8 +129,7 @@ public class RuleDatabase {
         if (resolve)
             object.resolve();
 
-        ChannelFactory<Action> factory = actiondb.getChannelFactory(object.getType());
-        return factory.createChannel(method, object, parseParams(factory, method, jsonAction.getJSONArray(Action.PARAMS)));
+        return object.createAction(method, parseParams(object, method, jsonAction.getJSONArray(Action.PARAMS)));
     }
 
     private Collection<Action> parseActionList(JSONArray jsonActions) throws
@@ -178,7 +172,7 @@ public class RuleDatabase {
         rules.add(rule);
     }
 
-    private void loadHelper(Context ctx) throws IOException, UnknownObjectException, UnknownChannelException {
+    public void load(Context ctx) throws IOException, UnknownObjectException, UnknownChannelException {
         try (FileInputStream file = ctx.openFileInput("rules.json")) {
 
             try {
@@ -192,12 +186,6 @@ public class RuleDatabase {
         } catch(FileNotFoundException e) {
             // if there is no file, it's all good
         }
-    }
-
-    public void load(Context ctx) throws IOException, UnknownObjectException, UnknownChannelException {
-        triggerdb.load();
-        actiondb.load();
-        loadHelper(ctx);
     }
 
     public void save(Context ctx) throws IOException {
