@@ -9,6 +9,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
+
+import org.apache.http.message.BasicNameValuePair;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -71,7 +74,7 @@ public class RuleManageFragment extends Fragment {
     }
 
     //LIST OF ARRAY STRINGS WHICH WILL SERVE AS LIST ITEMS
-    ArrayList<String> listItems = new ArrayList<String>();
+    ArrayList<BasicNameValuePair> listItems = new ArrayList<BasicNameValuePair>();
 
     //DEFINING A STRING ADAPTER WHICH WILL HANDLE THE DATA OF THE LISTVIEW
     ArrayAdapter<String> listAdapter;
@@ -90,8 +93,7 @@ public class RuleManageFragment extends Fragment {
                 //listItems.add(rule.);
             }
 
-            listAdapter.add("1");
-            listAdapter.add("2");
+            listItems.add(new BasicNameValuePair("Moo", "Baa"));
 
             listAdapter.notifyDataSetChanged();
         } catch (Exception e) {
@@ -106,7 +108,41 @@ public class RuleManageFragment extends Fragment {
         View v =  inflater.inflate(R.layout.fragment_rule_manage, container, false);
 
         ruleListView = (ListView) v.findViewById( R.id.rule_list );
-        listAdapter = new ArrayAdapter<String>(this.getActivity().getApplicationContext(), android.R.layout.simple_list_item_1, listItems);
+        //listAdapter = new ArrayAdapter<String>(this.getActivity().getApplicationContext(), android.R.layout.simple_list_item_1, listItems);
+
+        /*
+        listAdapter = new ArrayAdapter(this.getActivity().getApplicationContext(),android.R.layout.simple_list_item_2, listItems){
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent){
+                View view = super.getView(position, convertView, parent);
+                TextView text1 = (TextView) view.findViewById(android.R.id.text1);
+                TextView text2 = (TextView) view.findViewById(android.R.id.text2);
+
+                BasicNameValuePair data = listItems.get(position);
+
+                text1.setText(data.getName());
+                text2.setText(data.getValue());
+                return view;
+            }
+        };*/
+
+        listAdapter = new ArrayAdapter (this.getActivity().getApplicationContext(), android.R.layout.simple_list_item_2, android.R.id.text1, listItems)
+        {
+            public View getView(int position, View convertView, ViewGroup parent) {
+                View view = super.getView(position, convertView, parent);
+                TextView text1 = (TextView) view.findViewById(android.R.id.text1);
+                TextView text2 = (TextView) view.findViewById(android.R.id.text2);
+                BasicNameValuePair data = listItems.get(position);
+
+                text1.setText(data.getName());
+                text2.setText(data.getValue());
+                return view;
+            }
+        };
+
+
+
+
         ruleListView.setAdapter(listAdapter);
 
         loadRules();
