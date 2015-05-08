@@ -74,7 +74,7 @@ public class RuleManageFragment extends Fragment {
     }
 
     //LIST OF ARRAY STRINGS WHICH WILL SERVE AS LIST ITEMS
-    ArrayList<BasicNameValuePair> listItems = new ArrayList<BasicNameValuePair>();
+    ArrayList<Rule> listItems = new ArrayList<Rule>();
 
     //DEFINING A STRING ADAPTER WHICH WILL HANDLE THE DATA OF THE LISTVIEW
     ArrayAdapter<String> listAdapter;
@@ -87,17 +87,19 @@ public class RuleManageFragment extends Fragment {
             db.load(this.getActivity().getApplicationContext());
             Collection <Rule> rules = db.getAllRules();
 
-            ArrayList<String> ruletList = new ArrayList<String>();
+            //ArrayList<String> ruletList = new ArrayList<String>();
 
-            for (Rule rule : rules) {
-                //listItems.add(rule.);
+            if(rules != null) {
+                for (Rule rule : rules) {
+                    listItems.add(rule);
+                }
             }
 
-            listItems.add(new BasicNameValuePair("Moo", "Baa"));
+            listItems.add(new Rule("r1", null, null));
 
             listAdapter.notifyDataSetChanged();
         } catch (Exception e) {
-            System.out.println(e);
+            System.out.println("ASDASDASDASDA" + e);
         }
     }
 
@@ -132,10 +134,10 @@ public class RuleManageFragment extends Fragment {
                 View view = super.getView(position, convertView, parent);
                 TextView text1 = (TextView) view.findViewById(android.R.id.text1);
                 TextView text2 = (TextView) view.findViewById(android.R.id.text2);
-                BasicNameValuePair data = listItems.get(position);
+                Rule rule = listItems.get(position);
 
-                text1.setText(data.getName());
-                text2.setText(data.getValue());
+                text1.setText(rule.getName());
+                text2.setText(rule.getDescription());
                 return view;
             }
         };

@@ -22,8 +22,10 @@ public class Rule {
     public static final String ENABLED = "enabled";
 
     private final String name;
+    private final String description;
     private final Trigger trigger;
     private final ArrayList<Action> actions;
+    private final String id;
     private int priority;
     private boolean enabled;
 
@@ -36,6 +38,8 @@ public class Rule {
         this.actions = new ArrayList<Action>();
         this.actions.addAll(actions);
         this.enabled = false;
+        this.description = "MOOOOOOOO";
+        this.id = "1231231231323123123";
     }
 
     public boolean isEnabled() {
@@ -46,9 +50,13 @@ public class Rule {
         this.enabled = enabled;
     }
 
-    private String getName() {
+    public String getName() {
         return name;
     }
+
+    public String getDescription() {return description;}
+
+    public String getID() {return id;}
 
     public int getPriority() {
         return priority;
