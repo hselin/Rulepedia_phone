@@ -109,7 +109,7 @@ public class RuleManageFragment extends Fragment {
         listAdapter = new ArrayAdapter<String>(this.getActivity().getApplicationContext(), android.R.layout.simple_list_item_1, listItems);
         ruleListView.setAdapter(listAdapter);
 
-        //loadRules();
+        loadRules();
         return v;
     }
 
