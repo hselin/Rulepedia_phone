@@ -1,6 +1,7 @@
 package edu.stanford.braincat.rulepedia.ui;
 
 import android.app.Activity;
+import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -77,29 +78,30 @@ public class RuleManageFragment extends Fragment {
     ArrayList<Rule> listItems = new ArrayList<Rule>();
 
     //DEFINING A STRING ADAPTER WHICH WILL HANDLE THE DATA OF THE LISTVIEW
-    ArrayAdapter<String> listAdapter;
+    ArrayAdapter<Rule> listAdapter;
 
-    private void loadRules()
+    private void loadRules(Context ctx)
     {
 
         try{
             RuleDatabase db = new RuleDatabase(false);
-            db.load(this.getActivity().getApplicationContext());
+            db.load(ctx);
             Collection <Rule> rules = db.getAllRules();
 
             //ArrayList<String> ruletList = new ArrayList<String>();
 
-            if(rules != null) {
-                for (Rule rule : rules) {
-                    listItems.add(rule);
-                }
+
+            for (Rule rule : rules) {
+                listItems.add(rule);
             }
 
-            listItems.add(new Rule("r1", null, null));
+
+            //listItems.add(new Rule("r1", null, null));
 
             listAdapter.notifyDataSetChanged();
         } catch (Exception e) {
-            System.out.println("ASDASDASDASDA" + e);
+            e.printStackTrace();
+            System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1ASDASDASDASDA" + e);
         }
     }
 
@@ -147,7 +149,7 @@ public class RuleManageFragment extends Fragment {
 
         ruleListView.setAdapter(listAdapter);
 
-        loadRules();
+        loadRules(this.getActivity().getApplicationContext());
         return v;
     }
 
