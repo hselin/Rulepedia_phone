@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import org.json.JSONObject;
@@ -42,7 +43,10 @@ public class RuleExecutor extends Handler {
 
     private void doInstallRule(final JSONObject jsonRule) {
         try {
-            Rule rule = RuleDatabase.get().addRule(jsonRule);
+            RuleDatabase db = RuleDatabase.get();
+            Rule rule = db.addRule(jsonRule);
+            // save eagerly to catch problems
+            db.save(context);
             rule.resolve();
 
             boolean anyFailed = false;
@@ -98,9 +102,9 @@ public class RuleExecutor extends Handler {
     }
 
     @Override
-    public void handleMessage(Message msg) {
+    public void dispatchMessage(@NonNull Message msg) {
         // dispatch message to event sources
-        dispatchMessage(msg);
+        super.dispatchMessage(msg);
 
         // recompute triggers based on the new state of the event sources
         updateTriggers();

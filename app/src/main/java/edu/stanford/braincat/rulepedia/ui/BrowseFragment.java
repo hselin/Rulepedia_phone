@@ -86,7 +86,8 @@ public class BrowseFragment extends Fragment {
         myWebView.addJavascriptInterface(new WebAppInterface(), "Android");
         //myWebView.loadUrl("http://192.168.1.123:3000/create");
         //myWebView.loadUrl("http://10.34.167.48:3000/create");
-        myWebView.loadUrl("http://192.168.44.133:3000/create");
+        //myWebView.loadUrl("http://192.168.44.133:3000/create");
+        myWebView.loadUrl("http://10.30.69.84:3000/create");
 
         return v;
     }

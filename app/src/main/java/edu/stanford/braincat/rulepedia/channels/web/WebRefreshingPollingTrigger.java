@@ -12,7 +12,6 @@ import java.util.Map;
 import edu.stanford.braincat.rulepedia.channels.ScriptableChannel;
 import edu.stanford.braincat.rulepedia.channels.SingleEventTrigger;
 import edu.stanford.braincat.rulepedia.channels.omdb.OMDBChannelFactory;
-import edu.stanford.braincat.rulepedia.channels.android.SMSChannel;
 import edu.stanford.braincat.rulepedia.events.EventSource;
 import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
 import edu.stanford.braincat.rulepedia.exceptions.TriggerValueTypeException;
@@ -74,7 +73,7 @@ public class WebRefreshingPollingTrigger extends SingleEventTrigger<EventSource>
     @Override
     public void resolve() throws UnknownObjectException {
         Channel newChannel = channel.resolve();
-        if (!(newChannel instanceof SMSChannel))
+        if (!(newChannel instanceof WebChannel))
             throw new UnknownObjectException(newChannel.getUrl());
 
         script = ((WebChannel) newChannel).compileFunction(scriptBody);

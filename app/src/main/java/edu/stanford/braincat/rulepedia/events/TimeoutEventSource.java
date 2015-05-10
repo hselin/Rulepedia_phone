@@ -33,8 +33,8 @@ public class TimeoutEventSource implements EventSource, Runnable {
     }
 
     private void post() {
-        handler = null;
-        handler.postAtTime(this, timeout);
+        triggered = false;
+        handler.postDelayed(this, timeout);
     }
 
     @Override

@@ -8,7 +8,6 @@ import java.util.Date;
 import java.util.Map;
 
 import edu.stanford.braincat.rulepedia.channels.PollingTrigger;
-import edu.stanford.braincat.rulepedia.channels.omdb.OMDBChannel;
 import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
 import edu.stanford.braincat.rulepedia.exceptions.TriggerValueTypeException;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
@@ -68,7 +67,7 @@ public class TimeTrigger extends PollingTrigger {
     @Override
     public void resolve() throws UnknownObjectException {
         Channel newChannel = channel.resolve();
-        if (!(newChannel instanceof OMDBChannel))
+        if (!(newChannel instanceof Timer))
             throw new UnknownObjectException(newChannel.getUrl());
         channel = newChannel;
     }

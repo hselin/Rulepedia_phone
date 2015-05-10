@@ -10,6 +10,7 @@ import org.json.JSONObject;
 
 import java.util.Map;
 
+import edu.stanford.braincat.rulepedia.R;
 import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
 import edu.stanford.braincat.rulepedia.exceptions.TriggerValueTypeException;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
@@ -51,6 +52,7 @@ public class NotificationManagerPostNotificationAction implements Action {
         Value.Text resolvedText = (Value.Text) text.resolve(context);
 
         Notification notification = new Notification.Builder(ctx)
+                .setSmallIcon(R.drawable.ic_stat_name)
                 .setContentTitle(resolvedTitle.getText())
                 .setContentText(resolvedText.getText())
                 .build();

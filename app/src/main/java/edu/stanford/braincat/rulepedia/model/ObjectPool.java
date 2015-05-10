@@ -104,6 +104,7 @@ public class ObjectPool<K extends ObjectPool.Object, F extends ObjectPool.Object
             if (factory.acceptsURL(url)) {
                 K newObject = factory.create(url);
                 knownObjects.put(url, newObject);
+                return newObject;
             }
         }
 

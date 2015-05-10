@@ -2,7 +2,6 @@ package edu.stanford.braincat.rulepedia.channels.time;
 
 import java.util.Map;
 
-import edu.stanford.braincat.rulepedia.channels.interfaces.Messaging;
 import edu.stanford.braincat.rulepedia.exceptions.TriggerValueTypeException;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownChannelException;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
@@ -45,7 +44,7 @@ public class TimerFactory extends ChannelFactory {
     @Override
     public Trigger createTrigger(Channel channel, String method, Map<String, Value> params) throws UnknownObjectException, UnknownChannelException, TriggerValueTypeException {
         switch (method) {
-            case Messaging.MESSAGE_RECEIVED:
+            case ELAPSED:
                 return new TimeTrigger(channel, params.get(INTERVAL));
             default:
                 throw new UnknownChannelException(method);

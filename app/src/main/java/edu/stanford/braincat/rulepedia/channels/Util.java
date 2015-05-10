@@ -12,7 +12,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.nio.CharBuffer;
 
 /**
  * Created by gcampagn on 5/1/15.
@@ -21,17 +20,15 @@ public class Util {
     public static String readString(InputStream input) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(input));
         StringBuilder builder = new StringBuilder();
-        while (true) {
-            CharBuffer buffer = CharBuffer.allocate(4096);
-            try {
+        try {
+            char[] buffer = new char[2048];
+            while (true) {
                 int read = reader.read(buffer);
                 if (read < 0)
                     break;
-            } catch (EOFException e) {
-                break;
+                builder.append(buffer);
             }
-
-            builder.append(buffer);
+        } catch (EOFException e) {
         }
 
         return builder.toString();
@@ -44,5 +41,6 @@ public class Util {
     public static void writeJSON(OutputStream output, JSONArray array) throws IOException {
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(output));
         writer.write(array.toString());
+        writer.flush();
     }
 }
