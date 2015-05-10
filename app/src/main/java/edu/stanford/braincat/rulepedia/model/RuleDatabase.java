@@ -29,14 +29,16 @@ import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
  * Created by gcampagn on 4/30/15.
  */
 public class RuleDatabase {
-    private final SortedSet<Rule> rules;
+    private final Map<String, Rule> rules;
+    private final SortedSet<Rule> sortedRules;
     private boolean dirty;
     private boolean loaded;
 
     private final static RuleDatabase instance = new RuleDatabase();
 
     private RuleDatabase() {
-        rules = new TreeSet<>(new Comparator<Rule>() {
+        rules = new HashMap<>();
+        sortedRules = new TreeSet<>(new Comparator<Rule>() {
             @Override
             public int compare(Rule lhs, Rule rhs) {
                 // higher priority first
@@ -54,7 +56,11 @@ public class RuleDatabase {
     }
 
     public synchronized Collection<Rule> getAllRules() {
-        return Collections.unmodifiableSortedSet(rules);
+        return Collections.unmodifiableSortedSet(sortedRules);
+    }
+
+    public synchronized Rule getRuleById(String id) {
+        return rules.get(id);
     }
 
     private static Value parseParam(ChannelFactory factory, String method, String name, JSONObject jsonParam) throws
@@ -175,7 +181,17 @@ public class RuleDatabase {
             rule.setEnabled(jsonRule.getBoolean(Rule.ENABLED));
         else
             rule.setEnabled(true);
-        rules.add(rule);
+
+        String id;
+        if (!jsonRule.has("id")) {
+            id = Util.toSHA1(rule.toJSON().toString());
+            rule.setId(id);
+        } else {
+            id = jsonRule.getString("id");
+        }
+
+        rules.put(id, rule);
+        sortedRules.add(rule);
     }
 
     public synchronized void load(Context ctx) throws IOException, UnknownObjectException, UnknownChannelException {
@@ -205,7 +221,7 @@ public class RuleDatabase {
             try {
                 JSONArray allRules = new JSONArray();
 
-                for (Rule r : rules) {
+                for (Rule r : sortedRules) {
                     allRules.put(r.toJSON());
                 }
 
@@ -223,7 +239,9 @@ public class RuleDatabase {
         rule.setEnabled(true);
         // FIXME: verify...
         rule.setPriority(rules.size());
-        rules.add(rule);
+
+        rules.put(rule.getId(), rule);
+        sortedRules.add(rule);
         dirty = true;
 
         return rule;

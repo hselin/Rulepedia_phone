@@ -33,37 +33,79 @@ public class RuleExecutor extends Handler {
         eventSources = new HashSet<>();
     }
 
-    public void installRule(final JSONObject jsonRule) {
+    public void installRule(final JSONObject jsonRule, final edu.stanford.braincat.rulepedia.service.Callback callback) {
         post(new Runnable() {
             public void run() {
-                doInstallRule(jsonRule);
+                doInstallRule(jsonRule, callback);
             }
         });
     }
 
-    private void doInstallRule(final JSONObject jsonRule) {
+    public void reloadRule(final String id, final edu.stanford.braincat.rulepedia.service.Callback callback) {
+        post(new Runnable() {
+            @Override
+            public void run() {
+                doReloadRule(id, callback);
+            }
+        });
+    }
+
+    private void doEnableRule(Rule rule) throws UnknownObjectException {
+        rule.resolve();
+
+        boolean anyFailed = false;
+        boolean anySuccess = false;
+        Collection<EventSource> sources = rule.getEventSources();
+        for (EventSource s : sources) {
+            try {
+                s.install(context, this);
+                anySuccess = true;
+            } catch (IOException e) {
+                Log.e(RuleExecutorService.LOG_TAG, "Failed to install event source " + s.toString() + ": " + e.getMessage());
+                anyFailed = true;
+            }
+        }
+        if (!anyFailed)
+            eventSources.addAll(sources);
+        if (anySuccess)
+            rule.setInstalled(true);
+    }
+
+    private void doInstallRule(JSONObject jsonRule, edu.stanford.braincat.rulepedia.service.Callback callback) {
         try {
             RuleDatabase db = RuleDatabase.get();
             Rule rule = db.addRule(jsonRule);
             // save eagerly to catch problems
             db.save(context);
-            rule.resolve();
-
-            boolean anyFailed = false;
-            Collection<EventSource> sources = rule.getEventSources();
-            for (EventSource s : sources) {
-                try {
-                    s.install(context, this);
-                } catch (IOException e) {
-                    Log.e(RuleExecutorService.LOG_TAG, "Failed to install event source " + s.toString() + ": " + e.getMessage());
-                    anyFailed = true;
-                }
-            }
-            if (!anyFailed)
-                eventSources.addAll(sources);
-        } catch(Exception e) {
-            // FIXME: dispatch back to the UI thread
+            doEnableRule(rule);
+            callback.post(null);
+        } catch (Exception e) {
             Log.e(RuleExecutorService.LOG_TAG, "Failed to add rule to the database: " + e.getMessage());
+            callback.post(e);
+        }
+    }
+
+    private void doReloadRule(String id, edu.stanford.braincat.rulepedia.service.Callback callback) {
+        Rule rule = RuleDatabase.get().getRuleById(id);
+
+        if (rule == null) {
+            // perfectly legitimate, possible race condition
+            Log.i(RuleExecutorService.LOG_TAG, "No rule with id " + id);
+            callback.post(null);
+            return;
+        }
+
+        if (rule.isInstalled()) {
+            callback.post(null);
+            return;
+        }
+
+        try {
+            doEnableRule(rule);
+            callback.post(null);
+        } catch(Exception e) {
+            Log.e(RuleExecutorService.LOG_TAG, "Failed to reload rule: " + e.getMessage());
+            callback.post(null);
         }
     }
 

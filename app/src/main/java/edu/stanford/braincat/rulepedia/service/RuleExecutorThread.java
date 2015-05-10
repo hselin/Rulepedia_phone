@@ -38,7 +38,11 @@ public class RuleExecutorThread extends Thread {
         executor.destroy();
     }
 
-    public void installRule(JSONObject jsonRule) {
-        executor.installRule(jsonRule);
+    public void installRule(JSONObject jsonRule, Callback callback) {
+        executor.installRule(jsonRule, callback);
+    }
+
+    public void reloadRule(String id, Callback callback) {
+        executor.reloadRule(id, callback);
     }
 }

@@ -8,6 +8,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,8 +31,9 @@ public class Rule {
     private final String description;
     private final Trigger trigger;
     private final ArrayList<Action> actions;
-    private final String id;
+    private String id;
     private int priority;
+    private boolean installed;
     private volatile boolean enabled;
 
     public Rule(String name, String description, Trigger trigger, Collection<Action> actions) {
@@ -44,24 +46,43 @@ public class Rule {
         this.actions.addAll(actions);
         this.enabled = false;
         this.description = description;
-        this.id = "1231231231323123123";
+        this.id = null;
+        this.installed = false;
     }
 
     public boolean isEnabled() {
         return enabled;
     }
 
+    public boolean isInstalled() {
+        return installed;
+    }
+
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public void setInstalled(boolean installed) {
+        this.installed = installed;
     }
 
     public String getName() {
         return name;
     }
 
-    public String getDescription() {return description;}
+    public String getDescription() {
+        return description;
+    }
 
-    public String getID() {return id;}
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        if (this.id != null)
+            throw new IllegalStateException("cannot set id twice");
+        this.id = id;
+    }
 
     public int getPriority() {
         return priority;
@@ -69,6 +90,14 @@ public class Rule {
 
     public void setPriority(int priority) {
         this.priority = priority;
+    }
+
+    public Trigger getTrigger() {
+        return trigger;
+    }
+
+    public Collection<Action> getActions() {
+        return Collections.unmodifiableList(actions);
     }
 
     public Collection<EventSource> getEventSources() {
@@ -126,6 +155,9 @@ public class Rule {
 
         json.put("actions", jsonActions);
         json.put("enabled", enabled);
+
+        if (id != null)
+            json.put("id", id);
 
         return json;
     }

@@ -10,6 +10,7 @@ import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
 import edu.stanford.braincat.rulepedia.model.Action;
 import edu.stanford.braincat.rulepedia.model.Channel;
 import edu.stanford.braincat.rulepedia.model.ChannelFactory;
+import edu.stanford.braincat.rulepedia.model.PlaceholderChannel;
 import edu.stanford.braincat.rulepedia.model.Trigger;
 import edu.stanford.braincat.rulepedia.model.Value;
 
@@ -42,13 +43,7 @@ public class OMDBChannelFactory extends ChannelFactory {
 
     @Override
     public Channel createPlaceholder(String url) {
-        return new Channel(this, url) {
-            @Override
-            public String toHumanString() {
-                return "a movie";
-            }
-
-        };
+        return new PlaceholderChannel(this, url, "a movie");
     }
 
     @Override

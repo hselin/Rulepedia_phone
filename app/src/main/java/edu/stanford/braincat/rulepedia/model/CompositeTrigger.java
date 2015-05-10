@@ -6,7 +6,9 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -22,7 +24,7 @@ public abstract class CompositeTrigger implements Trigger {
     public static final String COMBINATOR = "combinator";
     public static final String OPERANDS = "operands";
 
-    private final ArrayList<Trigger> children;
+    private final List<Trigger> children;
 
     protected CompositeTrigger(Collection<Trigger> children) {
         if (children.size() <= 1)
@@ -30,6 +32,14 @@ public abstract class CompositeTrigger implements Trigger {
 
         this.children = new ArrayList<>();
         this.children.addAll(children);
+    }
+
+    public Channel getChannel() {
+        return null;
+    }
+
+    public Collection<Trigger> getChildren() {
+        return Collections.unmodifiableList(children);
     }
 
     protected abstract boolean compose(boolean t1, boolean t2);

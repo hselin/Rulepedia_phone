@@ -9,6 +9,7 @@ import edu.stanford.braincat.rulepedia.model.Action;
 import edu.stanford.braincat.rulepedia.model.Channel;
 import edu.stanford.braincat.rulepedia.model.ChannelFactory;
 import edu.stanford.braincat.rulepedia.model.ChannelPool;
+import edu.stanford.braincat.rulepedia.model.PlaceholderChannel;
 import edu.stanford.braincat.rulepedia.model.Trigger;
 import edu.stanford.braincat.rulepedia.model.Value;
 
@@ -66,12 +67,7 @@ public class TimerFactory extends ChannelFactory {
 
     @Override
     public Channel createPlaceholder(String url) {
-        return new Channel(this, url) {
-            @Override
-            public String toHumanString() {
-                return "a timer";
-            }
-        };
+        return new PlaceholderChannel(this, url, "a timer");
     }
 
     @Override

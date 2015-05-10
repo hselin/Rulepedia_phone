@@ -26,6 +26,9 @@ public class TimeTrigger extends PollingTrigger {
         this.channel = channel;
     }
 
+    public Channel getChannel() {
+        return channel;
+    }
 
     @Override
     public void update() throws RuleExecutionException {

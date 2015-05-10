@@ -16,6 +16,7 @@ import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
 import edu.stanford.braincat.rulepedia.model.Action;
 import edu.stanford.braincat.rulepedia.model.Channel;
 import edu.stanford.braincat.rulepedia.model.ChannelFactory;
+import edu.stanford.braincat.rulepedia.model.PlaceholderChannel;
 import edu.stanford.braincat.rulepedia.model.Trigger;
 import edu.stanford.braincat.rulepedia.model.Value;
 
@@ -77,14 +78,8 @@ public class WebChannelFactory extends ChannelFactory {
         } catch(JSONException e) {
             text = "a generic web channel";
         }
-        final String ftext = text;
 
-        return new Channel(this, url) {
-            @Override
-            public String toHumanString() {
-                return ftext;
-            }
-        };
+        return new PlaceholderChannel(this, url, text);
     }
 
     @Override

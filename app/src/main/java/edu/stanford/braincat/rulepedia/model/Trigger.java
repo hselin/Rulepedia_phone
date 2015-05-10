@@ -19,6 +19,8 @@ public interface Trigger {
     String TRIGGER = "trigger";
     String PARAMS = "params";
 
+    Channel getChannel();
+
     Collection<EventSource> getEventSources();
 
     void update() throws RuleExecutionException;

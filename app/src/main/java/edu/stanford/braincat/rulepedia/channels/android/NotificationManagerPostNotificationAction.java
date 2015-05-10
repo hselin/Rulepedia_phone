@@ -32,6 +32,10 @@ public class NotificationManagerPostNotificationAction implements Action {
         this.text = text;
     }
 
+    public Channel getChannel() {
+        return channel;
+    }
+
     @Override
     public void resolve() throws UnknownObjectException {
         Channel newChannel = channel.resolve();

@@ -12,14 +12,17 @@ import org.json.JSONTokener;
 
 import java.io.IOException;
 
+import edu.stanford.braincat.rulepedia.model.ObjectDatabase;
 import edu.stanford.braincat.rulepedia.model.RuleDatabase;
 
 public class RuleExecutorService extends Service {
     private RuleExecutorThread executorThread;
     private Looper executorLooper;
-    private RuleDatabase database;
+    private ObjectDatabase objectdb;
+    private RuleDatabase ruledb;
 
     public static final String INSTALL_RULE_INTENT = "edu.stanford.braincat.rulepedia.INSTALL_RULE";
+    public static final String RELOAD_RULE_INTENT = "edu.stanford.braincat.rulepedia.RELOAD_RULE";
 
     public static final String LOG_TAG = "rulepedia.Service";
 
@@ -31,8 +34,10 @@ public class RuleExecutorService extends Service {
         Log.i(LOG_TAG, "Creating service...");
 
         try {
-            database = RuleDatabase.get();
-            database.load(this);
+            objectdb = ObjectDatabase.get();
+            objectdb.load(this);
+            ruledb = RuleDatabase.get();
+            ruledb.load(this);
         } catch (Exception e) {
             Log.e(LOG_TAG, "Failed to load database: " + e.getMessage());
             stopSelf();
@@ -65,15 +70,30 @@ public class RuleExecutorService extends Service {
 
             if (intent.getData().toString().equals("rulepedia:json")) {
                 jsonObject = (JSONObject)new JSONTokener(intent.getStringExtra("json")).nextValue();
-                executorThread.installRule(jsonObject);
+                executorThread.installRule(jsonObject, new Callback() {
+                    @Override
+                    public void run(Exception e) {
+                        // FIXME
+                    }
+                });
             } else {
                 // FIXME
                 throw new UnsupportedOperationException();
             }
         } catch(JSONException e) {
-            // FIXME: log a message to the user!
             Log.e(LOG_TAG, "Failed to add rule to the database: " + e.getMessage());
+            // FIXME
         }
+    }
+
+    private void doReloadRule(Intent intent) {
+        String id = intent.getStringExtra("id");
+        executorThread.reloadRule(id, new Callback() {
+            @Override
+            public void run(Exception e) {
+                // FIXME
+            }
+        });
     }
 
     private void ensureService() {
@@ -92,6 +112,8 @@ public class RuleExecutorService extends Service {
         switch (action) {
             case INSTALL_RULE_INTENT:
                 return onInstallRule(intent);
+            case RELOAD_RULE_INTENT:
+                return onReloadRule(intent);
             default:
                 throw new UnsupportedOperationException("service cannot handle action " + action);
         }
@@ -100,6 +122,12 @@ public class RuleExecutorService extends Service {
     private int onInstallRule(Intent intent) {
         ensureService();
         doInstallRule(intent);
+        return START_STICKY;
+    }
+
+    private int onReloadRule(Intent intent) {
+        ensureService();
+        doReloadRule(intent);
         return START_STICKY;
     }
 
@@ -128,7 +156,8 @@ public class RuleExecutorService extends Service {
         executorThread = null;
 
         try {
-            database.save(this);
+            objectdb.save(this);
+            ruledb.save(this);
         } catch(IOException e) {
             Log.e(LOG_TAG, "Failed to save database to disk: " + e.getMessage());
         }

@@ -12,6 +12,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * Created by gcampagn on 5/1/15.
@@ -42,5 +44,14 @@ public class Util {
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(output));
         writer.write(array.toString());
         writer.flush();
+    }
+
+    public static String toSHA1(String string) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-1");
+            return md.digest(string.getBytes()).toString();
+        } catch(NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

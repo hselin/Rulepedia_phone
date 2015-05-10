@@ -31,6 +31,10 @@ public class ObjectPool<K extends ObjectPool.Object, F extends ObjectPool.Object
             return factory;
         }
 
+        public boolean isPlaceholder() {
+            return false;
+        }
+
         public String getUrl() {
             return url;
         }

@@ -2,6 +2,7 @@ package edu.stanford.braincat.rulepedia.channels.android;
 
 import edu.stanford.braincat.rulepedia.model.Contact;
 import edu.stanford.braincat.rulepedia.model.ContactFactory;
+import edu.stanford.braincat.rulepedia.model.PlaceholderContact;
 
 /**
  * Created by gcampagn on 5/2/15.
@@ -20,12 +21,7 @@ public class SMSContactFactory extends ContactFactory {
 
     @Override
     public Contact createPlaceholder(String url) {
-        return new Contact(this, url) {
-            @Override
-            public String toHumanString() {
-                return "a contact";
-            }
-        };
+        return new PlaceholderContact(this, url, "a contact");
     }
 
     @Override

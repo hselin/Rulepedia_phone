@@ -31,6 +31,10 @@ public class SMSSendMessageAction implements Action {
         this.message = message;
     }
 
+    public Channel getChannel() {
+        return channel;
+    }
+
     @Override
     public void typeCheck(Map<String, Class<? extends Value>> context) throws TriggerValueTypeException {
         destination.typeCheck(context, Value.Contact.class);

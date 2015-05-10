@@ -108,7 +108,10 @@ public abstract class Value {
         // FIXME: typechecking for objects? right now we would just say "channel"
 
         protected <P extends ObjectPool<K, ?>> Value resolve(Map<String, Value> context, P pool) throws UnknownObjectException {
-            return new DirectObject<>(pool.getObject(url)).resolve(context);
+            K object = pool.getObject(url);
+            if (object.isPlaceholder())
+                throw new UnknownObjectException(url);
+            return new DirectObject<>(object).resolve(context);
         }
     }
 

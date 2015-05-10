@@ -41,6 +41,10 @@ public class WebRefreshingPollingTrigger extends SingleEventTrigger<EventSource>
         this.scriptBody = scriptBody;
     }
 
+    public Channel getChannel() {
+        return channel;
+    }
+
     @Override
     public void update() throws RuleExecutionException {
         try {

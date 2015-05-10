@@ -25,6 +25,10 @@ public class OMDBMovieReleasedTrigger extends PollingTrigger {
         this.channel = channel;
     }
 
+    public Channel getChannel() {
+        return channel;
+    }
+
     @Override
     public String toHumanString() {
         return channel.toHumanString() + " is released";

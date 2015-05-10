@@ -42,6 +42,10 @@ public class SMSMessageReceivedTrigger extends SimpleEventTrigger<SMSEventSource
             this.senderMatches = null;
     }
 
+    public Channel getChannel() {
+        return channel;
+    }
+
     @Override
     public void update() {
         receivedMessage = getSource().getLastMessage();

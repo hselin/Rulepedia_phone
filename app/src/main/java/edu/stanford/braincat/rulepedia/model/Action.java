@@ -19,6 +19,8 @@ public interface Action {
     String METHOD = "method";
     String PARAMS = "params";
 
+    Channel getChannel();
+
     void resolve() throws UnknownObjectException;
 
     void typeCheck(Map<String, Class<? extends Value>> context) throws TriggerValueTypeException;
