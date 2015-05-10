@@ -15,6 +15,7 @@ import java.util.Set;
 
 import edu.stanford.braincat.rulepedia.events.EventSource;
 import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
+import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
 import edu.stanford.braincat.rulepedia.model.Rule;
 import edu.stanford.braincat.rulepedia.model.RuleDatabase;
 
@@ -23,13 +24,11 @@ import edu.stanford.braincat.rulepedia.model.RuleDatabase;
  */
 public class RuleExecutor extends Handler {
     private final Context context;
-    private final RuleDatabase database;
     private final Set<EventSource> eventSources;
 
-    public RuleExecutor(Context ctx, Looper looper, RuleDatabase db) {
+    public RuleExecutor(Context ctx, Looper looper) {
         super(looper);
         context = ctx;
-        database = db;
         eventSources = new HashSet<>();
     }
 
@@ -43,7 +42,8 @@ public class RuleExecutor extends Handler {
 
     private void doInstallRule(final JSONObject jsonRule) {
         try {
-            Rule rule = database.addRule(jsonRule);
+            Rule rule = RuleDatabase.get().addRule(jsonRule);
+            rule.resolve();
 
             boolean anyFailed = false;
             Collection<EventSource> sources = rule.getEventSources();
@@ -64,8 +64,14 @@ public class RuleExecutor extends Handler {
     }
 
     public void prepare() {
-        for (Rule r : database.getAllRules()) {
-            eventSources.addAll(r.getEventSources());
+        for (Rule r : RuleDatabase.get().getAllRules()) {
+            try {
+                r.resolve();
+                eventSources.addAll(r.getEventSources());
+            } catch (UnknownObjectException e) {
+                Log.i(RuleExecutorService.LOG_TAG, "Failed to resolve rule: " + e.getMessage());
+                r.setEnabled(false);
+            }
         }
 
         Set<EventSource> failedSources = new HashSet<>();
@@ -107,7 +113,7 @@ public class RuleExecutor extends Handler {
     }
 
     private void updateTriggers() {
-        for (Rule r : database.getAllRules()) {
+        for (Rule r : RuleDatabase.get().getAllRules()) {
             try {
                 r.updateTrigger();
             } catch (RuleExecutionException e) {
@@ -118,7 +124,7 @@ public class RuleExecutor extends Handler {
     }
 
     private void dispatchRules() {
-        for (Rule r : database.getAllRules()) {
+        for (Rule r : RuleDatabase.get().getAllRules()) {
             try {
                 if (r.isFiring())
                     r.fire();

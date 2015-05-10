@@ -17,6 +17,8 @@ public interface Action {
     String METHOD = "method";
     String PARAMS = "params";
 
+    void resolve() throws UnknownObjectException;
+
     void typeCheck(Map<String, Class<? extends Value>> context) throws TriggerValueTypeException;
 
     void execute(Map<String, Value> context) throws UnknownObjectException, RuleExecutionException;

@@ -4,37 +4,38 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
-import edu.stanford.braincat.rulepedia.channels.HTTPHelper;
-import edu.stanford.braincat.rulepedia.channels.RefreshableObject;
-import edu.stanford.braincat.rulepedia.channels.ScriptableObject;
-import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
+import edu.stanford.braincat.rulepedia.events.EventSource;
+import edu.stanford.braincat.rulepedia.events.TimeoutEventSource;
 import edu.stanford.braincat.rulepedia.exceptions.TriggerValueTypeException;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownChannelException;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
 import edu.stanford.braincat.rulepedia.model.Action;
+import edu.stanford.braincat.rulepedia.model.Channel;
+import edu.stanford.braincat.rulepedia.model.ChannelFactory;
 import edu.stanford.braincat.rulepedia.model.Trigger;
 import edu.stanford.braincat.rulepedia.model.Value;
 
 /**
  * Created by gcampagn on 5/8/15.
  */
-public class WebObject extends ScriptableObject implements RefreshableObject {
-    private final String text;
+public class WebChannelFactory extends ChannelFactory {
+    private final JSONObject jsonFactory;
     private final String id;
+    private final Pattern pattern;
+
     private final Map<String, JSONObject> eventSourceMetas;
     private final Map<String, JSONObject> triggerMetas;
     private final Map<String, JSONObject> actionMetas;
 
-    private String response;
-
-    public WebObject(String url, JSONObject jsonFactory) throws JSONException {
-        super(url);
-        id = jsonFactory.getString("id");
-        text = jsonFactory.getString("text");
+    public WebChannelFactory(JSONObject jsonObjectFactory) throws JSONException {
+        super(jsonObjectFactory.getString("urlPrefix"));
+        jsonFactory = jsonObjectFactory;
+        id = jsonObjectFactory.getString("id");
+        pattern = Pattern.compile(jsonObjectFactory.getString("urlRegex"));
 
         eventSourceMetas = new HashMap<>();
         JSONArray jsonEventSources = jsonFactory.getJSONArray("event-sources");
@@ -51,37 +52,43 @@ public class WebObject extends ScriptableObject implements RefreshableObject {
         }
 
         actionMetas = new HashMap<>();
-        JSONArray jsonActions = jsonFactory.getJSONArray("event-sources");
+        JSONArray jsonActions = jsonFactory.getJSONArray("methods");
         for (int i = 0; i < jsonActions.length(); i++) {
             JSONObject jsonAction = jsonEventSources.getJSONObject(i);
             actionMetas.put(jsonAction.getString("id"), jsonAction);
         }
-
-        // FIXME auth
     }
 
     @Override
-    public synchronized void refresh() throws IOException {
-        response = HTTPHelper.getString(getUrl());
-    }
-
-    private void checkData() throws RuleExecutionException {
-        if (response == null)
-            throw new RuleExecutionException("Movie data not available");
-    }
-
-    public synchronized String getData() throws RuleExecutionException {
-        checkData();
-        return response;
+    public Channel create(String url) throws UnknownObjectException {
+        try {
+            return new WebChannel(this, url, jsonFactory.getString("id"), jsonFactory.getString("text"));
+        } catch(JSONException e) {
+            throw new UnknownObjectException(url);
+        }
     }
 
     @Override
-    public String toHumanString() {
-        return text;
+    public Channel createPlaceholder(String url) {
+        String text;
+
+        try {
+            text = jsonFactory.getString("text");
+        } catch(JSONException e) {
+            text = "a generic web channel";
+        }
+        final String ftext = text;
+
+        return new Channel(this, url) {
+            @Override
+            public String toHumanString() {
+                return ftext;
+            }
+        };
     }
 
     @Override
-    public String getType() {
+    public String getName() {
         return id;
     }
 
@@ -97,7 +104,7 @@ public class WebObject extends ScriptableObject implements RefreshableObject {
                     return Value.Text.class;
                 case "contact":
                 case "message-destination":
-                    return Value.Object.class;
+                    return Value.Contact.class;
                 default:
                     throw new TriggerValueTypeException("invalid type " + paramtype);
             }
@@ -124,12 +131,44 @@ public class WebObject extends ScriptableObject implements RefreshableObject {
     }
 
     @Override
-    public Trigger createTrigger(String method, Map<String, Value> params) throws UnknownObjectException, UnknownChannelException, TriggerValueTypeException {
-        return null;
+    public Trigger createTrigger(Channel channel, String method, Map<String, Value> params) throws UnknownObjectException, UnknownChannelException, TriggerValueTypeException {
+        JSONObject triggerMeta = triggerMetas.get(method);
+
+        if (triggerMeta == null)
+            throw new UnknownChannelException(method);
+
+        try {
+            String impl = triggerMeta.getString("implementation");
+
+            switch (impl) {
+                case "refresh-poll":
+                    return new WebRefreshingPollingTrigger(channel, triggerMeta.getString("id"), triggerMeta.getString("text"),
+                            triggerMeta.getJSONArray("event-sources").getString(0), triggerMeta.getString("script"));
+
+                default:
+                    throw new UnknownChannelException(method);
+            }
+        } catch(JSONException e) {
+            throw new UnknownChannelException(method);
+        }
     }
 
     @Override
-    public Action createAction(String method, Map<String, Value> params) throws UnknownObjectException, UnknownChannelException, TriggerValueTypeException {
-        return null;
+    public Action createAction(Channel channel, String method, Map<String, Value> params) throws UnknownObjectException, UnknownChannelException, TriggerValueTypeException {
+        throw new UnknownChannelException(method);
+    }
+
+    public EventSource createEventSource(String id) throws JSONException {
+        JSONObject eventSourceMeta = eventSourceMetas.get(id);
+
+        if (eventSourceMeta == null)
+            throw new JSONException("no event source with id " + id);
+
+        switch (eventSourceMeta.getString("type")) {
+            case "polling":
+                return new TimeoutEventSource(eventSourceMeta.getLong("polling-interval"));
+            default:
+                throw new JSONException("invalid event source type");
+        }
     }
 }

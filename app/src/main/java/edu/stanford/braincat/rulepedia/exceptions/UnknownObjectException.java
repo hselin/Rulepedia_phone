@@ -5,6 +5,6 @@ package edu.stanford.braincat.rulepedia.exceptions;
  */
 public class UnknownObjectException extends Exception {
     public UnknownObjectException(String url) {
-        super("Object referenced by " + url + " is not known");
+        super("Channel referenced by " + url + " is not known");
     }
 }

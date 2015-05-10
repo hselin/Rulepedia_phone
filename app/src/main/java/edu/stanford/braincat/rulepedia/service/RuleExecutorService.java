@@ -10,6 +10,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
+import java.io.IOException;
+
 import edu.stanford.braincat.rulepedia.model.RuleDatabase;
 
 public class RuleExecutorService extends Service {
@@ -29,7 +31,7 @@ public class RuleExecutorService extends Service {
         Log.i(LOG_TAG, "Creating service...");
 
         try {
-            database = new RuleDatabase(true);
+            database = RuleDatabase.get();
             database.load(this);
         } catch (Exception e) {
             Log.e(LOG_TAG, "Failed to load database: " + e.getMessage());
@@ -42,7 +44,7 @@ public class RuleExecutorService extends Service {
     private void doStartService() {
         Log.i(LOG_TAG, "Starting service...");
 
-        executorThread = new RuleExecutorThread(this, database);
+        executorThread = new RuleExecutorThread(this);
         executorThread.start();
 
         while (executorLooper == null) {
@@ -124,6 +126,12 @@ public class RuleExecutorService extends Service {
             }
         }
         executorThread = null;
+
+        try {
+            database.save(this);
+        } catch(IOException e) {
+            Log.e(LOG_TAG, "Failed to save database to disk: " + e.getMessage());
+        }
 
         Log.i(LOG_TAG, "Destroyed service");
     }

@@ -12,8 +12,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import org.apache.http.message.BasicNameValuePair;
-
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -84,7 +82,7 @@ public class RuleManageFragment extends Fragment {
     {
 
         try{
-            RuleDatabase db = new RuleDatabase(false);
+            RuleDatabase db = RuleDatabase.get();
             db.load(ctx);
             Collection <Rule> rules = db.getAllRules();
 

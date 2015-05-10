@@ -5,20 +5,16 @@ import android.os.Looper;
 
 import org.json.JSONObject;
 
-import edu.stanford.braincat.rulepedia.model.RuleDatabase;
-
 /**
  * Created by gcampagn on 4/30/15.
  */
 public class RuleExecutorThread extends Thread {
     private final Context context;
-    private final RuleDatabase database;
     private RuleExecutor executor;
     private Looper looper;
 
-    public RuleExecutorThread(Context ctx, RuleDatabase db)  {
+    public RuleExecutorThread(Context ctx)  {
         context = ctx;
-        database = db;
     }
 
     public synchronized Looper getLooper() throws InterruptedException {
@@ -30,7 +26,7 @@ public class RuleExecutorThread extends Thread {
     @Override
     public void run() {
         Looper.prepare();
-        executor = new RuleExecutor(context, Looper.myLooper(), database);
+        executor = new RuleExecutor(context, Looper.myLooper());
 
         synchronized (this) {
             looper = Looper.myLooper();

@@ -30,9 +30,9 @@ public class Rule {
     private final ArrayList<Action> actions;
     private final String id;
     private int priority;
-    private boolean enabled;
+    private volatile boolean enabled;
 
-    public Rule(String name, Trigger trigger, Collection<Action> actions) {
+    public Rule(String name, String description, Trigger trigger, Collection<Action> actions) {
         if (actions.size() == 0)
             throw new IllegalArgumentException("a rule must have at least one action");
 
@@ -41,7 +41,7 @@ public class Rule {
         this.actions = new ArrayList<Action>();
         this.actions.addAll(actions);
         this.enabled = false;
-        this.description = "MOOOOOOOO";
+        this.description = description;
         this.id = "1231231231323123123";
     }
 
@@ -80,6 +80,12 @@ public class Rule {
             a.typeCheck(context);
     }
 
+    public void resolve() throws UnknownObjectException {
+        trigger.resolve();
+        for (Action a : actions)
+            a.resolve();
+    }
+
     public void updateTrigger() throws RuleExecutionException {
         if (!enabled)
             return;
@@ -108,7 +114,7 @@ public class Rule {
     public JSONObject toJSON() throws JSONException {
         JSONObject json = new JSONObject();
         json.put("name", name);
-        json.put("description", toHumanString());
+        json.put("description", description);
         json.put("trigger", trigger.toJSON());
 
         JSONArray jsonActions = new JSONArray();

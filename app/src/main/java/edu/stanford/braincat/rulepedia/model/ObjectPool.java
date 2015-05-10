@@ -2,44 +2,93 @@ package edu.stanford.braincat.rulepedia.model;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import edu.stanford.braincat.rulepedia.channels.omdb.OMDBObjectFactory;
-import edu.stanford.braincat.rulepedia.channels.sms.SMSContactFactory;
-import edu.stanford.braincat.rulepedia.exceptions.TriggerValueTypeException;
-import edu.stanford.braincat.rulepedia.exceptions.UnknownChannelException;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
 
 /**
  * Created by gcampagn on 4/30/15.
  */
-public class ObjectPool {
-    private final Map<String, Object> knownObjects;
-    private final ArrayList<ObjectFactory> knownFactories;
+public class ObjectPool<K extends ObjectPool.Object, F extends ObjectPool.ObjectFactory<K>> {
+    public static final String PREFIX = "https://rulepedia.stanford.edu/oid/";
+    public static final String PREDEFINED_PREFIX = PREFIX + "predefined/";
+    public static final String PLACEHOLDER_PREFIX = PREFIX + "placeholder/";
 
-    private static final ObjectPool instance = new ObjectPool();
+    public abstract static class Object<K extends Object, F extends ObjectFactory<K> > {
+        private final F factory;
+        private final String url;
 
-    public static ObjectPool get() {
-        return instance;
+        public Object(F factory, String url) {
+            this.factory = factory;
+            this.url = url;
+        }
+
+        public F getFactory() {
+            return factory;
+        }
+
+        public String getUrl() {
+            return url;
+        }
+
+        public abstract String toHumanString();
+
+        @Override
+        public boolean equals(java.lang.Object object) {
+            if (object == null)
+                return false;
+            if (object == this)
+                return true;
+            if (!(object instanceof Channel))
+                return false;
+            return url.equals(((Channel) object).getUrl());
+        }
+
+        @Override
+        public int hashCode() {
+            return url.hashCode();
+        }
     }
 
-    private ObjectPool() {
+    public abstract static class ObjectFactory<K extends ObjectPool.Object> {
+        private final String prefix;
+
+        public ObjectFactory(String prefix) {
+            this.prefix = prefix;
+        }
+
+        public String getPrefix() { return prefix; }
+
+        public boolean acceptsURL(String url) {
+            return url.startsWith(prefix);
+        }
+
+        public abstract K create(String url) throws UnknownObjectException;
+
+        public abstract K createPlaceholder(String url);
+
+        public abstract String getName();
+    }
+
+    private final Pattern placeholderPattern;
+    private final Map<String, K> knownObjects;
+    private final Map<String, F> knownFactories;
+
+    protected ObjectPool(String kind) {
+        placeholderPattern = Pattern.compile("^https://rulepedia\\.stanford\\.edu/oid/placeholder/" + kind + "/([[a-z]\\-]+)$");
         knownObjects = new HashMap<>();
-        knownFactories = new ArrayList<>();
-
-        registerFactory(new InternalObjectFactory());
-        registerFactory(new SMSContactFactory());
-        registerFactory(new OMDBObjectFactory());
+        knownFactories = new HashMap<>();
     }
 
-    private void registerFactory(ObjectFactory factory) {
-        knownFactories.add(factory);
+    protected void registerFactory(F factory) {
+        knownFactories.put(factory.getName(), factory);
     }
 
-    public synchronized Object getObject(String url) throws UnknownObjectException {
-        Object existing = knownObjects.get(url);
+    public synchronized K getObject(String url) throws UnknownObjectException {
+        K existing = knownObjects.get(url);
         if (existing != null)
             return existing;
 
@@ -50,58 +99,22 @@ public class ObjectPool {
             throw new UnknownObjectException(url);
         }
 
-        for (ObjectFactory factory : knownFactories) {
-            if (factory.acceptsURL(url))
-                return factory.create(url);
+        for (ObjectFactory<K> factory : knownFactories.values()) {
+            if (factory.acceptsURL(url)) {
+                K newObject = factory.create(url);
+                knownObjects.put(url, newObject);
+            }
+        }
+
+        Matcher m = placeholderPattern.matcher(url);
+        if (m.matches()) {
+            String subKind = m.group(1);
+            F factory = knownFactories.get(subKind);
+            if (factory != null)
+                return factory.createPlaceholder(url);
         }
 
         throw new UnknownObjectException(url);
     }
 
-    /**
-     * Created by gcampagn on 4/30/15.
-     */
-    public abstract static class Object {
-        private final String url;
-
-        protected Object(String url) {
-            this.url = url;
-        }
-
-        public String getUrl() {
-            return url;
-        }
-
-        public abstract String toHumanString();
-
-        public abstract String getType();
-
-        public void resolve() throws UnknownObjectException {
-            // nothing to do
-        }
-
-        public abstract Class<? extends Value> getParamType(String method, String name) throws UnknownChannelException, TriggerValueTypeException;
-
-        public abstract Trigger createTrigger(String method, Map<String, Value> params)
-                throws UnknownObjectException, UnknownChannelException, TriggerValueTypeException;
-
-        public abstract Action createAction(String method, Map<String, Value> params)
-                throws UnknownObjectException, UnknownChannelException, TriggerValueTypeException;
-
-        @Override
-        public boolean equals(java.lang.Object object) {
-            if (object == null)
-                return false;
-            if (object == this)
-                return true;
-            if (!(object instanceof Object))
-                return false;
-            return url.equals(((Object) object).getUrl());
-        }
-
-        @Override
-        public int hashCode() {
-            return url.hashCode();
-        }
-    }
 }

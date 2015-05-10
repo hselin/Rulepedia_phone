@@ -13,6 +13,7 @@ import java.util.Set;
 import edu.stanford.braincat.rulepedia.events.EventSource;
 import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
 import edu.stanford.braincat.rulepedia.exceptions.TriggerValueTypeException;
+import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
 
 /**
  * Created by gcampagn on 4/30/15.
@@ -81,6 +82,12 @@ public abstract class CompositeTrigger implements Trigger {
         json.put(OPERANDS, jsonChildren);
 
         return json;
+    }
+
+    @Override
+    public void resolve() throws UnknownObjectException {
+        for (Trigger t : children)
+            t.resolve();
     }
 
     @Override

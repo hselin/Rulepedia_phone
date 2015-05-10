@@ -9,37 +9,43 @@ import org.mozilla.javascript.Scriptable;
 import java.io.IOException;
 import java.util.Map;
 
-import edu.stanford.braincat.rulepedia.channels.ScriptableObject;
+import edu.stanford.braincat.rulepedia.channels.ScriptableChannel;
 import edu.stanford.braincat.rulepedia.channels.SingleEventTrigger;
-import edu.stanford.braincat.rulepedia.channels.omdb.OMDBObjectFactory;
-import edu.stanford.braincat.rulepedia.events.TimeoutEventSource;
+import edu.stanford.braincat.rulepedia.channels.omdb.OMDBChannelFactory;
+import edu.stanford.braincat.rulepedia.channels.android.SMSChannel;
+import edu.stanford.braincat.rulepedia.events.EventSource;
 import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
 import edu.stanford.braincat.rulepedia.exceptions.TriggerValueTypeException;
+import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
+import edu.stanford.braincat.rulepedia.model.Channel;
 import edu.stanford.braincat.rulepedia.model.Trigger;
 import edu.stanford.braincat.rulepedia.model.Value;
 
 /**
  * Created by gcampagn on 5/8/15.
  */
-public class WebRefreshingPollingTrigger extends SingleEventTrigger<TimeoutEventSource> {
+public class WebRefreshingPollingTrigger extends SingleEventTrigger<EventSource> {
     private final String id;
     private final String text;
-    private final WebObject object;
-    private final Function script;
+    private Channel channel;
+    private final String eventSourceName;
+    private final String scriptBody;
+    private Function script;
     private Scriptable result;
 
-    public WebRefreshingPollingTrigger(WebObject object, String id, String text, TimeoutEventSource eventSource, String script) {
-        super(eventSource);
+    public WebRefreshingPollingTrigger(Channel channel, String id, String text, String eventSourceName, String scriptBody) {
+        super();
         this.id = id;
         this.text = text;
-        this.object = object;
-        this.script = object.compileFunction(script);
+        this.channel = channel;
+        this.eventSourceName = eventSourceName;
+        this.scriptBody = scriptBody;
     }
 
     @Override
     public void update() throws RuleExecutionException {
         try {
-            object.refresh();
+            ((WebChannel)channel).refresh();
         } catch(IOException ioe) {
             throw new RuleExecutionException("IO exception while refreshing object", ioe);
         }
@@ -47,8 +53,8 @@ public class WebRefreshingPollingTrigger extends SingleEventTrigger<TimeoutEvent
 
     @Override
     public boolean isFiring() throws RuleExecutionException {
-        Object result = object.callFunction(script, object.getData());
-        return result instanceof ScriptableObject;
+        Object result = ((WebChannel)channel).callFunction(script, ((WebChannel)channel).getData());
+        return result instanceof ScriptableChannel;
     }
 
     @Override
@@ -59,10 +65,25 @@ public class WebRefreshingPollingTrigger extends SingleEventTrigger<TimeoutEvent
     @Override
     public JSONObject toJSON() throws JSONException {
         JSONObject json = new JSONObject();
-        json.put(Trigger.OBJECT, object.getUrl());
-        json.put(Trigger.TRIGGER, OMDBObjectFactory.MOVIE_RELEASED);
+        json.put(Trigger.OBJECT, channel.getUrl());
+        json.put(Trigger.TRIGGER, OMDBChannelFactory.MOVIE_RELEASED);
         json.put(Trigger.PARAMS, new JSONArray());
         return json;
+    }
+
+    @Override
+    public void resolve() throws UnknownObjectException {
+        Channel newChannel = channel.resolve();
+        if (!(newChannel instanceof SMSChannel))
+            throw new UnknownObjectException(newChannel.getUrl());
+
+        script = ((WebChannel) newChannel).compileFunction(scriptBody);
+        try {
+            setSource(((WebChannel) newChannel).getEventSource(eventSourceName));
+        } catch(JSONException e) {
+            throw new UnknownObjectException(newChannel.getUrl());
+        }
+        channel = newChannel;
     }
 
     @Override

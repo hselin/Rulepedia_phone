@@ -12,8 +12,8 @@ import edu.stanford.braincat.rulepedia.events.EventSource;
  * of the event source (edge triggered vs level trigger)
  */
 public abstract class SimpleEventTrigger<K extends EventSource> extends SingleEventTrigger<K> {
-    protected SimpleEventTrigger(K source) {
-        super(source);
+    protected SimpleEventTrigger() {
+        super();
     }
 
     public boolean isFiring() {

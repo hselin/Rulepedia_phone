@@ -4,17 +4,18 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 
-import edu.stanford.braincat.rulepedia.model.ObjectPool;
+import edu.stanford.braincat.rulepedia.model.Channel;
+import edu.stanford.braincat.rulepedia.model.ChannelFactory;
 
 /**
  * Created by gcampagn on 5/8/15.
  */
-public abstract class ScriptableObject extends ObjectPool.Object {
+public abstract class ScriptableChannel extends Channel {
     private final Context ctx;
     private final Scriptable global;
 
-    public ScriptableObject(String url) {
-        super(url);
+    public ScriptableChannel(ChannelFactory factory, String url) {
+        super(factory, url);
 
         ctx = Context.enter();
         global = ctx.initSafeStandardObjects();

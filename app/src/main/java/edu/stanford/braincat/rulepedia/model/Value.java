@@ -71,12 +71,12 @@ public abstract class Value {
         }
     }
 
-    public static class DirectObject extends Value {
+    public static class DirectObject<K extends ObjectPool.Object> extends Value {
         public static final String ID = "direct-object";
 
-        private final ObjectPool.Object object;
+        private final K object;
 
-        public DirectObject(ObjectPool.Object object) {
+        public DirectObject(K object) {
             this.object = object;
         }
 
@@ -84,14 +84,12 @@ public abstract class Value {
             return object.getUrl();
         }
 
-        public ObjectPool.Object getObject() {
+        public K getObject() {
             return object;
         }
     }
 
-    public static class Object extends Value {
-        public static final String ID = "object";
-
+    private static class Object<K extends ObjectPool.Object> extends Value {
         private final String url;
 
         public Object(String rep) throws MalformedURLException {
@@ -99,19 +97,31 @@ public abstract class Value {
             url = rep;
         }
 
-        public static Object fromString(String string) throws MalformedURLException {
-            return new Object(string);
-        }
-
         public String toString() {
             return url;
         }
 
-        // FIXME: typechecking for objects? right now we would just say "object"
+        // FIXME: typechecking for objects? right now we would just say "channel"
+
+        protected <P extends ObjectPool<K, ?>> Value resolve(Map<String, Value> context, P pool) throws UnknownObjectException {
+            return new DirectObject<>(pool.getObject(url)).resolve(context);
+        }
+    }
+
+    public static class Contact extends Object<edu.stanford.braincat.rulepedia.model.Contact> {
+        public static final String ID = "contact";
+
+        public Contact(String url) throws MalformedURLException {
+            super(url);
+        }
+
+        public static Contact fromString(String string) throws MalformedURLException {
+            return new Contact(string);
+        }
 
         @Override
         public Value resolve(Map<String, Value> context) throws UnknownObjectException {
-            return new DirectObject(ObjectPool.get().getObject(url)).resolve(context);
+            return resolve(context, ContactPool.get());
         }
     }
 

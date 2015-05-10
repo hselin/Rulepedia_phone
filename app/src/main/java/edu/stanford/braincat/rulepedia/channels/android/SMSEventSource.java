@@ -1,4 +1,4 @@
-package edu.stanford.braincat.rulepedia.channels.sms;
+package edu.stanford.braincat.rulepedia.channels.android;
 
 import android.content.Context;
 import android.content.Intent;

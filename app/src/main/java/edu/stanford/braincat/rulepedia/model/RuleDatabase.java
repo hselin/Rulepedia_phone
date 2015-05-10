@@ -30,10 +30,12 @@ import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
  */
 public class RuleDatabase {
     private final SortedSet<Rule> rules;
-    private final boolean resolve;
     private boolean dirty;
+    private boolean loaded;
 
-    public RuleDatabase(boolean resolve) {
+    private final static RuleDatabase instance = new RuleDatabase();
+
+    private RuleDatabase() {
         rules = new TreeSet<>(new Comparator<Rule>() {
             @Override
             public int compare(Rule lhs, Rule rhs) {
@@ -41,17 +43,23 @@ public class RuleDatabase {
                 return rhs.getPriority() - lhs.getPriority();
             }
         });
-
-        this.resolve = resolve;
     }
 
-    public Collection<Rule> getAllRules() {
+    public static RuleDatabase get() {
+        return instance;
+    }
+
+    public synchronized boolean isLoaded() {
+        return loaded;
+    }
+
+    public synchronized Collection<Rule> getAllRules() {
         return Collections.unmodifiableSortedSet(rules);
     }
 
-    private Value parseParam(ObjectPool.Object object, String method, String name, JSONObject jsonParam) throws
+    private static Value parseParam(ChannelFactory factory, String method, String name, JSONObject jsonParam) throws
             JSONException, UnknownChannelException, TriggerValueTypeException {
-        Class<? extends Value> valueType = object.getParamType(method, name);
+        Class<? extends Value> valueType = factory.getParamType(method, name);
 
         if (jsonParam.has("trigger-value")) {
             return new Value.TriggerValue(jsonParam.getString("trigger-value"), valueType);
@@ -66,7 +74,7 @@ public class RuleDatabase {
         }
     }
 
-    private Map<String, Value> parseParams(ObjectPool.Object object, String method, JSONArray jsonParams) throws
+    private static Map<String, Value> parseParams(ChannelFactory factory, String method, JSONArray jsonParams) throws
             JSONException, UnknownChannelException, TriggerValueTypeException {
         Map<String, Value> params = new HashMap<>();
 
@@ -74,14 +82,14 @@ public class RuleDatabase {
             JSONObject jsonParam = jsonParams.getJSONObject(i);
 
             String name = jsonParam.getString("name");
-            Value value = parseParam(object, method, name, jsonParam);
+            Value value = parseParam(factory, method, name, jsonParam);
             params.put(name, value);
         }
 
         return params;
     }
 
-    private Trigger parseCompositeTrigger(JSONObject jsonTrigger) throws
+    private static Trigger parseCompositeTrigger(JSONObject jsonTrigger) throws
             JSONException, UnknownObjectException, UnknownChannelException, TriggerValueTypeException {
         ArrayList<Trigger> children = new ArrayList<>();
 
@@ -102,19 +110,18 @@ public class RuleDatabase {
         }
     }
 
-    private Trigger parseSingleTrigger(JSONObject jsonTrigger) throws
+    private static Trigger parseSingleTrigger(JSONObject jsonTrigger) throws
             JSONException, UnknownObjectException, UnknownChannelException, TriggerValueTypeException {
         String objectUrl = jsonTrigger.getString(Trigger.OBJECT);
         String method = jsonTrigger.getString(Trigger.TRIGGER);
 
-        ObjectPool.Object object = ObjectPool.get().getObject(objectUrl);
-        if (resolve)
-            object.resolve();
+        Channel channel = ChannelPool.get().getObject(objectUrl);
+        ChannelFactory factory = channel.getFactory();
 
-        return object.createTrigger(method, parseParams(object, method, jsonTrigger.getJSONArray(Trigger.PARAMS)));
+        return factory.createTrigger(channel, method, parseParams(factory, method, jsonTrigger.getJSONArray(Trigger.PARAMS)));
     }
 
-    private Trigger parseTrigger(JSONObject jsonTrigger) throws
+    private static Trigger parseTrigger(JSONObject jsonTrigger) throws
             JSONException, UnknownObjectException, UnknownChannelException, TriggerValueTypeException {
         if (jsonTrigger.has(CompositeTrigger.COMBINATOR))
             return parseCompositeTrigger(jsonTrigger);
@@ -122,19 +129,18 @@ public class RuleDatabase {
             return parseSingleTrigger(jsonTrigger);
     }
 
-    private Action parseAction(JSONObject jsonAction) throws
+    private static Action parseAction(JSONObject jsonAction) throws
             JSONException, UnknownObjectException, UnknownChannelException, TriggerValueTypeException {
         String objectUrl = jsonAction.getString(Action.OBJECT);
         String method = jsonAction.getString(Action.METHOD);
 
-        ObjectPool.Object object = ObjectPool.get().getObject(objectUrl);
-        if (resolve)
-            object.resolve();
+        Channel channel = ChannelPool.get().getObject(objectUrl);
+        ChannelFactory factory = channel.getFactory();
 
-        return object.createAction(method, parseParams(object, method, jsonAction.getJSONArray(Action.PARAMS)));
+        return factory.createAction(channel, method, parseParams(factory, method, jsonAction.getJSONArray(Action.PARAMS)));
     }
 
-    private Collection<Action> parseActionList(JSONArray jsonActions) throws
+    private static Collection<Action> parseActionList(JSONArray jsonActions) throws
             JSONException, UnknownObjectException, UnknownChannelException, TriggerValueTypeException {
         ArrayList<Action> actions = new ArrayList<>();
 
@@ -144,10 +150,9 @@ public class RuleDatabase {
         return actions;
     }
 
-    private Rule parseRule(JSONObject jsonRule) throws
+    private static Rule parseRule(JSONObject jsonRule) throws
             JSONException, UnknownObjectException, UnknownChannelException, TriggerValueTypeException {
         String name = jsonRule.getString(Rule.NAME);
-        // just to validate the format, we don't do anything with it really
         String description = jsonRule.getString(Rule.DESCRIPTION);
 
         JSONObject jsonTrigger = jsonRule.getJSONObject(Rule.TRIGGER);
@@ -156,7 +161,7 @@ public class RuleDatabase {
         JSONArray jsonActions = jsonRule.getJSONArray(Rule.ACTIONS);
         Collection<Action> actions = parseActionList(jsonActions);
 
-        Rule rule = new Rule(name, trigger, actions);
+        Rule rule = new Rule(name, description, trigger, actions);
         rule.typeCheck();
         return rule;
     }
@@ -173,9 +178,12 @@ public class RuleDatabase {
         rules.add(rule);
     }
 
-    public void load(Context ctx) throws IOException, UnknownObjectException, UnknownChannelException {
-        try (FileInputStream file = ctx.openFileInput("rules.json")) {
+    public synchronized void load(Context ctx) throws IOException, UnknownObjectException, UnknownChannelException {
+        if (loaded)
+            return;
 
+        loaded = true;
+        try (FileInputStream file = ctx.openFileInput("rules.json")) {
             try {
                 JSONArray root = (JSONArray) Util.readJSON(file).nextValue();
 
@@ -189,7 +197,7 @@ public class RuleDatabase {
         }
     }
 
-    public void save(Context ctx) throws IOException {
+    public synchronized void save(Context ctx) throws IOException {
         if (!dirty)
             return;
 
@@ -208,7 +216,7 @@ public class RuleDatabase {
         }
     }
 
-    public Rule addRule(JSONObject jsonRule) throws
+    public synchronized Rule addRule(JSONObject jsonRule) throws
             JSONException, UnknownObjectException, UnknownChannelException, TriggerValueTypeException {
         Rule rule = parseRule(jsonRule);
 

@@ -1,13 +1,11 @@
 package edu.stanford.braincat.rulepedia.channels;
 
-import java.io.IOException;
-
-import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
+import edu.stanford.braincat.rulepedia.model.Channel;
 
 /**
  * Created by gcampagn on 5/1/15.
  */
-public abstract class RefreshingPollingTrigger<K extends RefreshableObject> extends PollingTrigger {
+public abstract class RefreshingPollingTrigger<K extends Channel & RefreshableObject> extends PollingTrigger {
     private K object;
 
     public RefreshingPollingTrigger(K object, long timeout) {
@@ -16,14 +14,5 @@ public abstract class RefreshingPollingTrigger<K extends RefreshableObject> exte
 
     public K getObject() {
         return object;
-    }
-
-    @Override
-    public void update() throws RuleExecutionException {
-        try {
-            object.refresh();
-        } catch(IOException ioe) {
-            throw new RuleExecutionException("IO exception while refreshing object", ioe);
-        }
     }
 }

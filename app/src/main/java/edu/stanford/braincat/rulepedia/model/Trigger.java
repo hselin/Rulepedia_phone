@@ -9,6 +9,7 @@ import java.util.Map;
 import edu.stanford.braincat.rulepedia.events.EventSource;
 import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
 import edu.stanford.braincat.rulepedia.exceptions.TriggerValueTypeException;
+import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
 
 /**
  * Created by gcampagn on 4/30/15.
@@ -27,6 +28,8 @@ public interface Trigger {
     String toHumanString();
 
     JSONObject toJSON() throws JSONException;
+
+    void resolve() throws UnknownObjectException;
 
     void typeCheck(Map<String, Class<? extends Value>> context) throws TriggerValueTypeException;
 
