@@ -127,7 +127,7 @@ public class RuleExecutor extends Handler {
         for (Rule r : RuleDatabase.get().getAllRules()) {
             try {
                 if (r.isFiring())
-                    r.fire();
+                    r.fire(context);
             } catch (RuleExecutionException e) {
                 Log.e(RuleExecutorService.LOG_TAG, "Failed to run rule " + r.toHumanString() + ": " + e.getMessage());
             }

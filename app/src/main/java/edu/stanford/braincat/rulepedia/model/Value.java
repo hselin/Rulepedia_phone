@@ -16,6 +16,10 @@ import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
  */
 public abstract class Value {
     public void typeCheck(Map<String, Class<? extends Value>> context, Class<? extends Value> expected) throws TriggerValueTypeException {
+        // anything can be coerced to text
+        if (expected.equals(Value.Text.class))
+            return;
+
         if (!getClass().equals(expected))
             throw new TriggerValueTypeException("invalid value type, expected " + expected.getCanonicalName());
     }
@@ -49,9 +53,9 @@ public abstract class Value {
             if (context == null)
                 throw new TriggerValueTypeException("context is not valid for trigger value");
             Class<? extends Value> produced = context.get(name);
-            if (produced == null)
+            if (produced == null || !type.equals(produced))
                 throw new TriggerValueTypeException("trigger does not produce value " + name);
-            if (!type.equals(produced) || !type.equals(expected))
+            if (!expected.equals(Value.Text.class) && !type.equals(expected))
                 throw new TriggerValueTypeException("invalid value type, expected " + expected.getCanonicalName());
         }
 

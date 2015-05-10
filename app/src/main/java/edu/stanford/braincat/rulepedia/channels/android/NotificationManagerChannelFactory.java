@@ -1,8 +1,7 @@
-package edu.stanford.braincat.rulepedia.channels.time;
+package edu.stanford.braincat.rulepedia.channels.android;
 
 import java.util.Map;
 
-import edu.stanford.braincat.rulepedia.channels.interfaces.Messaging;
 import edu.stanford.braincat.rulepedia.exceptions.TriggerValueTypeException;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownChannelException;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
@@ -16,23 +15,24 @@ import edu.stanford.braincat.rulepedia.model.Value;
 /**
  * Created by gcampagn on 5/9/15.
  */
-public class TimerFactory extends ChannelFactory {
-    public final static String ID = "timer";
-    public final static String ELAPSED = "elapsed";
-    public final static String INTERVAL = "interval";
-    public final static String CURRENT_TIME = "current-time";
+public class NotificationManagerChannelFactory extends ChannelFactory {
+    public final static String ID = "notifications";
+    public final static String POST_NOTIFICATION = "post-notification";
+    public final static String TITLE = "title";
+    public final static String TEXT = "text";
 
-    public TimerFactory() {
+    public NotificationManagerChannelFactory() {
         super(ChannelPool.PREDEFINED_PREFIX + ID);
     }
 
     @Override
     public Class<? extends Value> getParamType(String method, String name) throws UnknownChannelException, TriggerValueTypeException {
         switch (method) {
-            case ELAPSED:
+            case POST_NOTIFICATION:
                 switch (name) {
-                    case INTERVAL:
-                        return Value.Number.class;
+                    case TITLE:
+                    case TEXT:
+                        return Value.Text.class;
                     default:
                         throw new TriggerValueTypeException("unknown parameter " + name);
                 }
@@ -44,23 +44,23 @@ public class TimerFactory extends ChannelFactory {
 
     @Override
     public Trigger createTrigger(Channel channel, String method, Map<String, Value> params) throws UnknownObjectException, UnknownChannelException, TriggerValueTypeException {
+        throw new UnknownChannelException(method);
+    }
+
+    @Override
+    public Action createAction(Channel channel, String method, Map<String, Value> params) throws UnknownObjectException, UnknownChannelException, TriggerValueTypeException {
         switch (method) {
-            case Messaging.MESSAGE_RECEIVED:
-                return new TimeTrigger(channel, params.get(INTERVAL));
+            case POST_NOTIFICATION:
+                return new NotificationManagerPostNotificationAction(channel, params.get(TITLE), params.get(TEXT));
             default:
                 throw new UnknownChannelException(method);
         }
     }
 
     @Override
-    public Action createAction(Channel channel, String method, Map<String, Value> params) throws UnknownObjectException, UnknownChannelException, TriggerValueTypeException {
-        throw new UnknownChannelException(method);
-    }
-
-    @Override
     public Channel create(String url) throws UnknownObjectException {
         if (url.equals(getPrefix()))
-            return new Timer(this, url);
+            return new NotificationManagerChannel(this, url);
         else
             throw new UnknownObjectException(url);
     }
@@ -70,7 +70,7 @@ public class TimerFactory extends ChannelFactory {
         return new Channel(this, url) {
             @Override
             public String toHumanString() {
-                return "a timer";
+                return "notifications";
             }
         };
     }

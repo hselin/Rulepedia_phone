@@ -228,4 +228,9 @@ public class RuleDatabase {
 
         return rule;
     }
+
+    public synchronized void removeRule(Rule rule) {
+        rules.remove(rule);
+        dirty = true;
+    }
 }

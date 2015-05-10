@@ -4,6 +4,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Date;
 import java.util.Map;
 
 import edu.stanford.braincat.rulepedia.channels.PollingTrigger;
@@ -56,12 +57,12 @@ public class TimeTrigger extends PollingTrigger {
 
     @Override
     public void typeCheck(Map<String, Class<? extends Value>> context) throws TriggerValueTypeException {
-        // nothing to do
+        context.put(TimerFactory.CURRENT_TIME, Value.Text.class);
     }
 
     @Override
     public void updateContext(Map<String, Value> context) throws RuleExecutionException {
-        // nothing to do
+        context.put(TimerFactory.CURRENT_TIME, new Value.Text(new Date().toLocaleString(), true));
     }
 
     @Override

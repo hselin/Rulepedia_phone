@@ -4,6 +4,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -79,7 +80,7 @@ public class ObjectPool<K extends ObjectPool.Object, F extends ObjectPool.Object
 
     protected ObjectPool(String kind) {
         placeholderPattern = Pattern.compile("^https://rulepedia\\.stanford\\.edu/oid/placeholder/" + kind + "/([[a-z]\\-]+)$");
-        knownObjects = new HashMap<>();
+        knownObjects = new WeakHashMap<>();
         knownFactories = new HashMap<>();
     }
 

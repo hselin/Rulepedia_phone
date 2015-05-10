@@ -1,5 +1,6 @@
 package edu.stanford.braincat.rulepedia.channels.android;
 
+import android.content.Context;
 import android.telephony.SmsManager;
 
 import org.json.JSONArray;
@@ -37,7 +38,7 @@ public class SMSSendMessageAction implements Action {
     }
 
     @Override
-    public void execute(Map<String, Value> context) throws RuleExecutionException, UnknownObjectException {
+    public void execute(Context ctx, Map<String, Value> context) throws RuleExecutionException, UnknownObjectException {
         Value.DirectObject resolvedDestination = (Value.DirectObject) destination.resolve(context);
         Value.Text resolvedMessage = (Value.Text) message.resolve(context);
 

@@ -1,5 +1,7 @@
 package edu.stanford.braincat.rulepedia.model;
 
+import android.content.Context;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -96,7 +98,7 @@ public class Rule {
         return enabled && trigger.isFiring();
     }
 
-    public void fire() throws RuleExecutionException {
+    public void fire(Context ctx) throws RuleExecutionException {
         if (!enabled)
             throw new IllegalStateException("rule not enabled");
 
@@ -105,7 +107,7 @@ public class Rule {
 
             trigger.updateContext(context);
             for (Action a : actions)
-                a.execute(context);
+                a.execute(ctx, context);
         } catch(UnknownObjectException uoe) {
             throw new RuleExecutionException(uoe);
         }

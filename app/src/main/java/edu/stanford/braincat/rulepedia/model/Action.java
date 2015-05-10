@@ -1,5 +1,7 @@
 package edu.stanford.braincat.rulepedia.model;
 
+import android.content.Context;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -21,7 +23,7 @@ public interface Action {
 
     void typeCheck(Map<String, Class<? extends Value>> context) throws TriggerValueTypeException;
 
-    void execute(Map<String, Value> context) throws UnknownObjectException, RuleExecutionException;
+    void execute(Context ctx, Map<String, Value> context) throws UnknownObjectException, RuleExecutionException;
 
     String toHumanString();
 
