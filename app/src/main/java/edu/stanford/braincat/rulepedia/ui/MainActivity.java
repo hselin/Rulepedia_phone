@@ -22,6 +22,8 @@ import edu.stanford.braincat.rulepedia.service.AutoStarter;
 
 public class MainActivity extends ActionBarActivity implements BrowseFragment.OnFragmentInteractionListener, RuleManageFragment.OnFragmentInteractionListener {
 
+    public static final String LOG_TAG = "rulepedia.UI";
+
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
      * fragments for each of the sections. We use a

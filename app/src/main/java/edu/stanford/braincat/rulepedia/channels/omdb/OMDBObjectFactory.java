@@ -20,7 +20,7 @@ public class OMDBObjectFactory extends ObjectFactory {
     public OMDBObjectFactory() {
         super("http://www.omdbapi.com/?r=json&v=1&i=");
 
-        ombdByIdPattern = Pattern.compile("^http://www.omdbapi.com/\\?r=json&v=1&i=[a-z0-9]+$");
+        ombdByIdPattern = Pattern.compile("^http://www\\.omdbapi\\.com/\\?r=json&v=1&i=[[a-z][0-9]]+$");
     }
 
     @Override

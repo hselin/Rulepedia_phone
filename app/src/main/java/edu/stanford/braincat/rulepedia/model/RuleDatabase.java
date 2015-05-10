@@ -58,8 +58,10 @@ public class RuleDatabase {
         } else {
             try {
                 return (Value)valueType.getMethod("fromString", String.class).invoke(null, jsonParam.getString("value"));
-            } catch(IllegalAccessException|InvocationTargetException|NoSuchMethodException|ClassCastException e) {
+            } catch(IllegalAccessException|NoSuchMethodException|ClassCastException e) {
                 throw new AssertionError(e);
+            } catch(InvocationTargetException e) {
+                throw new TriggerValueTypeException(e);
             }
         }
     }
@@ -103,7 +105,7 @@ public class RuleDatabase {
     private Trigger parseSingleTrigger(JSONObject jsonTrigger) throws
             JSONException, UnknownObjectException, UnknownChannelException, TriggerValueTypeException {
         String objectUrl = jsonTrigger.getString(Trigger.OBJECT);
-        String method = jsonTrigger.getString(Trigger.PARAMS);
+        String method = jsonTrigger.getString(Trigger.TRIGGER);
 
         ObjectPool.Object object = ObjectPool.get().getObject(objectUrl);
         if (resolve)

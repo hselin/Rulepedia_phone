@@ -22,6 +22,10 @@ public class TimeoutEventSource implements EventSource, Runnable {
         this.timeout = timeout;
     }
 
+    public long getTimeout() {
+        return timeout;
+    }
+
     @Override
     public void run() {
         if (handler != null)

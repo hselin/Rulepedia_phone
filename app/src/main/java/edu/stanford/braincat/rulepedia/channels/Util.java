@@ -18,7 +18,7 @@ import java.nio.CharBuffer;
  * Created by gcampagn on 5/1/15.
  */
 public class Util {
-    public static JSONTokener readJSON(InputStream input) throws IOException, JSONException {
+    public static String readString(InputStream input) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(input));
         StringBuilder builder = new StringBuilder();
         while (true) {
@@ -34,7 +34,11 @@ public class Util {
             builder.append(buffer);
         }
 
-        return new JSONTokener(builder.toString());
+        return builder.toString();
+    }
+
+    public static JSONTokener readJSON(InputStream input) throws IOException, JSONException {
+        return new JSONTokener(readString(input));
     }
 
     public static void writeJSON(OutputStream output, JSONArray array) throws IOException {

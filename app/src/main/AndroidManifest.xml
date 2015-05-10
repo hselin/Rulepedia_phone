@@ -36,9 +36,6 @@
             android:name=".service.RuleExecutorService"
             android:enabled="true"
             android:exported="true" >
-            <intent-filter>
-                <action android:name="edu.stanford.braincat.rulepedia.INSTALL_RULE"/>
-            </intent-filter>
         </service>
     </application>
 

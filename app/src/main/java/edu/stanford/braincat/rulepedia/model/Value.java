@@ -5,6 +5,7 @@ import org.json.JSONObject;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.ParseException;
 import java.util.Collection;
 
 import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
@@ -177,18 +178,28 @@ public abstract class Value {
     public static class Number extends Value {
         public static final String ID = "number";
 
-        private final String rep; // FIXME
+        private final java.lang.Number rep;
 
-        public Number(String rep) {
+        public Number(java.lang.Number rep) {
             this.rep = rep;
         }
 
-        public static Text fromString(String string) {
-            return new Text(string);
+        public static Number fromString(String string) throws TriggerValueTypeException {
+            try {
+                return new Number(Integer.parseInt(string));
+            } catch(NumberFormatException e) {
+                try {
+                    return new Number(Double.parseDouble(string));
+                } catch(NumberFormatException e) {
+                    throw new TriggerValueTypeException("invalid numeric value");
+                }
+            }
         }
 
+        public java.lang.Number getNumber() { return rep; }
+
         public String toString() {
-            return rep;
+            return rep.toString();
         }
     }
 }

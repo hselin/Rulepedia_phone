@@ -17,13 +17,14 @@ import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
 import edu.stanford.braincat.rulepedia.exceptions.TriggerValueTypeException;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownChannelException;
 import edu.stanford.braincat.rulepedia.model.Action;
+import edu.stanford.braincat.rulepedia.model.ObjectPool;
 import edu.stanford.braincat.rulepedia.model.Trigger;
 import edu.stanford.braincat.rulepedia.model.Value;
 
 /**
  * Created by gcampagn on 5/1/15.
  */
-public class OMDBObject extends RefreshableObject {
+public class OMDBObject extends ObjectPool.Object implements RefreshableObject {
     private boolean hasData;
     private boolean released;
     private String title;

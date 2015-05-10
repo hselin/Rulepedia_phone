@@ -20,17 +20,19 @@ public class InternalObjectFactory extends ObjectFactory {
         public abstract ObjectPool.Object create();
     }
 
-    public static final String PREDEFINED_PREFIX = "rulepedia:predefined/object/";
+    public static final String PREFIX = "https://rulepedia.stanford.edu/oid/";
+    public static final String PREDEFINED_PREFIX = PREFIX + "predefined/object/";
+    public static final String PLACEHOLDER_PREFIX = PREFIX + "placeholder/";
 
     private final HashMap<String, PredefinedObjectFactory> predefinedObjects;
     private final Pattern predefinedPattern;
     private final Pattern placeholderPattern;
 
     public InternalObjectFactory() {
-        super("rulepedia:");
+        super(PREFIX);
 
-        predefinedPattern = Pattern.compile("^rulepedia:predefined/object/([a-b-]+)$");
-        placeholderPattern = Pattern.compile("^rulepedia:placeholder/object/([a-b-]+)$");
+        predefinedPattern = Pattern.compile("^https://rulepedia\\.stanford\\.edu/oid/predefined/object/([[a-z]\\-]+)$");
+        placeholderPattern = Pattern.compile("^https://rulepedia\\.stanford\\.edu/oid/placeholder/object/([[a-z]\\-]+)$");
 
         predefinedObjects = new HashMap<>();
         predefinedObjects.put(SMSChannel.ID, new PredefinedObjectFactory() {
