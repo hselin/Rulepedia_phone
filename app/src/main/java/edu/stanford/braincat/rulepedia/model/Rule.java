@@ -6,9 +6,12 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import edu.stanford.braincat.rulepedia.events.EventSource;
 import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
+import edu.stanford.braincat.rulepedia.exceptions.TriggerValueTypeException;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
 
 /**
@@ -70,6 +73,13 @@ public class Rule {
         return trigger.getEventSources();
     }
 
+    public void typeCheck() throws TriggerValueTypeException {
+        Map<String, Class<? extends Value>> context = new HashMap<>();
+        trigger.typeCheck(context);
+        for (Action a : actions)
+            a.typeCheck(context);
+    }
+
     public void updateTrigger() throws RuleExecutionException {
         if (!enabled)
             return;
@@ -85,8 +95,11 @@ public class Rule {
             throw new IllegalStateException("rule not enabled");
 
         try {
+            Map<String, Value> context = new HashMap<>();
+
+            trigger.updateContext(context);
             for (Action a : actions)
-                a.execute(trigger);
+                a.execute(context);
         } catch(UnknownObjectException uoe) {
             throw new RuleExecutionException(uoe);
         }

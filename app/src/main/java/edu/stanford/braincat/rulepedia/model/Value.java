@@ -5,10 +5,9 @@ import org.json.JSONObject;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.text.ParseException;
 import java.util.Collection;
+import java.util.Map;
 
-import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
 import edu.stanford.braincat.rulepedia.exceptions.TriggerValueTypeException;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
 
@@ -16,21 +15,12 @@ import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
  * Created by gcampagn on 4/30/15.
  */
 public abstract class Value {
-    public void typeCheck(Class<? extends Value> expected) throws TriggerValueTypeException {
+    public void typeCheck(Map<String, Class<? extends Value>> context, Class<? extends Value> expected) throws TriggerValueTypeException {
         if (!getClass().equals(expected))
             throw new TriggerValueTypeException("invalid value type, expected " + expected.getCanonicalName());
     }
 
-    public void typeCheck(Trigger trigger, Class<? extends Value> expected) throws TriggerValueTypeException {
-        typeCheck(expected);
-    }
-
-
-    public Value resolve(Trigger trigger) throws RuleExecutionException, UnknownObjectException {
-        return this;
-    }
-
-    public Value resolve() throws UnknownObjectException {
+    public Value resolve(Map<String, Value> context) throws UnknownObjectException {
         return this;
     }
 
@@ -55,18 +45,21 @@ public abstract class Value {
         // we don't override typeCheck() without a trigger, because if we don't
         // have a trigger to get a value from we should fail to typecheck
         @Override
-        public void typeCheck(Trigger trigger, Class<? extends Value> expected) throws TriggerValueTypeException {
-            if (!trigger.producesValue(name, type))
+        public void typeCheck(Map<String, Class<? extends Value>> context, Class<? extends Value> expected) throws TriggerValueTypeException {
+            if (context == null)
+                throw new TriggerValueTypeException("context is not valid for trigger value");
+            Class<? extends Value> produced = context.get(name);
+            if (produced == null)
                 throw new TriggerValueTypeException("trigger does not produce value " + name);
-            if (!type.equals(expected))
+            if (!type.equals(produced) || !type.equals(expected))
                 throw new TriggerValueTypeException("invalid value type, expected " + expected.getCanonicalName());
         }
 
-        // we don't override resolve() without a trigger
+        // we don't check context != null
         // we should have failed to typecheck anyway
         @Override
-        public Value resolve(Trigger trigger) throws RuleExecutionException, UnknownObjectException {
-            return trigger.getProducedValue(name).resolve(trigger);
+        public Value resolve(Map<String, Value> context) throws UnknownObjectException {
+            return context.get(name).resolve(context);
         }
 
         @Override
@@ -117,13 +110,8 @@ public abstract class Value {
         // FIXME: typechecking for objects? right now we would just say "object"
 
         @Override
-        public Value resolve() throws UnknownObjectException {
-            return new DirectObject(ObjectPool.get().getObject(url));
-        }
-
-        @Override
-        public Value resolve(Trigger trigger) throws RuleExecutionException, UnknownObjectException {
-            return new DirectObject(ObjectPool.get().getObject(url)).resolve(trigger);
+        public Value resolve(Map<String, Value> context) throws UnknownObjectException {
+            return new DirectObject(ObjectPool.get().getObject(url)).resolve(context);
         }
     }
 
@@ -131,9 +119,15 @@ public abstract class Value {
         public static final String ID = "text";
 
         private final String rep;
+        private final boolean resolved;
+
+        public Text(String rep, boolean resolved) {
+            this.rep = rep;
+            this.resolved = resolved;
+        }
 
         public Text(String rep) {
-            this.rep = rep;
+            this(rep, false);
         }
 
         public static Text fromString(String string) {
@@ -146,6 +140,24 @@ public abstract class Value {
 
         public String getText() {
             return rep;
+        }
+
+        @Override
+        public Value resolve(Map<String, Value> context) throws UnknownObjectException {
+            if (resolved)
+                return this;
+            if (context == null)
+                return this;
+
+            if (!rep.contains("{{"))
+                return new Text(rep, true);
+
+            String acc = rep;
+            for (Map.Entry<String, Value> entry : context.entrySet()) {
+                acc = acc.replace("{{" + entry.getKey() + "}}", entry.getValue().resolve(context).toString());
+            }
+
+            return new Text(acc, true);
         }
     }
 
@@ -190,7 +202,7 @@ public abstract class Value {
             } catch(NumberFormatException e) {
                 try {
                     return new Number(Double.parseDouble(string));
-                } catch(NumberFormatException e) {
+                } catch(NumberFormatException e2) {
                     throw new TriggerValueTypeException("invalid numeric value");
                 }
             }

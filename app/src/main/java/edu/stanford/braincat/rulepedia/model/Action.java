@@ -3,6 +3,8 @@ package edu.stanford.braincat.rulepedia.model;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Map;
+
 import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
 import edu.stanford.braincat.rulepedia.exceptions.TriggerValueTypeException;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
@@ -15,9 +17,9 @@ public interface Action {
     String METHOD = "method";
     String PARAMS = "params";
 
-    void typeCheck(Trigger trigger) throws TriggerValueTypeException;
+    void typeCheck(Map<String, Class<? extends Value>> context) throws TriggerValueTypeException;
 
-    void execute(Trigger trigger) throws UnknownObjectException, RuleExecutionException;
+    void execute(Map<String, Value> context) throws UnknownObjectException, RuleExecutionException;
 
     String toHumanString();
 

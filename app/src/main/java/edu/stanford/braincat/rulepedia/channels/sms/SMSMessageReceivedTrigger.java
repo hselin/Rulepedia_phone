@@ -7,9 +7,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.MalformedURLException;
+import java.util.Map;
 
 import edu.stanford.braincat.rulepedia.channels.SimpleEventTrigger;
 import edu.stanford.braincat.rulepedia.channels.interfaces.Messaging;
+import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
+import edu.stanford.braincat.rulepedia.exceptions.TriggerValueTypeException;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
 import edu.stanford.braincat.rulepedia.model.InternalObjectFactory;
 import edu.stanford.braincat.rulepedia.model.ObjectPool;
@@ -27,11 +30,11 @@ public class SMSMessageReceivedTrigger extends SimpleEventTrigger<SMSEventSource
     public SMSMessageReceivedTrigger(SMSChannel channel, Value contentContains, Value senderMatches) throws UnknownObjectException {
         super(channel.getEventSource());
         if (contentContains != null)
-            this.contentContains = ((Value.Text)contentContains.resolve()).getText();
+            this.contentContains = ((Value.Text)contentContains.resolve(null)).getText();
         else
             this.contentContains = null;
         if (senderMatches != null)
-            this.senderMatches = ((Value.DirectObject)senderMatches.resolve()).getObject();
+            this.senderMatches = ((Value.DirectObject)senderMatches.resolve(null)).getObject();
         else
             this.senderMatches = null;
     }
@@ -93,34 +96,19 @@ public class SMSMessageReceivedTrigger extends SimpleEventTrigger<SMSEventSource
     }
 
     @Override
-    public boolean producesValue(String name, Class<? extends Value> type) {
-        switch (name) {
-            case Messaging.SENDER:
-                return type.equals(Value.Object.class);
-
-            case Messaging.MESSAGE:
-                return type.equals(Value.Text.class);
-
-            default:
-                return false;
-        }
+    public void typeCheck(Map<String, Class<? extends Value>> context) throws TriggerValueTypeException {
+        context.put(Messaging.SENDER, Value.Object.class);
+        context.put(Messaging.MESSAGE, Value.Text.class);
     }
 
     @Override
-    public Value getProducedValue(String name) {
-        switch (name) {
-            case Messaging.SENDER:
-                try {
-                    return new Value.DirectObject(ObjectPool.get().getObject("sms:" + receivedMessage.getOriginatingAddress()));
-                } catch(UnknownObjectException e) {
-                    throw new RuntimeException(e);
-                }
-
-            case Messaging.MESSAGE:
-                return new Value.Text(receivedMessage.getDisplayMessageBody());
-
-            default:
-                throw new RuntimeException("sms trigger does not produce " + name);
+    public void updateContext(Map<String, Value> context) throws RuleExecutionException {
+        try {
+            context.put(Messaging.SENDER, new Value.DirectObject(ObjectPool.get().getObject("sms:" + receivedMessage.getOriginatingAddress())));
+        } catch(UnknownObjectException e) {
+            throw new RuntimeException(e);
         }
+
+        context.put(Messaging.MESSAGE, new Value.Text(receivedMessage.getDisplayMessageBody(), true));
     }
 }

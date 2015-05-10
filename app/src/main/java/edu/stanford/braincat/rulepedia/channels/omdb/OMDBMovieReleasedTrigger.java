@@ -4,6 +4,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Map;
+
 import edu.stanford.braincat.rulepedia.channels.PollingTrigger;
 import edu.stanford.braincat.rulepedia.channels.RefreshingPollingTrigger;
 import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
@@ -33,23 +35,13 @@ public class OMDBMovieReleasedTrigger extends RefreshingPollingTrigger<OMDBObjec
     }
 
     @Override
-    public boolean producesValue(String name, Class<? extends Value> type) {
-        switch (name) {
-            case OMDBObjectFactory.MOVIE_TITLE:
-                return type.equals(Value.Text.class);
-            default:
-                return false;
-        }
+    public void typeCheck(Map<String, Class<? extends Value>> context) {
+        context.put(OMDBObjectFactory.MOVIE_TITLE, Value.Text.class);
     }
 
     @Override
-    public Value getProducedValue(String name) throws RuleExecutionException {
-        switch (name) {
-            case OMDBObjectFactory.MOVIE_TITLE:
-                return new Value.Text(getObject().getTitle());
-            default:
-                throw new RuntimeException("sms trigger does not produce " + name);
-        }
+    public void updateContext(Map<String, Value> context) throws RuleExecutionException {
+        context.put(OMDBObjectFactory.MOVIE_TITLE, new Value.Text(getObject().getTitle(), true));
     }
 
     @Override

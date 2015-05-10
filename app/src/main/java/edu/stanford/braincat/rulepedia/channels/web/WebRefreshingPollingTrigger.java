@@ -7,12 +7,14 @@ import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 
 import java.io.IOException;
+import java.util.Map;
 
 import edu.stanford.braincat.rulepedia.channels.ScriptableObject;
 import edu.stanford.braincat.rulepedia.channels.SingleEventTrigger;
 import edu.stanford.braincat.rulepedia.channels.omdb.OMDBObjectFactory;
 import edu.stanford.braincat.rulepedia.events.TimeoutEventSource;
 import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
+import edu.stanford.braincat.rulepedia.exceptions.TriggerValueTypeException;
 import edu.stanford.braincat.rulepedia.model.Trigger;
 import edu.stanford.braincat.rulepedia.model.Value;
 
@@ -64,12 +66,12 @@ public class WebRefreshingPollingTrigger extends SingleEventTrigger<TimeoutEvent
     }
 
     @Override
-    public boolean producesValue(String name, Class<? extends Value> type) {
-        return false; // FIXME
+    public void typeCheck(Map<String, Class<? extends Value>> context) throws TriggerValueTypeException {
+        // FIXME
     }
 
     @Override
-    public Value getProducedValue(String name) throws RuleExecutionException {
-        return new Value.Text(result.get(name, result).toString());
+    public void updateContext(Map<String, Value> context) throws RuleExecutionException {
+        // FIXME
     }
 }

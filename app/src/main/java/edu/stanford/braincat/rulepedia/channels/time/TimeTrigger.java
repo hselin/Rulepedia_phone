@@ -4,8 +4,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Map;
+
 import edu.stanford.braincat.rulepedia.channels.PollingTrigger;
 import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
+import edu.stanford.braincat.rulepedia.exceptions.TriggerValueTypeException;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
 import edu.stanford.braincat.rulepedia.model.InternalObjectFactory;
 import edu.stanford.braincat.rulepedia.model.Trigger;
@@ -18,7 +21,7 @@ public class TimeTrigger extends PollingTrigger {
     private final Timer object;
 
     public TimeTrigger(Timer object, Value interval) throws UnknownObjectException {
-        super(((Value.Number) interval.resolve()).getNumber().longValue());
+        super(((Value.Number) interval.resolve(null)).getNumber().longValue());
         this.object = object;
     }
 
@@ -51,12 +54,12 @@ public class TimeTrigger extends PollingTrigger {
     }
 
     @Override
-    public boolean producesValue(String name, Class<? extends Value> type) {
-        return false;
+    public void typeCheck(Map<String, Class<? extends Value>> context) throws TriggerValueTypeException {
+        // nothing to do
     }
 
     @Override
-    public Value getProducedValue(String name) throws RuleExecutionException {
-        return null;
+    public void updateContext(Map<String, Value> context) throws RuleExecutionException {
+        // nothing to do
     }
 }

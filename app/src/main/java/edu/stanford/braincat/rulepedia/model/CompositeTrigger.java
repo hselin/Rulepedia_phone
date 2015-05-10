@@ -7,10 +7,12 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import edu.stanford.braincat.rulepedia.events.EventSource;
 import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
+import edu.stanford.braincat.rulepedia.exceptions.TriggerValueTypeException;
 
 /**
  * Created by gcampagn on 4/30/15.
@@ -82,23 +84,15 @@ public abstract class CompositeTrigger implements Trigger {
     }
 
     @Override
-    public boolean producesValue(String name, Class<? extends Value> type) {
-        for (Trigger t : children) {
-            if (t.producesValue(name, type))
-                return true;
-        }
-
-        return false;
+    public void typeCheck(Map<String, Class<? extends Value>> context) throws TriggerValueTypeException {
+        for (Trigger t : children)
+            t.typeCheck(context);
     }
 
     @Override
-    public Value getProducedValue(String name) throws RuleExecutionException {
-        for (Trigger t : children) {
-            if (t.producesValue(name, null))
-                return t.getProducedValue(name);
-        }
-
-        throw new AssertionError("code should not be reached");
+    public void updateContext(Map<String, Value> context) throws RuleExecutionException {
+        for (Trigger t : children)
+            t.updateContext(context);
     }
 
     public static class Or extends CompositeTrigger {

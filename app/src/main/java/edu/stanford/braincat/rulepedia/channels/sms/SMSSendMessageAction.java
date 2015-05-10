@@ -6,13 +6,14 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Map;
+
 import edu.stanford.braincat.rulepedia.channels.interfaces.Messaging;
 import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
 import edu.stanford.braincat.rulepedia.exceptions.TriggerValueTypeException;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
 import edu.stanford.braincat.rulepedia.model.Action;
 import edu.stanford.braincat.rulepedia.model.InternalObjectFactory;
-import edu.stanford.braincat.rulepedia.model.Trigger;
 import edu.stanford.braincat.rulepedia.model.Value;
 
 /**
@@ -30,15 +31,15 @@ public class SMSSendMessageAction implements Action {
     }
 
     @Override
-    public void typeCheck(Trigger trigger) throws TriggerValueTypeException {
-        destination.typeCheck(trigger, Value.Object.class);
-        message.typeCheck(trigger, Value.Text.class);
+    public void typeCheck(Map<String, Class<? extends Value>> context) throws TriggerValueTypeException {
+        destination.typeCheck(context, Value.Object.class);
+        message.typeCheck(context, Value.Text.class);
     }
 
     @Override
-    public void execute(Trigger trigger) throws RuleExecutionException, UnknownObjectException {
-        Value.DirectObject resolvedDestination = (Value.DirectObject) destination.resolve(trigger);
-        Value.Text resolvedMessage = (Value.Text) message.resolve(trigger);
+    public void execute(Map<String, Value> context) throws RuleExecutionException, UnknownObjectException {
+        Value.DirectObject resolvedDestination = (Value.DirectObject) destination.resolve(context);
+        Value.Text resolvedMessage = (Value.Text) message.resolve(context);
 
         SmsManager smsManager = SmsManager.getDefault();
 

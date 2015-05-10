@@ -156,10 +156,9 @@ public class RuleDatabase {
         JSONArray jsonActions = jsonRule.getJSONArray(Rule.ACTIONS);
         Collection<Action> actions = parseActionList(jsonActions);
 
-        for (Action a : actions)
-            a.typeCheck(trigger);
-
-        return new Rule(name, trigger, actions);
+        Rule rule = new Rule(name, trigger, actions);
+        rule.typeCheck();
+        return rule;
     }
 
     private void loadRule(JSONObject jsonRule, int position) throws
