@@ -169,6 +169,13 @@ public class RuleDatabase {
 
         Rule rule = new Rule(name, description, trigger, actions);
         rule.typeCheck();
+
+        if (!jsonRule.has("id")) {
+            rule.setId(Util.toSHA1(rule.toJSON().toString()));
+        } else {
+            jsonRule.getString("id");
+        }
+
         return rule;
     }
 
@@ -182,15 +189,7 @@ public class RuleDatabase {
         else
             rule.setEnabled(true);
 
-        String id;
-        if (!jsonRule.has("id")) {
-            id = Util.toSHA1(rule.toJSON().toString());
-            rule.setId(id);
-        } else {
-            id = jsonRule.getString("id");
-        }
-
-        rules.put(id, rule);
+        rules.put(rule.getId(), rule);
         sortedRules.add(rule);
     }
 
