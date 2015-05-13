@@ -76,7 +76,8 @@ public class RuleManageFragment extends Fragment {
     ArrayList<Rule> listItems = new ArrayList<Rule>();
 
     //DEFINING A STRING ADAPTER WHICH WILL HANDLE THE DATA OF THE LISTVIEW
-    ArrayAdapter<Rule> listAdapter;
+    //ArrayAdapter<Rule> listAdapter;
+    RuleListItemCustomAdapter listAdapter;
 
     private void loadRules(Context ctx)
     {
@@ -86,20 +87,15 @@ public class RuleManageFragment extends Fragment {
             db.load(ctx);
             Collection <Rule> rules = db.getAllRules();
 
-            //ArrayList<String> ruletList = new ArrayList<String>();
-
-
             for (Rule rule : rules) {
                 listItems.add(rule);
             }
 
-
-            //listItems.add(new Rule("r1", null, null));
+            //listItems.add(new Rule("rule 1", "desc", null, null));
 
             listAdapter.notifyDataSetChanged();
         } catch (Exception e) {
             e.printStackTrace();
-            System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1ASDASDASDASDA" + e);
         }
     }
 
@@ -128,6 +124,7 @@ public class RuleManageFragment extends Fragment {
             }
         };*/
 
+        /*
         listAdapter = new ArrayAdapter (this.getActivity().getApplicationContext(), android.R.layout.simple_list_item_2, android.R.id.text1, listItems)
         {
             public View getView(int position, View convertView, ViewGroup parent) {
@@ -141,9 +138,10 @@ public class RuleManageFragment extends Fragment {
                 return view;
             }
         };
+        */
 
-
-
+        //instantiate custom adapter
+        listAdapter = new RuleListItemCustomAdapter(this.getActivity().getApplicationContext(), listItems);
 
         ruleListView.setAdapter(listAdapter);
 
