@@ -3,8 +3,6 @@ package edu.stanford.braincat.rulepedia.service;
 import android.content.Context;
 import android.os.Looper;
 
-import org.json.JSONObject;
-
 /**
  * Created by gcampagn on 4/30/15.
  */
@@ -23,26 +21,24 @@ public class RuleExecutorThread extends Thread {
         return looper;
     }
 
+    public synchronized RuleExecutor getExecutor() throws InterruptedException {
+        while (executor == null)
+            wait();
+        return executor;
+    }
+
     @Override
     public void run() {
         Looper.prepare();
-        executor = new RuleExecutor(context, Looper.myLooper());
 
         synchronized (this) {
+            executor = new RuleExecutor(context, Looper.myLooper());
             looper = Looper.myLooper();
-            notify();
+            notifyAll();
         }
 
         executor.prepare();
         Looper.loop();
         executor.destroy();
-    }
-
-    public void installRule(JSONObject jsonRule, Callback callback) {
-        executor.installRule(jsonRule, callback);
-    }
-
-    public void reloadRule(String id, Callback callback) {
-        executor.reloadRule(id, callback);
     }
 }

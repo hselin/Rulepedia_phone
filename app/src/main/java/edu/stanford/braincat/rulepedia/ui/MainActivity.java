@@ -1,7 +1,12 @@
 package edu.stanford.braincat.rulepedia.ui;
 
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -18,6 +23,8 @@ import java.util.Locale;
 
 import edu.stanford.braincat.rulepedia.R;
 import edu.stanford.braincat.rulepedia.service.AutoStarter;
+import edu.stanford.braincat.rulepedia.service.RuleExecutor;
+import edu.stanford.braincat.rulepedia.service.RuleExecutorService;
 
 
 public class MainActivity extends ActionBarActivity implements BrowseFragment.OnFragmentInteractionListener, RuleManageFragment.OnFragmentInteractionListener {
@@ -39,6 +46,28 @@ public class MainActivity extends ActionBarActivity implements BrowseFragment.On
      */
     ViewPager mViewPager;
 
+    private ServiceConnection connection;
+    private RuleExecutor executor;
+
+    private class Connection implements ServiceConnection {
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+            executor = ((RuleExecutorService.Binder)iBinder).getRuleExecutor();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            executor = null;
+        }
+    }
+
+    private void startService() {
+        AutoStarter.startService(this);
+        Intent intent = new Intent(this, RuleExecutorService.class);
+        bindService(intent, connection, Context.BIND_AUTO_CREATE);
+    }
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,11 +83,18 @@ public class MainActivity extends ActionBarActivity implements BrowseFragment.On
 
         //getActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
-
-
-
         // ensure the service is running
-        AutoStarter.startService(this);
+        connection = new Connection();
+        startService();
+    }
+
+    public RuleExecutor getRuleExecutor() {
+        return executor;
+    }
+
+    @Override
+    public void onDestroy() {
+        unbindService(connection);
     }
 
 

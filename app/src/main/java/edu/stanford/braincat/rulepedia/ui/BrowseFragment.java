@@ -1,9 +1,7 @@
 package edu.stanford.braincat.rulepedia.ui;
 
 import android.app.Activity;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -12,11 +10,18 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.JavascriptInterface;
+import android.webkit.ValueCallback;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONTokener;
+
 import edu.stanford.braincat.rulepedia.R;
-import edu.stanford.braincat.rulepedia.service.RuleExecutorService;
+import edu.stanford.braincat.rulepedia.model.Rule;
+import edu.stanford.braincat.rulepedia.service.Callback;
+import edu.stanford.braincat.rulepedia.service.RuleExecutor;
 
 
 /**
@@ -41,6 +46,8 @@ public class BrowseFragment extends Fragment {
     private String mParam2;
 
     private OnFragmentInteractionListener mListener;
+
+    private WebView mWebView;
 
     /**
      * Use this factory method to create a new instance of
@@ -80,14 +87,11 @@ public class BrowseFragment extends Fragment {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_browse, container, false);
 
-        WebView myWebView = (WebView) v.findViewById(R.id.webview);
-        WebSettings webSettings = myWebView.getSettings();
+        mWebView = (WebView) v.findViewById(R.id.webview);
+        WebSettings webSettings = mWebView.getSettings();
         webSettings.setJavaScriptEnabled(true);
-        myWebView.addJavascriptInterface(new WebAppInterface(), "Android");
-        //myWebView.loadUrl("http://192.168.1.123:3000/create");
-        //myWebView.loadUrl("http://10.34.167.48:3000/create");
-        //myWebView.loadUrl("http://192.168.44.133:3000/create");
-        myWebView.loadUrl("https://vast-hamlet-6003.herokuapp.com/create");
+        mWebView.addJavascriptInterface(new WebAppInterface(), "Android");
+        mWebView.loadUrl("https://vast-hamlet-6003.herokuapp.com/create");
 
         return v;
     }
@@ -131,16 +135,45 @@ public class BrowseFragment extends Fragment {
         public void onFragmentInteraction(Uri uri);
     }
 
-    private void sendIntentToRuleEngine(String ruleJSON) {
-        //getActivity().getApplicationContext()
-        Intent intent = new Intent(getActivity(), RuleExecutorService.class);
-        intent.setAction(RuleExecutorService.INSTALL_RULE_INTENT);
-        intent.setData(Uri.parse("rulepedia:json"));
-        intent.putExtra("json", ruleJSON);
-        //startActivity(intent);
-        ComponentName comp = getActivity().startService(intent);
+    private void reportInstallationSuccess(Rule rule) {
+        mWebView.evaluateJavascript("Rulepedia.Android.installationSuccess();", new ValueCallback<String>() {
+            @Override
+            public void onReceiveValue(String s) {
+                // nothing to do
+            }
+        });
+    }
 
-        Log.i(LOG_TAG, "Delegated rule installation to " + comp);
+    private void reportInstallationError(Exception error) {
+        mWebView.evaluateJavascript("Rulepedia.Android.installationError('" + error.getMessage().replace("'", "\\'") + "');",
+                new ValueCallback<String>() {
+                    @Override
+                    public void onReceiveValue(String s) {
+                    // nothing to do
+                    }
+                });
+    }
+
+    private void sendIntentToRuleEngine(String ruleJSON) {
+        RuleExecutor executor = ((MainActivity) getActivity()).getRuleExecutor();
+        if (executor == null)
+            return;
+
+        try {
+            JSONObject jsonRule = (JSONObject) new JSONTokener(ruleJSON).nextValue();
+            executor.installRule(jsonRule, new Callback<Rule>() {
+                @Override
+                public void run(Rule result, Exception error) {
+                    if (result != null)
+                        reportInstallationSuccess(result);
+                    else
+                        reportInstallationError(error);
+                }
+            });
+        } catch (JSONException e) {
+            Log.e(LOG_TAG, "Failed to parse rule JSON: " + e.getMessage());
+            reportInstallationError(e);
+        }
     }
 
     public class WebAppInterface {

@@ -248,7 +248,8 @@ public class RuleDatabase {
     }
 
     public synchronized void removeRule(Rule rule) {
-        rules.remove(rule);
+        rules.remove(rule.getId());
+        sortedRules.remove(rule);
         dirty = true;
     }
 }

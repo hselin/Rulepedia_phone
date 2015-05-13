@@ -33,7 +33,7 @@ public class RuleExecutor extends Handler {
         eventSources = new HashSet<>();
     }
 
-    public void installRule(final JSONObject jsonRule, final edu.stanford.braincat.rulepedia.service.Callback callback) {
+    public void installRule(final JSONObject jsonRule, final edu.stanford.braincat.rulepedia.service.Callback<Rule> callback) {
         post(new Runnable() {
             public void run() {
                 doInstallRule(jsonRule, callback);
@@ -41,11 +41,20 @@ public class RuleExecutor extends Handler {
         });
     }
 
-    public void reloadRule(final String id, final edu.stanford.braincat.rulepedia.service.Callback callback) {
+    public void reloadRule(final String id, final edu.stanford.braincat.rulepedia.service.Callback<Rule> callback) {
         post(new Runnable() {
             @Override
             public void run() {
                 doReloadRule(id, callback);
+            }
+        });
+    }
+
+    public void deleteRule(final String id, final edu.stanford.braincat.rulepedia.service.Callback<Boolean> callback) {
+        post(new Runnable() {
+            @Override
+            public void run() {
+                doDeleteRule(id, callback);
             }
         });
     }
@@ -71,65 +80,109 @@ public class RuleExecutor extends Handler {
             rule.setInstalled(true);
     }
 
-    private void doInstallRule(JSONObject jsonRule, edu.stanford.braincat.rulepedia.service.Callback callback) {
+
+    private void doDisableRule(Rule rule) throws UnknownObjectException {
+        rule.resolve();
+
+        boolean anyFailed = false;
+        boolean anySuccess = false;
+        Collection<EventSource> sources = rule.getEventSources();
+        for (EventSource s : sources) {
+            try {
+                s.uninstall(context);
+                anySuccess = true;
+            } catch (IOException e) {
+                Log.e(RuleExecutorService.LOG_TAG, "Failed to uninstall event source " + s.toString() + ": " + e.getMessage());
+                anyFailed = true;
+            }
+        }
+        if (!anyFailed)
+            eventSources.removeAll(sources);
+        if (anySuccess)
+            rule.setInstalled(false);
+    }
+
+    private void doInstallRule(JSONObject jsonRule, edu.stanford.braincat.rulepedia.service.Callback<Rule> callback) {
         try {
             RuleDatabase db = RuleDatabase.get();
             Rule rule = db.addRule(jsonRule);
             // save eagerly to catch problems
             db.save(context);
-            doEnableRule(rule);
-            callback.post(null);
+            assert !rule.isInstalled();
+            if (rule.isEnabled())
+                doEnableRule(rule);
+            callback.post(rule, null);
         } catch (Exception e) {
             Log.e(RuleExecutorService.LOG_TAG, "Failed to add rule to the database: " + e.getMessage());
-            callback.post(e);
+            callback.post(null, e);
         }
     }
 
-    private void doReloadRule(String id, edu.stanford.braincat.rulepedia.service.Callback callback) {
+    private void doReloadRule(String id, edu.stanford.braincat.rulepedia.service.Callback<Rule> callback) {
         Rule rule = RuleDatabase.get().getRuleById(id);
 
         if (rule == null) {
             // perfectly legitimate, possible race condition
             Log.i(RuleExecutorService.LOG_TAG, "No rule with id " + id);
-            callback.post(null);
+            callback.post(rule, null);
             return;
         }
 
-        if (rule.isInstalled()) {
-            callback.post(null);
+        if (rule.isEnabled() == rule.isInstalled()) {
+            callback.post(rule, null);
             return;
         }
 
         try {
-            doEnableRule(rule);
-            callback.post(null);
+            if (rule.isEnabled())
+                doEnableRule(rule);
+            else
+                doDisableRule(rule);
+            callback.post(rule, null);
         } catch(Exception e) {
             Log.e(RuleExecutorService.LOG_TAG, "Failed to reload rule: " + e.getMessage());
-            callback.post(null);
+            callback.post(null, e);
+        }
+    }
+
+    private void doDeleteRule(String id, edu.stanford.braincat.rulepedia.service.Callback<Boolean> callback) {
+        RuleDatabase db = RuleDatabase.get();
+        Rule rule = db.getRuleById(id);
+
+        if (rule == null) {
+            // perfectly legitimate, possible race condition
+            Log.i(RuleExecutorService.LOG_TAG, "No rule with id " + id);
+            callback.post(true, null);
+            return;
+        }
+
+        db.removeRule(rule);
+
+        if (!rule.isInstalled()) {
+            callback.post(true, null);
+            return;
+        }
+
+        try {
+            doDisableRule(rule);
+            callback.post(true, null);
+        } catch (Exception e) {
+            Log.e(RuleExecutorService.LOG_TAG, "Failed to reload rule: " + e.getMessage());
+            callback.post(null, e);
         }
     }
 
     public void prepare() {
         for (Rule r : RuleDatabase.get().getAllRules()) {
-            try {
-                r.resolve();
-                eventSources.addAll(r.getEventSources());
-            } catch (UnknownObjectException e) {
-                Log.i(RuleExecutorService.LOG_TAG, "Failed to resolve rule: " + e.getMessage());
-                r.setEnabled(false);
-            }
-        }
+            if (!r.isEnabled())
+                continue;
 
-        Set<EventSource> failedSources = new HashSet<>();
-        for (EventSource s : eventSources) {
             try {
-                s.install(context, this);
-            } catch (IOException e) {
-                Log.e(RuleExecutorService.LOG_TAG, "Failed to install event source " + s.toString() + ": " + e.getMessage());
-                failedSources.add(s);
+                doEnableRule(r);
+            } catch (UnknownObjectException e) {
+                Log.i(RuleExecutorService.LOG_TAG, "Failed to bootstrap rule: " + e.getMessage());
             }
         }
-        eventSources.removeAll(failedSources);
     }
 
     public void destroy() {
@@ -141,6 +194,9 @@ public class RuleExecutor extends Handler {
             }
         }
         eventSources.clear();
+
+        for (Rule r : RuleDatabase.get().getAllRules())
+            r.setInstalled(false);
     }
 
     @Override

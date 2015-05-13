@@ -17,16 +17,29 @@ import edu.stanford.braincat.rulepedia.model.RuleDatabase;
 
 public class RuleExecutorService extends Service {
     private RuleExecutorThread executorThread;
+    private RuleExecutor executor;
     private Looper executorLooper;
     private ObjectDatabase objectdb;
     private RuleDatabase ruledb;
+    private final IBinder binder;
 
     public static final String INSTALL_RULE_INTENT = "edu.stanford.braincat.rulepedia.INSTALL_RULE";
-    public static final String RELOAD_RULE_INTENT = "edu.stanford.braincat.rulepedia.RELOAD_RULE";
 
     public static final String LOG_TAG = "rulepedia.Service";
 
+    public class Binder extends android.os.Binder {
+        public RuleExecutor getRuleExecutor() {
+            return executor;
+        }
+    }
+
     public RuleExecutorService() {
+        binder = new Binder();
+    }
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        return binder;
     }
 
     @Override
@@ -60,6 +73,14 @@ public class RuleExecutorService extends Service {
                 // not much we can do, let's try again...
             }
         }
+        while (executor == null) {
+            try {
+                executor = executorThread.getExecutor();
+            } catch (InterruptedException ie) {
+                Log.w(LOG_TAG, "Interrupted exception while starting service!");
+                // not much we can do, let's try again...
+            }
+        }
 
         Log.i(LOG_TAG, "Started service");
     }
@@ -70,9 +91,9 @@ public class RuleExecutorService extends Service {
 
             if (intent.getData().toString().equals("rulepedia:json")) {
                 jsonObject = (JSONObject)new JSONTokener(intent.getStringExtra("json")).nextValue();
-                executorThread.installRule(jsonObject, new Callback() {
+                executor.installRule(jsonObject, new Callback() {
                     @Override
-                    public void run(Exception e) {
+                    public void run(Object result, Exception error) {
                         // FIXME
                     }
                 });
@@ -84,16 +105,6 @@ public class RuleExecutorService extends Service {
             Log.e(LOG_TAG, "Failed to add rule to the database: " + e.getMessage());
             // FIXME
         }
-    }
-
-    private void doReloadRule(Intent intent) {
-        String id = intent.getStringExtra("id");
-        executorThread.reloadRule(id, new Callback() {
-            @Override
-            public void run(Exception e) {
-                // FIXME
-            }
-        });
     }
 
     private void ensureService() {
@@ -112,8 +123,6 @@ public class RuleExecutorService extends Service {
         switch (action) {
             case INSTALL_RULE_INTENT:
                 return onInstallRule(intent);
-            case RELOAD_RULE_INTENT:
-                return onReloadRule(intent);
             default:
                 throw new UnsupportedOperationException("service cannot handle action " + action);
         }
@@ -122,12 +131,6 @@ public class RuleExecutorService extends Service {
     private int onInstallRule(Intent intent) {
         ensureService();
         doInstallRule(intent);
-        return START_STICKY;
-    }
-
-    private int onReloadRule(Intent intent) {
-        ensureService();
-        doReloadRule(intent);
         return START_STICKY;
     }
 
@@ -163,11 +166,5 @@ public class RuleExecutorService extends Service {
         }
 
         Log.i(LOG_TAG, "Destroyed service");
-    }
-
-    @Override
-    public IBinder onBind(Intent intent) {
-        // TODO: Return the communication channel to the service.
-        throw new UnsupportedOperationException("Not yet implemented");
     }
 }
