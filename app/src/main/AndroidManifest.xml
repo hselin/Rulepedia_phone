@@ -21,10 +21,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".ui.InstallRuleActivity"
-            android:label="@string/title_activity_install_rule" >
-        </activity>
 
         <receiver android:name=".service.AutoStarter" >
             <intent-filter>

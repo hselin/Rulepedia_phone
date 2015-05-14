@@ -18,7 +18,7 @@ public class IntentEventSource implements EventSource {
     private final Queue<Intent> queue;
     private BroadcastReceiver receiver;
 
-    private class EventSourceBroadcastReceiver extends BroadcastReceiver {
+    public class EventSourceBroadcastReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context ctx, Intent intent) {
             queue.offer(intent);

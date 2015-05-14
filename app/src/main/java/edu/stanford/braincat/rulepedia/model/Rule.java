@@ -16,6 +16,7 @@ import edu.stanford.braincat.rulepedia.events.EventSource;
 import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
 import edu.stanford.braincat.rulepedia.exceptions.TriggerValueTypeException;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
+import edu.stanford.braincat.rulepedia.service.RuleExecutorThread;
 
 /**
  * Created by gcampagn on 4/30/15.
@@ -31,9 +32,9 @@ public class Rule {
     private final String description;
     private final Trigger trigger;
     private final ArrayList<Action> actions;
-    private String id;
-    private int priority;
     private boolean installed;
+    private volatile String id;
+    private volatile int priority;
     private volatile boolean enabled;
 
     public Rule(String name, String description, Trigger trigger, Collection<Action> actions) {
@@ -55,6 +56,7 @@ public class Rule {
     }
 
     public boolean isInstalled() {
+        assert Thread.currentThread() instanceof RuleExecutorThread;
         return installed;
     }
 
@@ -63,6 +65,7 @@ public class Rule {
     }
 
     public void setInstalled(boolean installed) {
+        assert Thread.currentThread() instanceof RuleExecutorThread;
         this.installed = installed;
     }
 
