@@ -64,7 +64,7 @@ public class NotificationManagerPostNotificationAction implements Action {
     }
 
     @Override
-    public void execute(Context ctx, Map<String, Value> context) throws UnknownObjectException, RuleExecutionException {
+    public void execute(Context ctx, Map<String, Value> context) throws TriggerValueTypeException, UnknownObjectException, RuleExecutionException {
         Value.Text resolvedTitle = (Value.Text) title.resolve(context);
         Value.Text resolvedText = (Value.Text) text.resolve(context);
 

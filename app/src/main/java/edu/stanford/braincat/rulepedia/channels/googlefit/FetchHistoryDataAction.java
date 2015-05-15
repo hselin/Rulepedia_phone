@@ -82,7 +82,7 @@ public class FetchHistoryDataAction implements Action {
     }
 
     @Override
-    public void execute(Context ctx, Map<String, Value> context) throws UnknownObjectException, RuleExecutionException {
+    public void execute(Context ctx, Map<String, Value> context) throws TriggerValueTypeException, UnknownObjectException, RuleExecutionException {
         GoogleApiClient client = ((GoogleFitChannel)channel).acquireClient(ctx);
 
         try {

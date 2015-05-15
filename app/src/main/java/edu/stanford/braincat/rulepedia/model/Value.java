@@ -30,7 +30,7 @@ public abstract class Value {
             throw new TriggerValueTypeException("invalid value type, expected " + expected.getCanonicalName());
     }
 
-    public Value resolve(Map<String, Value> context) throws UnknownObjectException {
+    public Value resolve(Map<String, Value> context) throws TriggerValueTypeException, UnknownObjectException {
         return this;
     }
 
@@ -65,10 +65,11 @@ public abstract class Value {
                 throw new TriggerValueTypeException("invalid value type, expected " + expected.getCanonicalName());
         }
 
-        // we don't check context != null
-        // we should have failed to typecheck anyway
         @Override
-        public Value resolve(Map<String, Value> context) throws UnknownObjectException {
+        public Value resolve(Map<String, Value> context) throws TriggerValueTypeException, UnknownObjectException {
+            if (context == null)
+                throw new TriggerValueTypeException("trigger value not allowed here");
+
             return context.get(name).resolve(context);
         }
 
@@ -96,6 +97,10 @@ public abstract class Value {
 
         public K getObject() {
             return object;
+        }
+
+        public DirectObject<K> resolve(Map<String, Value> context) {
+            return this;
         }
     }
 
@@ -166,7 +171,7 @@ public abstract class Value {
         }
 
         @Override
-        public Value resolve(Map<String, Value> context) throws UnknownObjectException {
+        public Value resolve(Map<String, Value> context) throws TriggerValueTypeException, UnknownObjectException {
             if (resolved)
                 return this;
             if (context == null)

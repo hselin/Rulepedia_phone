@@ -30,7 +30,7 @@ public class SMSMessageReceivedTrigger extends SimpleEventTrigger<SMSEventSource
     private volatile Channel channel;
     private SmsMessage receivedMessage;
     private final String contentContains;
-    private final Contact senderMatches;
+    private volatile Contact senderMatches;
 
     public SMSMessageReceivedTrigger(Channel channel, Value contentContains, Value senderMatches) throws UnknownObjectException {
         this.channel = channel;
@@ -55,8 +55,9 @@ public class SMSMessageReceivedTrigger extends SimpleEventTrigger<SMSEventSource
         Channel currentChannel = channel;
         if (currentChannel.isPlaceholder())
             result.add(currentChannel);
-        if (senderMatches != null && senderMatches.isPlaceholder())
-            result.add(senderMatches);
+        Contact currentSenderMatcher = senderMatches;
+        if (currentSenderMatcher != null && currentSenderMatcher.isPlaceholder())
+            result.add(currentSenderMatcher);
 
         return result;
     }
@@ -122,8 +123,13 @@ public class SMSMessageReceivedTrigger extends SimpleEventTrigger<SMSEventSource
         Channel newChannel = channel.resolve();
         if (!(newChannel instanceof SMSChannel))
             throw new UnknownObjectException(newChannel.getUrl());
-        setSource(((SMSChannel)newChannel).getEventSource());
+        Contact newSenderMatches = senderMatches != null ? senderMatches.resolve() : null;
+        if (newSenderMatches != null && !(newSenderMatches instanceof SMSContact))
+            throw new UnknownObjectException(newSenderMatches.getUrl());
+
+        setSource(((SMSChannel) newChannel).getEventSource());
         channel = newChannel;
+        senderMatches = newSenderMatches;
     }
 
     @Override

@@ -28,7 +28,7 @@ public interface Action {
 
     void typeCheck(Map<String, Class<? extends Value>> context) throws TriggerValueTypeException;
 
-    void execute(Context ctx, Map<String, Value> context) throws UnknownObjectException, RuleExecutionException;
+    void execute(Context ctx, Map<String, Value> context) throws TriggerValueTypeException, UnknownObjectException, RuleExecutionException;
 
     String toHumanString();
 

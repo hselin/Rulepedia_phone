@@ -47,17 +47,21 @@ public abstract class SendMessageAction implements Action {
         Channel currentChannel = channel;
         if (currentChannel.isPlaceholder())
             result.add(currentChannel);
-        if (destination instanceof Value.Contact) {
-            try {
-                Value.DirectObject resolved = (Value.DirectObject) destination.resolve(null);
-                if (resolved.getObject().isPlaceholder())
-                    result.add(resolved.getObject());
-            } catch(UnknownObjectException e) {
-                // nothing to do
+        try {
+            if (destination instanceof Value.Contact) {
+                try {
+                    Value.DirectObject resolved = (Value.DirectObject) destination.resolve(null);
+                    if (resolved.getObject().isPlaceholder())
+                        result.add(resolved.getObject());
+                } catch (UnknownObjectException e) {
+                    // nothing to do
+                }
+            } else if (destination instanceof Value.DirectObject) {
+                if (((Value.DirectObject) destination).getObject().isPlaceholder())
+                    result.add(((Value.DirectObject) destination).getObject());
             }
-        } else if (destination instanceof Value.DirectObject) {
-            if (((Value.DirectObject) destination).getObject().isPlaceholder())
-                result.add(((Value.DirectObject) destination).getObject());
+        } catch (TriggerValueTypeException e) {
+            // nothing to do
         }
 
         return result;
@@ -72,7 +76,7 @@ public abstract class SendMessageAction implements Action {
     protected abstract void sendMessage(Context ctx, Contact destination, String message) throws UnknownObjectException, RuleExecutionException;
 
     @Override
-    public void execute(Context ctx, Map<String, Value> context) throws RuleExecutionException, UnknownObjectException {
+    public void execute(Context ctx, Map<String, Value> context) throws TriggerValueTypeException, RuleExecutionException, UnknownObjectException {
         Value.DirectObject resolvedDestination = (Value.DirectObject) destination.resolve(context);
         Value.Text resolvedMessage = (Value.Text) message.resolve(context);
 

@@ -151,8 +151,8 @@ public class Rule {
             trigger.updateContext(context);
             for (Action a : actions)
                 a.execute(ctx, context);
-        } catch(UnknownObjectException uoe) {
-            throw new RuleExecutionException(uoe);
+        } catch(UnknownObjectException|TriggerValueTypeException e) {
+            throw new RuleExecutionException(e);
         }
     }
 
