@@ -1,5 +1,7 @@
 package edu.stanford.braincat.rulepedia.ui;
 
+import android.app.Activity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,16 +15,24 @@ import java.util.ArrayList;
 import android.content.Context;
 import android.widget.TextView;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONTokener;
+
 import edu.stanford.braincat.rulepedia.R;
 import edu.stanford.braincat.rulepedia.model.Rule;
+import edu.stanford.braincat.rulepedia.service.Callback;
+import edu.stanford.braincat.rulepedia.service.RuleExecutor;
 
 public class RuleListItemCustomAdapter extends BaseAdapter implements ListAdapter {
     private ArrayList<Rule> list = new ArrayList<Rule>();
+    private Activity activity;
     private Context context;
 
-    public RuleListItemCustomAdapter(Context context, ArrayList<Rule> list) {
+    public RuleListItemCustomAdapter(Activity activity, Context context, ArrayList<Rule> list) {
         this.list = list;
         this.context = context;
+        this.activity = activity;
     }
 
     @Override
@@ -62,8 +72,30 @@ public class RuleListItemCustomAdapter extends BaseAdapter implements ListAdapte
             @Override
             public void onClick(View v) {
                 //do something
-                list.remove(position); //or some other task
-                notifyDataSetChanged();
+                String ruleID = list.get(position).getId();
+
+                RuleExecutor executor = ((MainActivity) activity).getRuleExecutor();
+
+                if (executor == null)
+                    return;
+
+                try {
+                    executor.deleteRule(ruleID, new Callback<Boolean>() {
+                        @Override
+                        public void run(Boolean success, Exception error) {
+                            if(success) {
+                                list.remove(position); //or some other task
+                                notifyDataSetChanged();
+                            }
+                            else
+                            {
+                                Log.d("a", "CANNOT REMOVE RULE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                            }
+                        }
+                    });
+                } catch (Exception e) {
+                    Log.d("a", null, e);
+                }
             }
         });
         /*

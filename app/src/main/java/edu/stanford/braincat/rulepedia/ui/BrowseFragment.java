@@ -20,6 +20,7 @@ import org.json.JSONTokener;
 
 import edu.stanford.braincat.rulepedia.R;
 import edu.stanford.braincat.rulepedia.model.Rule;
+import edu.stanford.braincat.rulepedia.model.RuleDatabase;
 import edu.stanford.braincat.rulepedia.service.Callback;
 import edu.stanford.braincat.rulepedia.service.RuleExecutor;
 
@@ -136,15 +137,18 @@ public class BrowseFragment extends Fragment {
     }
 
     private void reportInstallationSuccess(Rule rule) {
+        /*
         mWebView.evaluateJavascript("Rulepedia.Android.installationSuccess();", new ValueCallback<String>() {
             @Override
             public void onReceiveValue(String s) {
                 // nothing to do
             }
         });
+        */
     }
 
     private void reportInstallationError(Exception error) {
+        /*
         mWebView.evaluateJavascript("Rulepedia.Android.installationError('" + error.getMessage().replace("'", "\\'") + "');",
                 new ValueCallback<String>() {
                     @Override
@@ -152,6 +156,7 @@ public class BrowseFragment extends Fragment {
                     // nothing to do
                     }
                 });
+         */
     }
 
     private void sendIntentToRuleEngine(String ruleJSON) {
@@ -164,10 +169,12 @@ public class BrowseFragment extends Fragment {
             executor.installRule(jsonRule, new Callback<Rule>() {
                 @Override
                 public void run(Rule result, Exception error) {
-                    if (result != null)
+                    if (result != null) {
                         reportInstallationSuccess(result);
-                    else
+                    }
+                    else {
                         reportInstallationError(error);
+                    }
                 }
             });
         } catch (JSONException e) {
@@ -187,7 +194,7 @@ public class BrowseFragment extends Fragment {
 
         @JavascriptInterface
         public void installRule(String ruleJSON) {
-            Log.d("myTag", ruleJSON);
+            //Log.d("myTag", ruleJSON);
 
             sendIntentToRuleEngine(ruleJSON);
         }

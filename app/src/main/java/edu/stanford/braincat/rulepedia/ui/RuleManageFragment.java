@@ -5,6 +5,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +15,8 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import edu.stanford.braincat.rulepedia.R;
 import edu.stanford.braincat.rulepedia.model.Rule;
@@ -81,11 +84,14 @@ public class RuleManageFragment extends Fragment {
 
     private void loadRules(Context ctx)
     {
+        listItems.clear();
 
         try{
             RuleDatabase db = RuleDatabase.get();
             db.load(ctx);
             Collection <Rule> rules = db.getAllRules();
+
+            Log.d("myTag", "rules.size(): " + rules.size());
 
             for (Rule rule : rules) {
                 listItems.add(rule);
@@ -141,7 +147,7 @@ public class RuleManageFragment extends Fragment {
         */
 
         //instantiate custom adapter
-        listAdapter = new RuleListItemCustomAdapter(this.getActivity().getApplicationContext(), listItems);
+        listAdapter = new RuleListItemCustomAdapter(this.getActivity(), this.getActivity().getApplicationContext(), listItems);
 
         ruleListView.setAdapter(listAdapter);
 
@@ -186,6 +192,32 @@ public class RuleManageFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         public void onFragmentInteraction(Uri uri);
+    }
+
+
+    private Timer autoUpdate;
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        autoUpdate = new Timer();
+        autoUpdate.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                getActivity().runOnUiThread(new Runnable() {
+                    public void run() {
+                        //updateHTML();
+                        loadRules(getActivity().getApplicationContext());
+                    }
+                });
+            }
+        }, 0, 5000); // updates each 40 secs
+    }
+
+    @Override
+    public void onPause() {
+        autoUpdate.cancel();
+        super.onPause();
     }
 
 }

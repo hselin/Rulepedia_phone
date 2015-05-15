@@ -50,8 +50,15 @@ public class GenericTrigger implements Trigger {
         }
     }
 
+
+
     public Channel getChannel() {
         return channel;
+    }
+
+    @Override
+    public Collection<EventSource> getEventSources() {
+        return null;
     }
 
     public Collection<ObjectPool.Object> getPlaceholders() {
@@ -71,8 +78,8 @@ public class GenericTrigger implements Trigger {
 
             for (Map.Entry<String, EventSource> e : ((GenericChannel) channel).getEventSources().entrySet()) {
                 EventSource source = e.getValue();
-                if (source instanceof WebPollingEventSource)
-                    newEventSourceValues.gi
+                //if (source instanceof WebPollingEventSource)
+                    //newEventSourceValues.gi
             }
         } catch(MalformedURLException|JSONException e) {
             throw new RuleExecutionException("Failed to obtain event sources", e);
@@ -81,8 +88,9 @@ public class GenericTrigger implements Trigger {
 
     @Override
     public boolean isFiring() throws RuleExecutionException {
-        Object result = ((GenericChannel)channel).callFunction(script, ((GenericChannel)channel).getData());
-        return result instanceof ScriptableChannel;
+        //Object result = ((GenericChannel)channel).callFunction(script, ((GenericChannel)channel).getData());
+        //return result instanceof ScriptableChannel;
+        return false;
     }
 
     @Override
@@ -106,11 +114,13 @@ public class GenericTrigger implements Trigger {
             throw new UnknownObjectException(newChannel.getUrl());
 
         script = ((GenericChannel) newChannel).compileFunction(scriptBody);
+        /*
         try {
             setSource(((GenericChannel) newChannel).getEventSource(eventSourceName));
         } catch(JSONException e) {
             throw new UnknownObjectException(newChannel.getUrl());
         }
+        */
         channel = newChannel;
     }
 

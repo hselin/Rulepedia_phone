@@ -139,8 +139,8 @@ public class GenericChannelFactory extends ChannelFactory {
 
             switch (impl) {
                 case "refresh-poll":
-                    return new WebRefreshingPollingTrigger(channel, triggerMeta.getString("id"), triggerMeta.getString("text"),
-                            triggerMeta.getJSONArray("event-sources").getString(0), triggerMeta.getString("script"));
+                    //return new WebRefreshingPollingTrigger(channel, triggerMeta.getString("id"), triggerMeta.getString("text"),
+                            //triggerMeta.getJSONArray("event-sources").getString(0), triggerMeta.getString("script"));
 
                 default:
                     throw new UnknownChannelException(method);
