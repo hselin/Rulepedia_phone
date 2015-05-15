@@ -1,5 +1,7 @@
 package edu.stanford.braincat.rulepedia.channels.generic;
 
+import android.util.ArrayMap;
+
 import org.json.JSONException;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
@@ -47,7 +49,7 @@ public class GenericChannel extends Channel {
     }
 
     public Map<String, EventSource> getEventSources() throws MalformedURLException, JSONException {
-        Map<String, EventSource> result = new HashMap<>();
+        Map<String, EventSource> result = new ArrayMap<>();
 
         Collection<String> names = ((GenericChannelFactory)getFactory()).getEventSourceNames();
 

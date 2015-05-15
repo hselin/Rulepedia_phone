@@ -13,6 +13,7 @@ import org.json.JSONTokener;
 import java.io.IOException;
 
 import edu.stanford.braincat.rulepedia.model.ObjectDatabase;
+import edu.stanford.braincat.rulepedia.model.Rule;
 import edu.stanford.braincat.rulepedia.model.RuleDatabase;
 
 public class RuleExecutorService extends Service {
@@ -91,9 +92,9 @@ public class RuleExecutorService extends Service {
 
             if (intent.getData().toString().equals("rulepedia:json")) {
                 jsonObject = (JSONObject)new JSONTokener(intent.getStringExtra("json")).nextValue();
-                executor.installRule(jsonObject, new Callback() {
+                executor.installRule(jsonObject, new Callback<Rule>() {
                     @Override
-                    public void run(Object result, Exception error) {
+                    public void run(Rule result, Exception error) {
                         // FIXME
                     }
                 });

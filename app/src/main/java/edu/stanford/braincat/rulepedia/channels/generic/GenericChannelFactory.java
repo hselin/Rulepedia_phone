@@ -64,6 +64,9 @@ public class GenericChannelFactory extends ChannelFactory {
 
     @Override
     public Channel create(String url) throws UnknownObjectException {
+        if (!pattern.matcher(url).matches())
+            throw new UnknownObjectException(url);
+
         try {
             return new GenericChannel(this, url, jsonFactory.getString("id"), jsonFactory.getString("text"));
         } catch(JSONException e) {
@@ -89,22 +92,60 @@ public class GenericChannelFactory extends ChannelFactory {
         return id;
     }
 
+    private static Class<? extends Value> classForTypeName(String paramtype) throws TriggerValueTypeException {
+        switch (paramtype) {
+            case "text":
+            case "textarea":
+                return Value.Text.class;
+            case "time":
+            case "number":
+                return Value.Number.class;
+            case "select":
+                return Value.Select.class;
+            case "picture":
+                return Value.Picture.class;
+            case "contact":
+            case "message-destination":
+                return Value.Contact.class;
+            default:
+                throw new TriggerValueTypeException("invalid type " + paramtype);
+        }
+    }
+
+    private void updateGeneratesTypeFor(JSONArray generates, Map<String, Class<? extends Value>> context) throws JSONException, TriggerValueTypeException {
+        for (int i = 0; i < generates.length(); i++) {
+            JSONObject generatespec = generates.getJSONObject(i);
+            String paramtype = generatespec.getString("type");
+            context.put(generatespec.getString("id"), classForTypeName(paramtype));
+        }
+    }
+
+    public void updateGeneratesType(String method, Map<String, Class<? extends Value>> context) throws UnknownChannelException {
+        try {
+            JSONObject jsonTrigger = triggerMetas.get(method);
+            if (jsonTrigger != null) {
+                updateGeneratesTypeFor(jsonTrigger.getJSONArray("params"), context);
+                return;
+            }
+
+            JSONObject jsonAction = actionMetas.get(method);
+            if (jsonAction != null) {
+                updateGeneratesTypeFor(jsonAction.getJSONArray("params"), context);
+                return;
+            }
+
+            throw new UnknownChannelException(method);
+        } catch(JSONException|TriggerValueTypeException e) {
+            throw new UnknownChannelException(method);
+        }
+    }
+
     private static Class<? extends Value> findParamType(JSONArray jsonParams, String name) throws JSONException, TriggerValueTypeException {
         for (int i = 0; i < jsonParams.length(); i++) {
             JSONObject paramspec = jsonParams.getJSONObject(i);
             if (!paramspec.get("id").equals(name))
                 continue;
-            String paramtype = paramspec.getString("type");
-            switch(paramtype) {
-                case "text":
-                case "textarea":
-                    return Value.Text.class;
-                case "contact":
-                case "message-destination":
-                    return Value.Contact.class;
-                default:
-                    throw new TriggerValueTypeException("invalid type " + paramtype);
-            }
+            return classForTypeName(paramspec.getString("type"));
         }
 
         throw new TriggerValueTypeException("invalid param " + name);
@@ -135,16 +176,8 @@ public class GenericChannelFactory extends ChannelFactory {
             throw new UnknownChannelException(method);
 
         try {
-            String impl = triggerMeta.getString("implementation");
-
-            switch (impl) {
-                case "refresh-poll":
-                    return new WebRefreshingPollingTrigger(channel, triggerMeta.getString("id"), triggerMeta.getString("text"),
-                            triggerMeta.getJSONArray("event-sources").getString(0), triggerMeta.getString("script"));
-
-                default:
-                    throw new UnknownChannelException(method);
-            }
+            return new GenericTrigger(channel, triggerMeta.getString("id"), triggerMeta.getString("text"),
+                    triggerMeta.getString("script"), params);
         } catch(JSONException e) {
             throw new UnknownChannelException(method);
         }
