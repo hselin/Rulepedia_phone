@@ -61,7 +61,7 @@ public class GenericChannel extends Channel {
             EventSource source = sourceRef.get();
 
             if (source == null) {
-                source = ((GenericChannelFactory) getFactory()).createEventSource(this, name, null);
+                source = ((GenericChannelFactory) getFactory()).createEventSource(this, name);
                 eventSourceRefs.put(name, new WeakReference<EventSource>(source));
             }
 
