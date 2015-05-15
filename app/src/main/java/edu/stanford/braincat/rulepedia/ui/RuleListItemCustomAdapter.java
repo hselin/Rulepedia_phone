@@ -89,7 +89,7 @@ public class RuleListItemCustomAdapter extends BaseAdapter implements ListAdapte
                             }
                             else
                             {
-                                Log.d("a", "CANNOT REMOVE RULE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                                Log.d("a", "CANNOT REMOVE RULE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
                             }
                         }
                     });
