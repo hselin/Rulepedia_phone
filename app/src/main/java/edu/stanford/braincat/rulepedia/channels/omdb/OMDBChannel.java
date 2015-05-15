@@ -10,7 +10,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import edu.stanford.braincat.rulepedia.channels.HTTPHelper;
+import edu.stanford.braincat.rulepedia.channels.HTTPUtil;
 import edu.stanford.braincat.rulepedia.channels.RefreshableObject;
 import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
 import edu.stanford.braincat.rulepedia.model.Channel;
@@ -59,7 +59,7 @@ public class OMDBChannel extends Channel implements RefreshableObject {
     @Override
     public synchronized void refresh() throws IOException {
         try {
-            JSONTokener jt = HTTPHelper.getJSON(getUrl());
+            JSONTokener jt = HTTPUtil.getJSON(getUrl());
             JSONObject jsonMovie = (JSONObject) jt.nextValue();
 
             title = jsonMovie.getString("Title");

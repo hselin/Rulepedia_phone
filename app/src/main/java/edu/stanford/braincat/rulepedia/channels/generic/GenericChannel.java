@@ -1,5 +1,7 @@
 package edu.stanford.braincat.rulepedia.channels.generic;
 
+import android.util.ArrayMap;
+
 import org.json.JSONException;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
@@ -13,6 +15,8 @@ import java.util.Map;
 
 import edu.stanford.braincat.rulepedia.events.EventSource;
 import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
+import edu.stanford.braincat.rulepedia.exceptions.TriggerValueTypeException;
+import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
 import edu.stanford.braincat.rulepedia.model.Channel;
 
 /**
@@ -46,8 +50,9 @@ public class GenericChannel extends Channel {
         return function.call(ctx, global, thisArg, args);
     }
 
-    public Map<String, EventSource> getEventSources() throws MalformedURLException, JSONException {
-        Map<String, EventSource> result = new HashMap<>();
+    public Map<String, EventSource> getEventSources() throws
+            MalformedURLException, JSONException, TriggerValueTypeException, UnknownObjectException {
+        Map<String, EventSource> result = new ArrayMap<>();
 
         Collection<String> names = ((GenericChannelFactory)getFactory()).getEventSourceNames();
 
@@ -56,7 +61,7 @@ public class GenericChannel extends Channel {
             EventSource source = sourceRef.get();
 
             if (source == null) {
-                source = ((GenericChannelFactory) getFactory()).createEventSource(this, name);
+                source = ((GenericChannelFactory) getFactory()).createEventSource(this, name, null);
                 eventSourceRefs.put(name, new WeakReference<EventSource>(source));
             }
 
