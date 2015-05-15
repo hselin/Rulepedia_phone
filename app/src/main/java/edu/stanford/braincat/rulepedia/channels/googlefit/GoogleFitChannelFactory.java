@@ -74,7 +74,7 @@ public class GoogleFitChannelFactory extends ChannelFactory {
                 return new FetchHistoryDataAction(channel, (HistoryDataTypeValue)params.get(DATA_TYPE).resolve(null),
                         params.get(AGGREGATE_PERIOD), params.get(ACTIVITY_FILTER));
             case FETCH_CURRENT:
-                return null;
+                return new FetchCurrentDataAction(channel, (CurrentDataTypeValue)params.get(DATA_TYPE).resolve(null));
             default:
                 throw new UnknownChannelException(method);
         }

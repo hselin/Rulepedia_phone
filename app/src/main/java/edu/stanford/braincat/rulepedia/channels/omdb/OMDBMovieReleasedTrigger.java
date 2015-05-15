@@ -5,12 +5,15 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
 
 import edu.stanford.braincat.rulepedia.channels.PollingTrigger;
 import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
 import edu.stanford.braincat.rulepedia.model.Channel;
+import edu.stanford.braincat.rulepedia.model.ObjectPool;
 import edu.stanford.braincat.rulepedia.model.Trigger;
 import edu.stanford.braincat.rulepedia.model.Value;
 
@@ -41,6 +44,16 @@ public class OMDBMovieReleasedTrigger extends PollingTrigger {
         json.put(Trigger.TRIGGER, OMDBChannelFactory.MOVIE_RELEASED);
         json.put(Trigger.PARAMS, new JSONArray());
         return json;
+    }
+
+    public Collection<ObjectPool.Object> getPlaceholders() {
+        Collection<ObjectPool.Object> result = new HashSet<>();
+
+        Channel currentChannel = channel;
+        if (currentChannel.isPlaceholder())
+            result.add(currentChannel);
+
+        return result;
     }
 
     @Override

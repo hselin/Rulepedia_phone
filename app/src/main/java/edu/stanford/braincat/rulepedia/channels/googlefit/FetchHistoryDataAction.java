@@ -16,6 +16,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -25,6 +27,7 @@ import edu.stanford.braincat.rulepedia.exceptions.TriggerValueTypeException;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
 import edu.stanford.braincat.rulepedia.model.Action;
 import edu.stanford.braincat.rulepedia.model.Channel;
+import edu.stanford.braincat.rulepedia.model.ObjectPool;
 import edu.stanford.braincat.rulepedia.model.Value;
 import edu.stanford.braincat.rulepedia.service.RuleExecutorService;
 
@@ -49,6 +52,16 @@ public class FetchHistoryDataAction implements Action {
     @Override
     public Channel getChannel() {
         return channel;
+    }
+
+    public Collection<ObjectPool.Object> getPlaceholders() {
+        Collection<ObjectPool.Object> result = new HashSet<>();
+
+        Channel currentChannel = channel;
+        if (currentChannel.isPlaceholder())
+            result.add(currentChannel);
+
+        return result;
     }
 
     @Override

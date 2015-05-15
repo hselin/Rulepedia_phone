@@ -7,6 +7,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.MalformedURLException;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
 
 import edu.stanford.braincat.rulepedia.channels.SimpleEventTrigger;
@@ -17,6 +19,7 @@ import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
 import edu.stanford.braincat.rulepedia.model.Channel;
 import edu.stanford.braincat.rulepedia.model.Contact;
 import edu.stanford.braincat.rulepedia.model.ContactPool;
+import edu.stanford.braincat.rulepedia.model.ObjectPool;
 import edu.stanford.braincat.rulepedia.model.Trigger;
 import edu.stanford.braincat.rulepedia.model.Value;
 
@@ -44,6 +47,18 @@ public class SMSMessageReceivedTrigger extends SimpleEventTrigger<SMSEventSource
 
     public Channel getChannel() {
         return channel;
+    }
+
+    public Collection<ObjectPool.Object> getPlaceholders() {
+        Collection<ObjectPool.Object> result = new HashSet<>();
+
+        Channel currentChannel = channel;
+        if (currentChannel.isPlaceholder())
+            result.add(currentChannel);
+        if (senderMatches != null && senderMatches.isPlaceholder())
+            result.add(senderMatches);
+
+        return result;
     }
 
     @Override

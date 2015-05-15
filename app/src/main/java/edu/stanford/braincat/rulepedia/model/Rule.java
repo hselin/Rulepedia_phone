@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 import edu.stanford.braincat.rulepedia.events.EventSource;
@@ -101,6 +102,16 @@ public class Rule {
 
     public Collection<Action> getActions() {
         return Collections.unmodifiableList(actions);
+    }
+
+    public Collection<ObjectPool.Object> getPlaceholders() {
+        Collection<ObjectPool.Object> result = new HashSet<>();
+
+        result.addAll(trigger.getPlaceholders());
+        for (Action a : actions)
+            result.addAll(a.getPlaceholders());
+
+        return result;
     }
 
     public Collection<EventSource> getEventSources() {

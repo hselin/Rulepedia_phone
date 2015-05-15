@@ -61,7 +61,7 @@ public class OmletChannelFactory extends ChannelFactory {
             case Messaging.SEND_MESSAGE:
                 return new OmletSendMessageAction(channel, params.get(Messaging.DESTINATION), params.get(Messaging.MESSAGE));
             case Messaging.SHARE_PICTURE:
-                return null; // SharePictureAction
+                return new OmletSharePictureAction(channel, params.get(Messaging.DESTINATION), params.get(Messaging.MESSAGE));
             default:
                 throw new UnknownChannelException(method);
         }

@@ -6,6 +6,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
 
 import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
@@ -14,6 +16,7 @@ import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
 import edu.stanford.braincat.rulepedia.model.Action;
 import edu.stanford.braincat.rulepedia.model.Channel;
 import edu.stanford.braincat.rulepedia.model.Contact;
+import edu.stanford.braincat.rulepedia.model.ObjectPool;
 import edu.stanford.braincat.rulepedia.model.Value;
 
 /**
@@ -36,6 +39,28 @@ public abstract class SharePictureAction implements Action {
 
     public Channel getChannel() {
         return channel;
+    }
+
+    public Collection<ObjectPool.Object> getPlaceholders() {
+        Collection<ObjectPool.Object> result = new HashSet<>();
+
+        Channel currentChannel = channel;
+        if (currentChannel.isPlaceholder())
+            result.add(currentChannel);
+        if (destination instanceof Value.Contact) {
+            try {
+                Value.DirectObject resolved = (Value.DirectObject) destination.resolve(null);
+                if (resolved.getObject().isPlaceholder())
+                    result.add(resolved.getObject());
+            } catch(UnknownObjectException e) {
+                // nothing to do
+            }
+        } else if (destination instanceof Value.DirectObject) {
+            if (((Value.DirectObject) destination).getObject().isPlaceholder())
+                result.add(((Value.DirectObject) destination).getObject());
+        }
+
+        return result;
     }
 
     @Override

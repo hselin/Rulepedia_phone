@@ -5,6 +5,7 @@ import android.content.Context;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Collection;
 import java.util.Map;
 
 import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
@@ -20,6 +21,8 @@ public interface Action {
     String PARAMS = "params";
 
     Channel getChannel();
+
+    Collection<ObjectPool.Object> getPlaceholders();
 
     void resolve() throws UnknownObjectException;
 

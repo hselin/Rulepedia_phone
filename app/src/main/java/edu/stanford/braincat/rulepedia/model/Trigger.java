@@ -23,6 +23,8 @@ public interface Trigger {
 
     Collection<EventSource> getEventSources();
 
+    Collection<ObjectPool.Object> getPlaceholders();
+
     void update() throws RuleExecutionException;
 
     boolean isFiring() throws RuleExecutionException;

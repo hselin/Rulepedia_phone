@@ -8,6 +8,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
 
 import edu.stanford.braincat.rulepedia.R;
@@ -16,6 +18,7 @@ import edu.stanford.braincat.rulepedia.exceptions.TriggerValueTypeException;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
 import edu.stanford.braincat.rulepedia.model.Action;
 import edu.stanford.braincat.rulepedia.model.Channel;
+import edu.stanford.braincat.rulepedia.model.ObjectPool;
 import edu.stanford.braincat.rulepedia.model.Value;
 
 /**
@@ -34,6 +37,16 @@ public class NotificationManagerPostNotificationAction implements Action {
 
     public Channel getChannel() {
         return channel;
+    }
+
+    public Collection<ObjectPool.Object> getPlaceholders() {
+        Collection<ObjectPool.Object> result = new HashSet<>();
+
+        Channel currentChannel = channel;
+        if (currentChannel.isPlaceholder())
+            result.add(currentChannel);
+
+        return result;
     }
 
     @Override

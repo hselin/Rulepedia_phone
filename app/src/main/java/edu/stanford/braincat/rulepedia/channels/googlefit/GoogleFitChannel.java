@@ -56,7 +56,7 @@ public class GoogleFitChannel extends Channel {
             source = null;
 
         if (source == null) {
-            source = new ActivityMonitorEventSource();
+            source = new ActivityMonitorEventSource(this);
             activityMonitorSourceRef = new WeakReference<>(source);
         }
 

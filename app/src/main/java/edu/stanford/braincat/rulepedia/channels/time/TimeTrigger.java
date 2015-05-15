@@ -4,7 +4,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Map;
 
 import edu.stanford.braincat.rulepedia.channels.PollingTrigger;
@@ -12,6 +14,7 @@ import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
 import edu.stanford.braincat.rulepedia.exceptions.TriggerValueTypeException;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
 import edu.stanford.braincat.rulepedia.model.Channel;
+import edu.stanford.braincat.rulepedia.model.ObjectPool;
 import edu.stanford.braincat.rulepedia.model.Trigger;
 import edu.stanford.braincat.rulepedia.model.Value;
 
@@ -28,6 +31,16 @@ public class TimeTrigger extends PollingTrigger {
 
     public Channel getChannel() {
         return channel;
+    }
+
+    public Collection<ObjectPool.Object> getPlaceholders() {
+        Collection<ObjectPool.Object> result = new HashSet<>();
+
+        Channel currentChannel = channel;
+        if (currentChannel.isPlaceholder())
+            result.add(currentChannel);
+
+        return result;
     }
 
     @Override

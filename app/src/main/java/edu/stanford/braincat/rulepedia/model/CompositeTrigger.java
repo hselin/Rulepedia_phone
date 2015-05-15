@@ -57,11 +57,20 @@ public abstract class CompositeTrigger implements Trigger {
     public Collection<EventSource> getEventSources() {
         Set<EventSource> sources = new HashSet<>();
 
-        for (Trigger t : children) {
+        for (Trigger t : children)
             sources.addAll(t.getEventSources());
-        }
 
         return sources;
+    }
+
+    @Override
+    public Collection<ObjectPool.Object> getPlaceholders() {
+        Collection<ObjectPool.Object> result = new HashSet<>();
+
+        for (Trigger t : children)
+            result.addAll(t.getPlaceholders());
+
+        return result;
     }
 
     public boolean isFiring() throws RuleExecutionException {
