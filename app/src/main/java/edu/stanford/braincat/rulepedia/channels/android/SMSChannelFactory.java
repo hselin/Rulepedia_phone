@@ -36,7 +36,7 @@ public class SMSChannelFactory extends ChannelFactory {
 
     @Override
     public Trigger createTrigger(Channel channel, String method, Map<String, Value> params)
-            throws UnknownObjectException, UnknownChannelException {
+            throws TriggerValueTypeException, UnknownObjectException, UnknownChannelException {
         switch (method) {
             case Messaging.MESSAGE_RECEIVED:
                 return new SMSMessageReceivedTrigger(channel, params.get(Messaging.CONTENT_CONTAINS), params.get(Messaging.SENDER_MATCHES));

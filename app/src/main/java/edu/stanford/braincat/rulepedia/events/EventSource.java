@@ -22,10 +22,10 @@ public interface EventSource {
     /**
      * Returns true if there is an event pending, false otherwise
      */
-    boolean checkEvent();
+    boolean checkEvent() throws IOException;
 
     /**
      * Update state according to the received event
      */
-    void updateState();
+    void updateState() throws IOException;
 }

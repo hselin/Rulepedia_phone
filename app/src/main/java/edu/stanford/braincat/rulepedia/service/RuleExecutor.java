@@ -237,7 +237,12 @@ public class RuleExecutor extends Handler {
     }
 
     private void updateEventSourceState() {
-        for (EventSource s : eventSources)
-            s.updateState();
+        for (EventSource s : eventSources) {
+            try {
+                s.updateState();
+            } catch (IOException e) {
+                Log.e(RuleExecutorService.LOG_TAG, "Failed to update event source " + s.toString() + ": " + e.getMessage());
+            }
+        }
     }
 }

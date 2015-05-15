@@ -1,9 +1,11 @@
-package edu.stanford.braincat.rulepedia.channels.web;
+package edu.stanford.braincat.rulepedia.channels.generic;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.MalformedURLException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -23,7 +25,7 @@ import edu.stanford.braincat.rulepedia.model.Value;
 /**
  * Created by gcampagn on 5/8/15.
  */
-public class WebChannelFactory extends ChannelFactory {
+public class GenericChannelFactory extends ChannelFactory {
     private final JSONObject jsonFactory;
     private final String id;
     private final Pattern pattern;
@@ -32,7 +34,7 @@ public class WebChannelFactory extends ChannelFactory {
     private final Map<String, JSONObject> triggerMetas;
     private final Map<String, JSONObject> actionMetas;
 
-    public WebChannelFactory(JSONObject jsonObjectFactory) throws JSONException {
+    public GenericChannelFactory(JSONObject jsonObjectFactory) throws JSONException {
         super(jsonObjectFactory.getString("urlPrefix"));
         jsonFactory = jsonObjectFactory;
         id = jsonObjectFactory.getString("id");
@@ -63,7 +65,7 @@ public class WebChannelFactory extends ChannelFactory {
     @Override
     public Channel create(String url) throws UnknownObjectException {
         try {
-            return new WebChannel(this, url, jsonFactory.getString("id"), jsonFactory.getString("text"));
+            return new GenericChannel(this, url, jsonFactory.getString("id"), jsonFactory.getString("text"));
         } catch(JSONException e) {
             throw new UnknownObjectException(url);
         }
@@ -76,7 +78,7 @@ public class WebChannelFactory extends ChannelFactory {
         try {
             text = jsonFactory.getString("text");
         } catch(JSONException e) {
-            text = "a generic web channel";
+            text = "a generic channel";
         }
 
         return new PlaceholderChannel(this, url, text);
@@ -153,7 +155,11 @@ public class WebChannelFactory extends ChannelFactory {
         throw new UnknownChannelException(method);
     }
 
-    public EventSource createEventSource(String id) throws JSONException {
+    public Collection<String> getEventSourceNames() {
+        return eventSourceMetas.keySet();
+    }
+
+    public EventSource createEventSource(GenericChannel channel, String id) throws MalformedURLException, JSONException {
         JSONObject eventSourceMeta = eventSourceMetas.get(id);
 
         if (eventSourceMeta == null)
@@ -162,6 +168,8 @@ public class WebChannelFactory extends ChannelFactory {
         switch (eventSourceMeta.getString("type")) {
             case "polling":
                 return new TimeoutEventSource(eventSourceMeta.getLong("polling-interval"));
+            case "polling-http":
+                return new WebPollingEventSource(channel.getUrl(), eventSourceMeta.getLong("polling-interval"));
             default:
                 throw new JSONException("invalid event source type");
         }

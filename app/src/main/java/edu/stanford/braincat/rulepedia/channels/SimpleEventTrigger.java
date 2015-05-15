@@ -1,6 +1,9 @@
 package edu.stanford.braincat.rulepedia.channels;
 
+import java.io.IOException;
+
 import edu.stanford.braincat.rulepedia.events.EventSource;
+import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
 
 /**
  * Created by gcampagn on 4/30/15.
@@ -16,7 +19,11 @@ public abstract class SimpleEventTrigger<K extends EventSource> extends SingleEv
         super();
     }
 
-    public boolean isFiring() {
-        return getSource().checkEvent();
+    public boolean isFiring() throws RuleExecutionException {
+        try {
+            return getSource().checkEvent();
+        } catch(IOException e) {
+            throw new RuleExecutionException("IO exception while checking event source", e);
+        }
     }
 }

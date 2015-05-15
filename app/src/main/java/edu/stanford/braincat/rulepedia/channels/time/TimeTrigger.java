@@ -10,7 +10,6 @@ import java.util.HashSet;
 import java.util.Map;
 
 import edu.stanford.braincat.rulepedia.channels.PollingTrigger;
-import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
 import edu.stanford.braincat.rulepedia.exceptions.TriggerValueTypeException;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
 import edu.stanford.braincat.rulepedia.model.Channel;
@@ -24,7 +23,7 @@ import edu.stanford.braincat.rulepedia.model.Value;
 public class TimeTrigger extends PollingTrigger {
     private Channel channel;
 
-    public TimeTrigger(Channel channel, Value interval) throws UnknownObjectException {
+    public TimeTrigger(Channel channel, Value interval) throws TriggerValueTypeException, UnknownObjectException {
         super(((Value.Number) interval.resolve(null)).getNumber().longValue());
         this.channel = channel;
     }
@@ -44,12 +43,12 @@ public class TimeTrigger extends PollingTrigger {
     }
 
     @Override
-    public void update() throws RuleExecutionException {
+    public void update() {
         // nothing to do
     }
 
     @Override
-    public boolean isFiring() throws RuleExecutionException {
+    public boolean isFiring() {
         return getSource().checkEvent();
     }
 
@@ -71,12 +70,12 @@ public class TimeTrigger extends PollingTrigger {
     }
 
     @Override
-    public void typeCheck(Map<String, Class<? extends Value>> context) throws TriggerValueTypeException {
+    public void typeCheck(Map<String, Class<? extends Value>> context) {
         context.put(TimerFactory.CURRENT_TIME, Value.Text.class);
     }
 
     @Override
-    public void updateContext(Map<String, Value> context) throws RuleExecutionException {
+    public void updateContext(Map<String, Value> context) {
         context.put(TimerFactory.CURRENT_TIME, new Value.Text(new Date().toLocaleString(), true));
     }
 

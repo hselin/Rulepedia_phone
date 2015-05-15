@@ -32,7 +32,7 @@ public class SMSMessageReceivedTrigger extends SimpleEventTrigger<SMSEventSource
     private final String contentContains;
     private volatile Contact senderMatches;
 
-    public SMSMessageReceivedTrigger(Channel channel, Value contentContains, Value senderMatches) throws UnknownObjectException {
+    public SMSMessageReceivedTrigger(Channel channel, Value contentContains, Value senderMatches) throws TriggerValueTypeException, UnknownObjectException {
         this.channel = channel;
 
         if (contentContains != null)
