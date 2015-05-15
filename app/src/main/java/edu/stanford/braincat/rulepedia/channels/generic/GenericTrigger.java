@@ -12,7 +12,6 @@ import org.mozilla.javascript.Scriptable;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 
@@ -33,6 +32,7 @@ import edu.stanford.braincat.rulepedia.model.Value;
 public class GenericTrigger implements Trigger {
     private final String id;
     private final String text;
+    private final Map<String, EventSource> eventSources;
     private Channel channel;
     private final String scriptBody;
     private Function script;
@@ -42,13 +42,14 @@ public class GenericTrigger implements Trigger {
     private NativeObject eventSourceValues;
     private Map<String, Value> produced;
 
-    public GenericTrigger(Channel channel, String id, String text, String scriptBody, Map<String, Value> params)
+    public GenericTrigger(Channel channel, String id, String text, String scriptBody, Map<String, EventSource> eventSources, Map<String, Value> params)
             throws TriggerValueTypeException, UnknownObjectException {
         super();
         this.id = id;
         this.text = text;
         this.channel = channel;
         this.scriptBody = scriptBody;
+        this.eventSources = eventSources;
 
         parameters = new ArrayMap<>();
         for (Map.Entry<String, Value> e : params.entrySet()) {
@@ -62,11 +63,7 @@ public class GenericTrigger implements Trigger {
 
     @Override
     public Collection<EventSource> getEventSources() {
-        try {
-            return ((GenericChannel) channel).getEventSources().values();
-        } catch(MalformedURLException|JSONException e) {
-            return Collections.emptySet();
-        }
+        return eventSources.values();
     }
 
     public Collection<ObjectPool.Object> getPlaceholders() {
@@ -102,15 +99,15 @@ public class GenericTrigger implements Trigger {
         try {
             NativeObject newEventSourceValues = new NativeObject();
 
-            for (Map.Entry<String, EventSource> e : ((GenericChannel) channel).getEventSources().entrySet()) {
+            for (Map.Entry<String, EventSource> e : eventSources.entrySet()) {
                 EventSource source = e.getValue();
                 if (source instanceof WebPollingEventSource)
                     newEventSourceValues.put(e.getKey(), Util.readString(((WebPollingEventSource) source).getLastConnection()));
+                else
+                    newEventSourceValues.put(e.getKey(), source.checkEvent());
             }
 
             eventSourceValues = newEventSourceValues;
-        } catch(MalformedURLException|JSONException e) {
-            throw new RuleExecutionException("Failed to obtain event sources", e);
         } catch(IOException e) {
             throw new RuleExecutionException("IO exception while reading from event source", e);
         }
@@ -121,8 +118,10 @@ public class GenericTrigger implements Trigger {
         if (cachedJSParameters == null)
             cachedJSParameters = JSUtil.parametersToJavascript(parameters);
         try {
+            NativeObject jsProducedCtx = new NativeObject();
             Boolean result = (Boolean) ((GenericChannel) channel).callFunction(script, thisArg,
-                    cachedJSParameters, eventSourceValues);
+                    cachedJSParameters, eventSourceValues, jsProducedCtx);
+            produced = JSUtil.javascriptToParameters(jsProducedCtx);
             return result;
         } catch(Exception e) {
             throw new RuleExecutionException("Exception while evaluating trigger script", e);
@@ -154,6 +153,11 @@ public class GenericTrigger implements Trigger {
         if (!(newChannel instanceof GenericChannel))
             throw new UnknownObjectException(newChannel.getUrl());
 
+        try {
+            eventSources.putAll(((GenericChannel) channel).getEventSources());
+        } catch (MalformedURLException | JSONException | TriggerValueTypeException e) {
+            throw new UnknownObjectException(newChannel.getUrl());
+        }
         script = ((GenericChannel) newChannel).compileFunction(scriptBody);
         thisArg = new NativeObject();
         channel = newChannel;

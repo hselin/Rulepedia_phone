@@ -12,7 +12,7 @@ import java.net.URLConnection;
 /**
  * Created by gcampagn on 5/1/15.
  */
-public class HTTPHelper {
+public class HTTPUtil {
     public static String getString(String stringUrl) throws IOException {
         try {
             URL url = new URL(stringUrl);

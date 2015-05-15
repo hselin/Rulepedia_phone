@@ -92,6 +92,10 @@ public class ObjectPool<K extends ObjectPool.Object, F extends ObjectPool.Object
         knownFactories.put(factory.getName(), factory);
     }
 
+    protected boolean hasFactory(String name) {
+        return knownFactories.containsKey(name);
+    }
+
     public synchronized K getObject(String url) throws UnknownObjectException {
         K existing = knownObjects.get(url);
         if (existing != null)
