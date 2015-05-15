@@ -1,8 +1,14 @@
 package edu.stanford.braincat.rulepedia.model;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.util.Base64;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
@@ -229,6 +235,58 @@ public abstract class Value {
 
         public String toString() {
             return rep.toString();
+        }
+    }
+
+    public static class Picture extends Value {
+        public static final String ID = "picture";
+        public static final String PLACEHOLDER = "https://rulepedia.stanford.edu/oid/placeholder/picture/any";
+
+        private final Bitmap rep;
+
+        public Picture(Bitmap rep) {
+            this.rep = rep;
+        }
+
+        public Bitmap getPicture() {
+            return rep;
+        }
+
+        @Override
+        public String toString() {
+            if (rep == null) {
+                return PLACEHOLDER;
+            } else {
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                rep.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                return "data:text/png;base64," + Uri.encode(Base64.encodeToString(stream.toByteArray(), Base64.DEFAULT));
+            }
+        }
+
+        @Override
+        public Value resolve(Map<String, Value> context) throws UnknownObjectException {
+            if (rep == null)
+                throw new UnknownObjectException(PLACEHOLDER);
+            return this;
+        }
+
+        public static Picture fromString(String string) throws UnknownObjectException {
+            if (string.equals(PLACEHOLDER))
+                return new Picture(null);
+
+            if (string.startsWith("data:")) {
+                String[] split = string.split(",");
+
+                if (split.length != 2 || !split[0].endsWith(";base64"))
+                    throw new UnknownObjectException(string);
+
+                String uriDecoded = Uri.decode(split[1]);
+                byte[] decoded = Base64.decode(uriDecoded, Base64.DEFAULT);
+
+                return new Picture(BitmapFactory.decodeByteArray(decoded, 0, decoded.length));
+            }
+
+            throw new UnknownObjectException(string);
         }
     }
 }

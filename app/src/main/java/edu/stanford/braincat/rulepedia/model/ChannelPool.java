@@ -2,7 +2,9 @@ package edu.stanford.braincat.rulepedia.model;
 
 import edu.stanford.braincat.rulepedia.channels.android.NotificationManagerChannelFactory;
 import edu.stanford.braincat.rulepedia.channels.android.SMSChannelFactory;
+import edu.stanford.braincat.rulepedia.channels.googlefit.GoogleFitChannelFactory;
 import edu.stanford.braincat.rulepedia.channels.omdb.OMDBChannelFactory;
+import edu.stanford.braincat.rulepedia.channels.omlet.OmletChannelFactory;
 import edu.stanford.braincat.rulepedia.channels.time.TimerFactory;
 
 /**
@@ -26,6 +28,8 @@ public class ChannelPool extends ObjectPool<Channel, ChannelFactory> {
         registerFactory(new SMSChannelFactory());
         registerFactory(new NotificationManagerChannelFactory());
         registerFactory(new OMDBChannelFactory());
+        registerFactory(new GoogleFitChannelFactory());
+        registerFactory(new OmletChannelFactory());
     }
 
 
