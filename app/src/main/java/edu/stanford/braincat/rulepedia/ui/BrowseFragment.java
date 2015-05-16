@@ -210,7 +210,7 @@ public class BrowseFragment extends Fragment {
 
                 @Override
                 public void run(final Rule result, Exception error) {
-                    if (result == null) {
+                    if (result != null) {
                         reportInstallationSuccess(result);
 
                         getActivity().runOnUiThread(new Runnable() {
@@ -282,7 +282,7 @@ public class BrowseFragment extends Fragment {
         @Override
         public void onConnected(Bundle connectionHint) {
             // Connected to Google Fit Client.
-            Log.d("!!!!!!!!!!!!!!!!", "@@@@@@@@@@@@@@@@@@2");
+            Log.d("!!!!!!!!!!!!!!!!", "CONNECTED TO GOOGLE FIT!!!!!");
 
             Fitness.SensorsApi.add(
                     mGoogleApiClient,
@@ -291,6 +291,9 @@ public class BrowseFragment extends Fragment {
                             .build(),
                     this);
         }
+
+
+
 
         @Override
         public void onDataPoint(DataPoint dataPoint) {
@@ -338,6 +341,8 @@ public class BrowseFragment extends Fragment {
 
         @Override
         public void onConnectionFailed(ConnectionResult result) {
+            Log.d("!!!!", "ERROR" + result.getErrorCode());
+
             if (mResolvingError) {
                 // Already attempting to resolve an error.
                 return;
@@ -395,9 +400,16 @@ public class BrowseFragment extends Fragment {
         }
 
         @Override
-        public void onActivityResult(int requestCode, int resultCode, Intent data) {
-            if (requestCode == REQUEST_OAUTH && resultCode == RESULT_OK) {
-                mGoogleApiClient.connect();
+        protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+            if (requestCode == REQUEST_RESOLVE_ERROR) {
+                mResolvingError = false;
+                if (resultCode == RESULT_OK) {
+                    // Make sure the app is not already connected or attempting to connect
+                    if (!mGoogleApiClient.isConnecting() &&
+                            !mGoogleApiClient.isConnected()) {
+                        mGoogleApiClient.connect();
+                    }
+                }
             }
         }
     }

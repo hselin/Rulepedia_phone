@@ -11,8 +11,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
 
@@ -39,6 +45,18 @@ public class ObjectDatabase {
         if (resolvedUrl == null)
             throw new UnknownObjectException(url);
         return ChannelPool.get().getObject(resolvedUrl);
+    }
+
+    public synchronized Collection<Property> getAllProperties() {
+        ArrayList<Property> properties = new ArrayList<Property>();
+
+        Set<Map.Entry<String, String>> set = objects.entrySet();
+
+        for (Map.Entry<String, String> pair : set) {
+            properties.add(new Property(pair.getKey(), pair.getValue()));
+        }
+
+        return properties;
     }
 
     public Contact resolveContact(String url) throws UnknownObjectException {

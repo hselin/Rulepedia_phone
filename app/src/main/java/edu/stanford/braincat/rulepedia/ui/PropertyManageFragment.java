@@ -19,6 +19,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import edu.stanford.braincat.rulepedia.R;
+import edu.stanford.braincat.rulepedia.model.ObjectDatabase;
+import edu.stanford.braincat.rulepedia.model.Property;
 import edu.stanford.braincat.rulepedia.model.Rule;
 import edu.stanford.braincat.rulepedia.model.RuleDatabase;
 
@@ -81,14 +83,14 @@ public class PropertyManageFragment extends Fragment {
 
         View v =  inflater.inflate(R.layout.fragment_rule_manage, container, false);
 
-        ruleListView = (ListView) v.findViewById( R.id.rule_list );
+        propertyListView = (ListView) v.findViewById( R.id.property_list );
 
         //instantiate custom adapter
-        listAdapter = new RuleListItemCustomAdapter(this.getActivity(), this.getActivity().getApplicationContext(), listItems);
+        listAdapter = new PropertyListItemCustomAdapter(this.getActivity(), this.getActivity().getApplicationContext(), listItems);
 
-        ruleListView.setAdapter(listAdapter);
+        propertyListView.setAdapter(listAdapter);
 
-        loadRules(this.getActivity().getApplicationContext());
+        loadProperties(this.getActivity().getApplicationContext());
         return v;
     }
 
@@ -131,23 +133,22 @@ public class PropertyManageFragment extends Fragment {
         public void onFragmentInteraction(Uri uri);
     }
 
-    ListView ruleListView;
-    ArrayList<Rule> listItems = new ArrayList<Rule>();
-    RuleListItemCustomAdapter listAdapter;
+    ListView propertyListView;
+    ArrayList<Property> listItems = new ArrayList<Property>();
+    PropertyListItemCustomAdapter listAdapter;
 
-    private void loadRules(Context ctx)
+    private void loadProperties(Context ctx)
     {
         listItems.clear();
 
         try{
-            RuleDatabase db = RuleDatabase.get();
-            db.load(ctx);
-            Collection <Rule> rules = db.getAllRules();
+            ObjectDatabase db = ObjectDatabase.get();
+            Collection <Property> properties = db.getAllProperties();
 
-            Log.d("myTag", "rules.size(): " + rules.size());
+            Log.d("myTag", "properties.size(): " + properties.size());
 
-            for (Rule rule : rules) {
-                listItems.add(rule);
+            for (Property property : properties) {
+                listItems.add(property);
             }
 
             //listItems.add(new Rule("rule 1", "desc", null, null));
@@ -170,7 +171,7 @@ public class PropertyManageFragment extends Fragment {
                 getActivity().runOnUiThread(new Runnable() {
                     public void run() {
                         //updateHTML();
-                        loadRules(getActivity().getApplicationContext());
+                        loadProperties(getActivity().getApplicationContext());
                     }
                 });
             }
