@@ -16,7 +16,9 @@ import java.util.Set;
 
 import edu.stanford.braincat.rulepedia.events.EventSource;
 import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
+import edu.stanford.braincat.rulepedia.exceptions.UnknownChannelException;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
+import edu.stanford.braincat.rulepedia.model.ObjectDatabase;
 import edu.stanford.braincat.rulepedia.model.Rule;
 import edu.stanford.braincat.rulepedia.model.RuleDatabase;
 
@@ -26,11 +28,27 @@ import edu.stanford.braincat.rulepedia.model.RuleDatabase;
 public class RuleExecutor extends Handler {
     private final Context context;
     private final Set<EventSource> eventSources;
+    private ObjectDatabase objectdb;
+    private RuleDatabase ruledb;
 
-    public RuleExecutor(Context ctx, Looper looper) {
+    public RuleExecutor(Context ctx, Looper looper) throws IOException {
         super(looper);
         context = ctx;
         eventSources = new HashSet<>();
+
+        try {
+            objectdb = ObjectDatabase.get();
+            objectdb.load(ctx);
+            ruledb = RuleDatabase.get();
+            ruledb.load(ctx);
+        } catch(UnknownObjectException|UnknownChannelException e) {
+            throw new IOException("Failed to load database", e);
+        }
+    }
+
+    public void save() throws IOException {
+        objectdb.save(context);
+        ruledb.save(context);
     }
 
     public void installRule(final JSONObject jsonRule, final edu.stanford.braincat.rulepedia.service.Callback<Rule> callback) {
@@ -220,7 +238,9 @@ public class RuleExecutor extends Handler {
                 r.updateTrigger();
             } catch (RuleExecutionException e) {
                 // FIXME: notify the user!
-                Log.e(RuleExecutorService.LOG_TAG, "Failed to update the trigger for rule " + r.toHumanString() + ": " + e.getMessage());
+                Log.e(RuleExecutorService.LOG_TAG, "Failed to update the trigger for rule " + r.toHumanString(), e);
+            } catch (RuntimeException e) {
+                Log.e(RuleExecutorService.LOG_TAG, "RuntimeException while updating trigger for rule " + r.toHumanString(), e);
             }
         }
     }
@@ -231,7 +251,9 @@ public class RuleExecutor extends Handler {
                 if (r.isFiring())
                     r.fire(context);
             } catch (RuleExecutionException e) {
-                Log.e(RuleExecutorService.LOG_TAG, "Failed to run rule " + r.toHumanString() + ": " + e.getMessage());
+                Log.e(RuleExecutorService.LOG_TAG, "Failed to run rule " + r.toHumanString(), e);
+            } catch (RuntimeException e) {
+                Log.e(RuleExecutorService.LOG_TAG, "RuntimeException while running rule " + r.toHumanString(), e);
             }
         }
     }
@@ -241,7 +263,7 @@ public class RuleExecutor extends Handler {
             try {
                 s.updateState();
             } catch (IOException e) {
-                Log.e(RuleExecutorService.LOG_TAG, "Failed to update event source " + s.toString() + ": " + e.getMessage());
+                Log.e(RuleExecutorService.LOG_TAG, "Failed to update event source " + s.toString(), e);
             }
         }
     }

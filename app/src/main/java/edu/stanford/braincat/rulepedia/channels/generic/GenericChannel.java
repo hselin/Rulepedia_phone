@@ -38,6 +38,7 @@ public class GenericChannel extends Channel {
         this.text = text;
         this.eventSourceRefs = new HashMap<>();
         this.ctx = Context.enter();
+        ctx.setOptimizationLevel(-1);
         this.global = ctx.initSafeStandardObjects();
         // FIXME auth
     }

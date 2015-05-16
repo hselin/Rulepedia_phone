@@ -16,15 +16,8 @@ public class HTTPUtil {
     public static String getString(String stringUrl) throws IOException {
         try {
             URL url = new URL(stringUrl);
-            InputStream in = null;
-            try {
-                URLConnection conn = url.openConnection();
-                in = conn.getInputStream();
-
+            try (InputStream in = url.openStream()) {
                 return Util.readString(in);
-            } finally {
-                if (in != null)
-                    in.close();
             }
         } catch(MalformedURLException mue) {
             // this should never happen, it's checked when we create the object
