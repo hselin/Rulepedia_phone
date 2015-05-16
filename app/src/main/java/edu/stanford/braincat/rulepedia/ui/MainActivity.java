@@ -27,7 +27,8 @@ import edu.stanford.braincat.rulepedia.service.RuleExecutor;
 import edu.stanford.braincat.rulepedia.service.RuleExecutorService;
 
 
-public class MainActivity extends ActionBarActivity implements BrowseFragment.OnFragmentInteractionListener, RuleManageFragment.OnFragmentInteractionListener {
+public class MainActivity extends ActionBarActivity implements BrowseFragment.OnFragmentInteractionListener,
+        RuleManageFragment.OnFragmentInteractionListener, PropertyManageFragment.OnFragmentInteractionListener {
 
     public static final String LOG_TAG = "rulepedia.UI";
 
@@ -170,7 +171,7 @@ public class MainActivity extends ActionBarActivity implements BrowseFragment.On
                 case 1:
                     return fragment = new RuleManageFragment();
                 case 2:
-                    return fragment = new BrowseFragment();
+                    return fragment = new PropertyManageFragment();
                 default:
                     break;
             }

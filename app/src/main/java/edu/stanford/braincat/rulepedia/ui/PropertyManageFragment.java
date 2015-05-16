@@ -25,12 +25,12 @@ import edu.stanford.braincat.rulepedia.model.RuleDatabase;
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link RuleManageFragment.OnFragmentInteractionListener} interface
+ * {@link PropertyManageFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link RuleManageFragment#newInstance} factory method to
+ * Use the {@link PropertyManageFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class RuleManageFragment extends Fragment {
+public class PropertyManageFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -48,11 +48,11 @@ public class RuleManageFragment extends Fragment {
      *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
-     * @return A new instance of fragment RuleManageFragment.
+     * @return A new instance of fragment PropertyManageFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static RuleManageFragment newInstance(String param1, String param2) {
-        RuleManageFragment fragment = new RuleManageFragment();
+    public static PropertyManageFragment newInstance(String param1, String param2) {
+        PropertyManageFragment fragment = new PropertyManageFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -60,7 +60,7 @@ public class RuleManageFragment extends Fragment {
         return fragment;
     }
 
-    public RuleManageFragment() {
+    public PropertyManageFragment() {
         // Required empty public constructor
     }
 
@@ -73,79 +73,15 @@ public class RuleManageFragment extends Fragment {
         }
     }
 
-    ListView ruleListView;
-
-
-    //LIST OF ARRAY STRINGS WHICH WILL SERVE AS LIST ITEMS
-    ArrayList<Rule> listItems = new ArrayList<Rule>();
-
-    //DEFINING A STRING ADAPTER WHICH WILL HANDLE THE DATA OF THE LISTVIEW
-    //ArrayAdapter<Rule> listAdapter;
-    RuleListItemCustomAdapter listAdapter;
-
-    private void loadRules(Context ctx)
-    {
-        listItems.clear();
-
-        try{
-            RuleDatabase db = RuleDatabase.get();
-            db.load(ctx);
-            Collection <Rule> rules = db.getAllRules();
-
-            Log.d("myTag", "rules.size(): " + rules.size());
-
-            for (Rule rule : rules) {
-                listItems.add(rule);
-            }
-
-            //listItems.add(new Rule("rule 1", "desc", null, null));
-
-            listAdapter.notifyDataSetChanged();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+        //return inflater.inflate(R.layout.fragment_property_manage, container, false);
+
         View v =  inflater.inflate(R.layout.fragment_rule_manage, container, false);
 
         ruleListView = (ListView) v.findViewById( R.id.rule_list );
-        //listAdapter = new ArrayAdapter<String>(this.getActivity().getApplicationContext(), android.R.layout.simple_list_item_1, listItems);
-
-        /*
-        listAdapter = new ArrayAdapter(this.getActivity().getApplicationContext(),android.R.layout.simple_list_item_2, listItems){
-            @Override
-            public View getView(int position, View convertView, ViewGroup parent){
-                View view = super.getView(position, convertView, parent);
-                TextView text1 = (TextView) view.findViewById(android.R.id.text1);
-                TextView text2 = (TextView) view.findViewById(android.R.id.text2);
-
-                BasicNameValuePair data = listItems.get(position);
-
-                text1.setText(data.getName());
-                text2.setText(data.getValue());
-                return view;
-            }
-        };*/
-
-        /*
-        listAdapter = new ArrayAdapter (this.getActivity().getApplicationContext(), android.R.layout.simple_list_item_2, android.R.id.text1, listItems)
-        {
-            public View getView(int position, View convertView, ViewGroup parent) {
-                View view = super.getView(position, convertView, parent);
-                TextView text1 = (TextView) view.findViewById(android.R.id.text1);
-                TextView text2 = (TextView) view.findViewById(android.R.id.text2);
-                Rule rule = listItems.get(position);
-
-                text1.setText(rule.getName());
-                text2.setText(rule.getDescription());
-                return view;
-            }
-        };
-        */
 
         //instantiate custom adapter
         listAdapter = new RuleListItemCustomAdapter(this.getActivity(), this.getActivity().getApplicationContext(), listItems);
@@ -195,6 +131,32 @@ public class RuleManageFragment extends Fragment {
         public void onFragmentInteraction(Uri uri);
     }
 
+    ListView ruleListView;
+    ArrayList<Rule> listItems = new ArrayList<Rule>();
+    RuleListItemCustomAdapter listAdapter;
+
+    private void loadRules(Context ctx)
+    {
+        listItems.clear();
+
+        try{
+            RuleDatabase db = RuleDatabase.get();
+            db.load(ctx);
+            Collection <Rule> rules = db.getAllRules();
+
+            Log.d("myTag", "rules.size(): " + rules.size());
+
+            for (Rule rule : rules) {
+                listItems.add(rule);
+            }
+
+            //listItems.add(new Rule("rule 1", "desc", null, null));
+
+            listAdapter.notifyDataSetChanged();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     private Timer autoUpdate;
 
