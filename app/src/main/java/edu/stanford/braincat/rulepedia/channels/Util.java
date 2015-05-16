@@ -28,7 +28,7 @@ public class Util {
                 int read = reader.read(buffer);
                 if (read < 0)
                     break;
-                builder.append(buffer);
+                builder.append(buffer, 0, read);
             }
         } catch (EOFException e) {
         }

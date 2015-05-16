@@ -55,14 +55,14 @@ public class GenericChannelFactory extends ChannelFactory {
         triggerMetas = new HashMap<>();
         JSONArray jsonTriggers = jsonFactory.getJSONArray("events");
         for (int i = 0; i < jsonTriggers.length(); i++) {
-            JSONObject jsonTrigger = jsonEventSources.getJSONObject(i);
+            JSONObject jsonTrigger = jsonTriggers.getJSONObject(i);
             triggerMetas.put(jsonTrigger.getString("id"), jsonTrigger);
         }
 
         actionMetas = new HashMap<>();
         JSONArray jsonActions = jsonFactory.getJSONArray("methods");
         for (int i = 0; i < jsonActions.length(); i++) {
-            JSONObject jsonAction = jsonEventSources.getJSONObject(i);
+            JSONObject jsonAction = jsonActions.getJSONObject(i);
             actionMetas.put(jsonAction.getString("id"), jsonAction);
         }
     }
@@ -78,7 +78,7 @@ public class GenericChannelFactory extends ChannelFactory {
         }
 
         try {
-            return new GenericChannel(this, url, jsonFactory.getString("id"), jsonFactory.getString("text"));
+            return new GenericChannel(this, url, jsonFactory.getString("id"), jsonFactory.getString("description"));
         } catch(JSONException e) {
             throw new UnknownObjectException(url);
         }

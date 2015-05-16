@@ -20,8 +20,6 @@ public class RuleExecutorService extends Service {
     private RuleExecutorThread executorThread;
     private RuleExecutor executor;
     private Looper executorLooper;
-    private ObjectDatabase objectdb;
-    private RuleDatabase ruledb;
     private final IBinder binder;
 
     public static final String INSTALL_RULE_INTENT = "edu.stanford.braincat.rulepedia.INSTALL_RULE";
@@ -47,16 +45,6 @@ public class RuleExecutorService extends Service {
     public void onCreate() {
         Log.i(LOG_TAG, "Creating service...");
 
-        try {
-            objectdb = ObjectDatabase.get();
-            objectdb.load(this);
-            ruledb = RuleDatabase.get();
-            ruledb.load(this);
-        } catch (Exception e) {
-            Log.e(LOG_TAG, "Failed to load database: " + e.getMessage());
-            stopSelf();
-        }
-
         Log.i(LOG_TAG, "Created service");
     }
 
@@ -66,22 +54,19 @@ public class RuleExecutorService extends Service {
         executorThread = new RuleExecutorThread(this);
         executorThread.start();
 
-        while (executorLooper == null) {
-            try {
-                executorLooper = executorThread.getLooper();
-            } catch (InterruptedException ie) {
-                Log.w(LOG_TAG, "Interrupted exception while starting service!");
-                // not much we can do, let's try again...
-            }
+        try {
+            executorLooper = executorThread.getLooper();
+        } catch (InterruptedException ie) {
+            Log.e(LOG_TAG, "Interrupted exception while starting service!");
         }
-        while (executor == null) {
-            try {
-                executor = executorThread.getExecutor();
-            } catch (InterruptedException ie) {
-                Log.w(LOG_TAG, "Interrupted exception while starting service!");
-                // not much we can do, let's try again...
-            }
+        try {
+            executor = executorThread.getExecutor();
+        } catch (InterruptedException ie) {
+            Log.w(LOG_TAG, "Interrupted exception while starting service!");
         }
+
+        if (executorLooper == null || executor == null)
+            stopSelf();
 
         Log.i(LOG_TAG, "Started service");
     }
@@ -148,7 +133,8 @@ public class RuleExecutorService extends Service {
     public void onDestroy() {
         Log.i(LOG_TAG, "Destroying service...");
 
-        executorLooper.quit();
+        if (executorLooper != null)
+            executorLooper.quit();
         while (executorThread.isAlive()) {
             try {
                 executorThread.join();
@@ -158,13 +144,6 @@ public class RuleExecutorService extends Service {
             }
         }
         executorThread = null;
-
-        try {
-            objectdb.save(this);
-            ruledb.save(this);
-        } catch(IOException e) {
-            Log.e(LOG_TAG, "Failed to save database to disk: " + e.getMessage());
-        }
 
         Log.i(LOG_TAG, "Destroyed service");
     }

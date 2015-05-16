@@ -79,11 +79,9 @@ public class SMSMessageReceivedTrigger extends SimpleEventTrigger<SMSEventSource
                 Contact sender = ContactPool.get().getObject("sms:" + receivedMessage.getOriginatingAddress());
                 if (!sender.equals(senderMatches)) {
                     receivedMessage = null;
-                    return;
                 }
             } catch (UnknownObjectException e) {
                 receivedMessage = null;
-                return;
             }
         }
     }
