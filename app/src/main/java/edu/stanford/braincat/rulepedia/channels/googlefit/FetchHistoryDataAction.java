@@ -77,7 +77,8 @@ public class FetchHistoryDataAction implements Action {
         String dataTypeId = dataType.toString();
 
         aggregatePeriod.typeCheck(context, Value.Number.class);
-        activityFilter.typeCheck(context, Value.Text.class);
+        if (activityFilter != null)
+            activityFilter.typeCheck(context, Value.Text.class);
         context.put(FITNESS_STATISTICS_PREFIX + dataTypeId, Value.Number.class);
     }
 
