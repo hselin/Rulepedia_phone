@@ -8,6 +8,7 @@ import org.json.JSONObject;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.ScriptableObject;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -105,9 +106,9 @@ public class GenericTrigger implements Trigger {
                 EventSource source = e.getValue();
 
                 if (source instanceof WebPollingEventSource)
-                    newEventSourceValues.put(e.getKey(), Util.readString(((WebPollingEventSource) source).getLastConnection()));
+                    ScriptableObject.putProperty(newEventSourceValues, e.getKey(), Util.readString(((WebPollingEventSource) source).getLastConnection()));
                 else
-                    newEventSourceValues.put(e.getKey(), source.checkEvent());
+                    ScriptableObject.putProperty(newEventSourceValues, e.getKey(), source.checkEvent());
             }
 
             eventSourceValues = newEventSourceValues;

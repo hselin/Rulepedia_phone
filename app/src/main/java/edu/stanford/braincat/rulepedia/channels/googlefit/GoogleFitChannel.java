@@ -2,7 +2,9 @@ package edu.stanford.braincat.rulepedia.channels.googlefit;
 
 import android.content.Context;
 
+import com.google.android.gms.common.Scopes;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.fitness.Fitness;
 
 import java.lang.ref.WeakReference;
@@ -30,6 +32,11 @@ public class GoogleFitChannel extends Channel {
     GoogleApiClient acquireClient(Context ctx) {
         if (client == null) {
             client = new GoogleApiClient.Builder(ctx)
+                    .useDefaultAccount()
+                    .addScope(new Scope(Scopes.FITNESS_BODY_READ))
+                    .addScope(new Scope(Scopes.FITNESS_LOCATION_READ))
+                    .addScope(new Scope(Scopes.FITNESS_NUTRITION_READ))
+                    .addScope(new Scope(Scopes.FITNESS_ACTIVITY_READ))
                     .addApi(Fitness.SESSIONS_API)
                     .addApi(Fitness.HISTORY_API)
                     .addApi(Fitness.SENSORS_API).build();

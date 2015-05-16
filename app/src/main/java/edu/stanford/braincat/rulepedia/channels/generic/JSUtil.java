@@ -3,6 +3,7 @@ package edu.stanford.braincat.rulepedia.channels.generic;
 import android.util.ArrayMap;
 
 import org.mozilla.javascript.NativeObject;
+import org.mozilla.javascript.ScriptableObject;
 
 import java.util.Map;
 
@@ -16,7 +17,7 @@ public class JSUtil {
         NativeObject object = new NativeObject();
 
         for (Map.Entry<String, Value> e : params.entrySet())
-            object.put(e.getKey(), valueToJavascript(e.getValue()));
+            ScriptableObject.putProperty(object, e.getKey(), valueToJavascript(e.getValue()));
 
         return object;
     }

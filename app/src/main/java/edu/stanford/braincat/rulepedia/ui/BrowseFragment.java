@@ -210,7 +210,7 @@ public class BrowseFragment extends Fragment {
 
                 @Override
                 public void run(final Rule result, Exception error) {
-                    if (result == null) {
+                    if (result != null) {
                         reportInstallationSuccess(result);
 
                         getActivity().runOnUiThread(new Runnable() {
@@ -267,11 +267,13 @@ public class BrowseFragment extends Fragment {
 
         public void create()
         {
-            mGoogleApiClient = new GoogleApiClient.Builder(activity.getApplicationContext())
+            mGoogleApiClient = new GoogleApiClient.Builder(activity)
                     .addApi(Fitness.SENSORS_API)  // Required for SensorsApi calls
                             // Optional: specify more APIs used with additional calls to addApi
                     .useDefaultAccount()
-                    .addScope(new Scope(Scopes.FITNESS_ACTIVITY_READ))
+                    .addScope(new Scope(Scopes.FITNESS_BODY_READ))
+                    .addScope(new Scope(Scopes.FITNESS_LOCATION_READ))
+                    .addScope(new Scope(Scopes.FITNESS_NUTRITION_READ))
                     .addConnectionCallbacks(this)
                     .addOnConnectionFailedListener(this)
                     .build();

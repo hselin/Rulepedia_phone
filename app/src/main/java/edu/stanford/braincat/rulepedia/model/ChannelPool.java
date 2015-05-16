@@ -23,8 +23,8 @@ public class ChannelPool extends ObjectPool<Channel, ChannelFactory> {
     public static final String PREDEFINED_PREFIX = ObjectPool.PREDEFINED_PREFIX + KIND + "/";
     public static final String PLACEHOLDER_PREFIX = ObjectPool.PLACEHOLDER_PREFIX + KIND + "/";
 
-    //private static final String CHANNELS_DB = "https://vast-hamlet-6003.herokuapp.com/db/channels.json";
-    private static final String CHANNELS_DB = "http://10.34.161.126:3000/db/channels.json";
+    private static final String CHANNELS_DB = "https://vast-hamlet-6003.herokuapp.com/db/channels.json";
+    //private static final String CHANNELS_DB = "http://10.34.161.126:3000/db/channels.json";
 
     public static final String LOG_TAG = "rulepedia.Channels";
 
