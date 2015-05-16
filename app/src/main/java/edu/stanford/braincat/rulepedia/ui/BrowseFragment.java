@@ -18,9 +18,17 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import edu.stanford.braincat.rulepedia.R;
+import edu.stanford.braincat.rulepedia.model.Action;
+import edu.stanford.braincat.rulepedia.model.Channel;
+import edu.stanford.braincat.rulepedia.model.CompositeTrigger;
+import edu.stanford.braincat.rulepedia.model.ObjectPool;
 import edu.stanford.braincat.rulepedia.model.Rule;
 import edu.stanford.braincat.rulepedia.model.RuleDatabase;
+import edu.stanford.braincat.rulepedia.model.Trigger;
 import edu.stanford.braincat.rulepedia.service.Callback;
 import edu.stanford.braincat.rulepedia.service.RuleExecutor;
 
@@ -167,10 +175,42 @@ public class BrowseFragment extends Fragment {
         try {
             JSONObject jsonRule = (JSONObject) new JSONTokener(ruleJSON).nextValue();
             executor.installRule(jsonRule, new Callback<Rule>() {
+                private void getChannels(Trigger trigger, Collection<Channel> ctx) {
+                    if (trigger instanceof CompositeTrigger) {
+                        for (Trigger t : ((CompositeTrigger) trigger).getChildren())
+                            getChannels(t, ctx);
+                    } else {
+                        ctx.add(trigger.getChannel());
+                    }
+                }
+
                 @Override
-                public void run(Rule result, Exception error) {
+                public void run(final Rule result, Exception error) {
                     if (result != null) {
                         reportInstallationSuccess(result);
+
+                        getActivity().runOnUiThread(new Runnable() {
+                            public void run() {
+                                Collection<ObjectPool.Object> placeholders =  result.getPlaceholders();
+
+                                Collection<Channel> channels = new ArrayList<>();
+                                getChannels(result.getTrigger(), channels);
+                                for (Action a : result.getActions())
+                                    channels.add(a.getChannel());
+
+                                for (ObjectPool.Object placeholder : placeholders) {
+                                    placeholder.toHumanString();
+
+                                    //placeholder.getUrl() //key to store
+
+
+
+                                }
+                            }
+                        });
+
+
+
                     }
                     else {
                         reportInstallationError(error);
