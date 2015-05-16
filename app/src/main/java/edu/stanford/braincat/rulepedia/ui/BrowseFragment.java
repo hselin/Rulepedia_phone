@@ -1,11 +1,14 @@
 package edu.stanford.braincat.rulepedia.ui;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -47,6 +50,7 @@ import com.google.android.gms.fitness.data.DataPoint;
 import com.google.android.gms.fitness.data.DataType;
 import com.google.android.gms.fitness.request.OnDataPointListener;
 import com.google.android.gms.fitness.request.SensorRequest;
+import com.google.android.gms.plus.Plus;
 
 
 /**
@@ -230,8 +234,8 @@ public class BrowseFragment extends Fragment {
                                 }
                                 */
 
-                                //GFitness gf = new GFitness(getActivity());
-                                GFitness_OLD gfo = new GFitness_OLD(getActivity(), getActivity().getApplicationContext());
+                                GFitness gf = new GFitness(getActivity());
+                                //GFitness_OLD gfo = new GFitness_OLD(getActivity(), getActivity().getApplicationContext());
                             }
                         });
 
@@ -298,16 +302,96 @@ public class BrowseFragment extends Fragment {
             // The connection has been interrupted. Wait until onConnected() is called.
         }
 
+        /*
         @Override
         public void onConnectionFailed(ConnectionResult result) {
             // Error while connecting. Try to resolve using the pending intent returned.
-            Log.d("!!!!!!!!!!!!!!!!", "%%%%%%%%%%%%%%%%%");
-            if (result.getErrorCode() == FitnessStatusCodes.NEEDS_OAUTH_PERMISSIONS) {
+            Log.d("!!!!!!!!!!!!!!!!", "ERROR connect " + result.getErrorCode());
+
+            if (result.getErrorCode() == ConnectionResult.SIGN_IN_REQUIRED) {
                 try {
-                    result.startResolutionForResult(this, REQUEST_OAUTH);
+                    result.startResolutionForResult(activity, ConnectionResult.SIGN_IN_REQUIRED);
                 } catch (IntentSender.SendIntentException e) {
+                    Log.e("1", "1", e);
                 }
             }
+
+
+            if (result.getErrorCode() == FitnessStatusCodes.NEEDS_OAUTH_PERMISSIONS) {
+                try {
+                    result.startResolutionForResult(activity, REQUEST_OAUTH);
+                } catch (IntentSender.SendIntentException e) {
+                    Log.e("1", "1", e);
+                }
+            }
+        }
+        */
+
+
+        // Request code to use when launching the resolution activity
+        private static final int REQUEST_RESOLVE_ERROR = 1001;
+        // Unique tag for the error dialog fragment
+        private static final String DIALOG_ERROR = "dialog_error";
+        // Bool to track whether the app is already resolving an error
+        private boolean mResolvingError = false;
+
+
+        @Override
+        public void onConnectionFailed(ConnectionResult result) {
+            if (mResolvingError) {
+                // Already attempting to resolve an error.
+                return;
+            } else if (result.hasResolution()) {
+                try {
+                    mResolvingError = true;
+                    result.startResolutionForResult(activity, REQUEST_RESOLVE_ERROR);
+                } catch (IntentSender.SendIntentException e) {
+                    // There was an error with the resolution intent. Try again.
+                    mGoogleApiClient.connect();
+                }
+            } else {
+                // Show dialog using GooglePlayServicesUtil.getErrorDialog()
+                showErrorDialog(result.getErrorCode());
+                mResolvingError = true;
+            }
+        }
+
+        // The rest of this code is all about building the error dialog
+
+        /* Creates a dialog for an error message */
+        private void showErrorDialog(int errorCode) {
+            // Create a fragment for the error dialog
+            ErrorDialogFragment dialogFragment = new ErrorDialogFragment();
+            // Pass the error that should be displayed
+            Bundle args = new Bundle();
+            args.putInt(DIALOG_ERROR, errorCode);
+            dialogFragment.setArguments(args);
+            dialogFragment.show(getSupportFragmentManager(), "errordialog");
+        }
+
+        /* Called from ErrorDialogFragment when the dialog is dismissed. */
+        public void onDialogDismissed() {
+            mResolvingError = false;
+        }
+
+        /* A fragment to display an error dialog */
+        public class ErrorDialogFragment extends DialogFragment {
+            public ErrorDialogFragment() { }
+
+            @Override
+            public Dialog onCreateDialog(Bundle savedInstanceState) {
+                // Get the error code and retrieve the appropriate dialog
+                int errorCode = this.getArguments().getInt(DIALOG_ERROR);
+                return GooglePlayServicesUtil.getErrorDialog(errorCode,
+                        this.getActivity(), REQUEST_RESOLVE_ERROR);
+            }
+
+            /*
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                //(activity).onDialogDismissed();
+            }
+            */
         }
 
         @Override
@@ -370,7 +454,7 @@ public class BrowseFragment extends Fragment {
 
                                 @Override
                                 public void onConnected(Bundle bundle) {
-                                    Log.i("!", "Connected!!!");
+                                    Log.d("!", "Connected!!!");
                                     // Now you can make calls to the Fitness APIs.
                                     // Put application specific code here.
                                 }
@@ -380,9 +464,9 @@ public class BrowseFragment extends Fragment {
                                     // If your connection to the sensor gets lost at some point,
                                     // you'll be able to determine the reason and react to it here.
                                     if (i == GoogleApiClient.ConnectionCallbacks.CAUSE_NETWORK_LOST) {
-                                        Log.i("!", "Connection lost.  Cause: Network Lost.");
+                                        Log.d("!", "Connection lost.  Cause: Network Lost.");
                                     } else if (i == GoogleApiClient.ConnectionCallbacks.CAUSE_SERVICE_DISCONNECTED) {
-                                        Log.i("!", "Connection lost.  Reason: Service Disconnected");
+                                        Log.d("!", "Connection lost.  Reason: Service Disconnected");
                                     }
                                 }
                             }
@@ -392,7 +476,7 @@ public class BrowseFragment extends Fragment {
                                 // Called whenever the API client fails to connect.
                                 @Override
                                 public void onConnectionFailed(ConnectionResult result) {
-                                    Log.i("!", "Connection failed. Cause: " + result.toString());
+                                    Log.d("!", "Connection failed. Cause: " + result.toString());
                                     if (!result.hasResolution()) {
                                         // Show the localized error dialog
                                         GooglePlayServicesUtil.getErrorDialog(result.getErrorCode(),
@@ -404,7 +488,7 @@ public class BrowseFragment extends Fragment {
                                     // authorization dialog is displayed to the user.
                                     if (!authInProgress) {
                                         try {
-                                            Log.i("!", "Attempting to resolve failed connection");
+                                            Log.d("!", "Attempting to resolve failed connection");
                                             authInProgress = true;
                                             result.startResolutionForResult(activity,
                                                     REQUEST_OAUTH);
