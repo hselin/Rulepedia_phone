@@ -81,7 +81,7 @@ public class PropertyManageFragment extends Fragment {
         // Inflate the layout for this fragment
         //return inflater.inflate(R.layout.fragment_property_manage, container, false);
 
-        View v =  inflater.inflate(R.layout.fragment_rule_manage, container, false);
+        View v =  inflater.inflate(R.layout.fragment_property_manage, container, false);
 
         propertyListView = (ListView) v.findViewById( R.id.property_list );
 

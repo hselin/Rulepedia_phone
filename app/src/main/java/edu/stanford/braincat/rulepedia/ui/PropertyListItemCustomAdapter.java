@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.ListAdapter;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 import android.content.Context;
 import android.widget.TextView;
@@ -20,6 +21,7 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import edu.stanford.braincat.rulepedia.R;
+import edu.stanford.braincat.rulepedia.model.ObjectDatabase;
 import edu.stanford.braincat.rulepedia.model.Property;
 import edu.stanford.braincat.rulepedia.model.Rule;
 import edu.stanford.braincat.rulepedia.service.Callback;
@@ -73,32 +75,14 @@ public class PropertyListItemCustomAdapter extends BaseAdapter implements ListAd
             @Override
             public void onClick(View v) {
                 //do something
-                String propertyID = list.get(position).key;
-
-                /*
-                RuleExecutor executor = ((MainActivity) activity).getRuleExecutor();
-
-                if (executor == null)
-                    return;
-
-                try {
-                    executor.deleteRule(ruleID, new Callback<Boolean>() {
-                        @Override
-                        public void run(Boolean success, Exception error) {
-                            if(success) {
-                                list.remove(position); //or some other task
-                                notifyDataSetChanged();
-                            }
-                            else
-                            {
-                                Log.d("a", "CANNOT REMOVE RULE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                            }
-                        }
-                    });
+                try{
+                    String propertyID = list.get(position).key;
+                    ObjectDatabase db = ObjectDatabase.get();
+                    db.remove(propertyID);
+                    notifyDataSetChanged();
                 } catch (Exception e) {
-                    Log.d("a", null, e);
+                    e.printStackTrace();
                 }
-                */
             }
         });
         /*
