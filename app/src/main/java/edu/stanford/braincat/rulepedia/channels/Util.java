@@ -29,7 +29,7 @@ public class Util {
                     break;
                 builder.append(buffer, 0, read);
             }
-        } catch (EOFException e) {
+        } catch (EOFException ignored) {
         }
 
         return builder.toString();

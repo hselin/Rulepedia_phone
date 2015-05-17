@@ -97,7 +97,8 @@ public class GoogleFitAuthActivity extends FragmentActivity
     /* A fragment to display an error dialog */
     public static class ErrorDialogFragment extends DialogFragment {
         @Override
-        public Dialog onCreateDialog(@NonNull Bundle savedInstanceState) {
+        @NonNull
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
             // Get the error code and retrieve the appropriate dialog
             int errorCode = this.getArguments().getInt(DIALOG_ERROR);
             return GooglePlayServicesUtil.getErrorDialog(errorCode,
