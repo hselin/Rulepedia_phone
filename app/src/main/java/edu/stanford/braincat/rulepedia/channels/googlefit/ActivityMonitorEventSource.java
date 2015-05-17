@@ -70,7 +70,10 @@ public class ActivityMonitorEventSource implements EventSource {
     }
 
     @Override
-    public void uninstall(Context ctx) throws IOException {
+    public void uninstall(Context ctx) {
+        if (client == null)
+            throw new IllegalStateException("event source was not installed");
+
         Fitness.SessionsApi.unregisterForSessions(client, pendingIntent);
         pendingIntent = null;
         client = null;

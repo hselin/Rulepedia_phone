@@ -7,6 +7,7 @@ import android.os.Message;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -16,6 +17,7 @@ import java.util.Set;
 
 import edu.stanford.braincat.rulepedia.events.EventSource;
 import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
+import edu.stanford.braincat.rulepedia.exceptions.TriggerValueTypeException;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownChannelException;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
 import edu.stanford.braincat.rulepedia.model.ObjectDatabase;
@@ -88,7 +90,7 @@ public class RuleExecutor extends Handler {
                 s.install(context, this);
                 anySuccess = true;
             } catch (IOException e) {
-                Log.e(RuleExecutorService.LOG_TAG, "Failed to install event source " + s.toString() + ": " + e.getMessage());
+                Log.e(RuleExecutorService.LOG_TAG, "Failed to install event source " + s.toString(), e);
                 anyFailed = true;
             }
         }
@@ -110,7 +112,7 @@ public class RuleExecutor extends Handler {
                 s.uninstall(context);
                 anySuccess = true;
             } catch (IOException e) {
-                Log.e(RuleExecutorService.LOG_TAG, "Failed to uninstall event source " + s.toString() + ": " + e.getMessage());
+                Log.e(RuleExecutorService.LOG_TAG, "Failed to uninstall event source " + s.toString(), e);
                 anyFailed = true;
             }
         }
@@ -124,14 +126,26 @@ public class RuleExecutor extends Handler {
         try {
             RuleDatabase db = RuleDatabase.get();
             Rule rule = db.addRule(jsonRule);
-            // save eagerly to catch problems
-            db.save(context);
+            try {
+                // save eagerly to catch problems
+                db.save(context);
+            } catch(IOException e) {
+                Log.w(RuleExecutorService.LOG_TAG, "Failed to save rule database to disk", e);
+                // continue on failure, we'll try again later
+            }
+
             assert !rule.isInstalled();
             if (rule.isEnabled())
                 doEnableRule(rule);
             callback.post(rule, null);
-        } catch (Exception e) {
-            Log.e(RuleExecutorService.LOG_TAG, "Failed to add rule to the database: " + e.getMessage());
+        } catch(UnknownChannelException|TriggerValueTypeException|JSONException e) {
+            Log.e(RuleExecutorService.LOG_TAG, "Failed to install rule (parsing problem)", e);
+            callback.post(null, e);
+        } catch(UnknownObjectException e) {
+            Log.e(RuleExecutorService.LOG_TAG, "Failed to install rule (object resolution problem)", e);
+            callback.post(null, e);
+        } catch(RuntimeException e) {
+            Log.e(RuleExecutorService.LOG_TAG, "RuntimeException while installing rule!", e);
             callback.post(null, e);
         }
     }
@@ -157,8 +171,11 @@ public class RuleExecutor extends Handler {
             else
                 doDisableRule(rule);
             callback.post(rule, null);
-        } catch(Exception e) {
-            Log.e(RuleExecutorService.LOG_TAG, "Failed to reload rule: " + e.getMessage());
+        } catch(UnknownObjectException e) {
+            Log.e(RuleExecutorService.LOG_TAG, "Failed to reload rule (object resolution problem)", e);
+            callback.post(null, e);
+        } catch(RuntimeException e) {
+            Log.e(RuleExecutorService.LOG_TAG, "RuntimeException while reloading rule!", e);
             callback.post(null, e);
         }
     }
@@ -184,8 +201,11 @@ public class RuleExecutor extends Handler {
         try {
             doDisableRule(rule);
             callback.post(true, null);
-        } catch (Exception e) {
-            Log.e(RuleExecutorService.LOG_TAG, "Failed to reload rule: " + e.getMessage());
+        } catch(UnknownObjectException e) {
+            Log.e(RuleExecutorService.LOG_TAG, "Failed to delete rule (object resolution problem)", e);
+            callback.post(null, e);
+        } catch(RuntimeException e) {
+            Log.e(RuleExecutorService.LOG_TAG, "RuntimeException while deleting rule!", e);
             callback.post(null, e);
         }
     }
@@ -198,7 +218,7 @@ public class RuleExecutor extends Handler {
             try {
                 doEnableRule(r);
             } catch (UnknownObjectException e) {
-                Log.i(RuleExecutorService.LOG_TAG, "Failed to bootstrap rule: " + e.getMessage());
+                Log.i(RuleExecutorService.LOG_TAG, "Failed to bootstrap rule", e);
             }
         }
     }
@@ -208,7 +228,7 @@ public class RuleExecutor extends Handler {
             try {
                 s.uninstall(context);
             } catch(IOException e) {
-                Log.e(RuleExecutorService.LOG_TAG, "Failed to uninstall event source " + s.toString() + ": " + e.getMessage());
+                Log.e(RuleExecutorService.LOG_TAG, "Failed to uninstall event source " + s.toString(), e);
             }
         }
         eventSources.clear();
