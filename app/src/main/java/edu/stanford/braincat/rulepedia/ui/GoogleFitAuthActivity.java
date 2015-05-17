@@ -13,6 +13,7 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.Scopes;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Scope;
+import com.google.android.gms.fitness.Fitness;
 
 /**
  * Created by gcampagn on 5/16/15.
@@ -25,6 +26,8 @@ public class GoogleFitAuthActivity extends FragmentActivity
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addApi(Fitness.SESSIONS_API)
+                .addApi(Fitness.HISTORY_API)
                 .useDefaultAccount()
                 .addScope(new Scope(Scopes.FITNESS_BODY_READ))
                 .addScope(new Scope(Scopes.FITNESS_LOCATION_READ))
