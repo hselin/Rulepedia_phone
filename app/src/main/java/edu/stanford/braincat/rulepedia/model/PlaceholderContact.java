@@ -14,7 +14,7 @@ public class PlaceholderContact extends Contact {
     }
 
     public Contact resolve() throws UnknownObjectException {
-        throw new UnknownObjectException(getUrl());
+        return ObjectDatabase.get().resolveContact(getUrl());
     }
 
     @Override

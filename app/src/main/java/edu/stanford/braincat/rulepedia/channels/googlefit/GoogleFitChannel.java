@@ -2,6 +2,7 @@ package edu.stanford.braincat.rulepedia.channels.googlefit;
 
 import android.content.Context;
 
+import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.Scopes;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Scope;
@@ -9,6 +10,7 @@ import com.google.android.gms.fitness.Fitness;
 
 import java.lang.ref.WeakReference;
 
+import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
 import edu.stanford.braincat.rulepedia.model.Channel;
 
 /**
@@ -29,9 +31,9 @@ public class GoogleFitChannel extends Channel {
         return "Google Fit";
     }
 
-    GoogleApiClient acquireClient(Context ctx) {
+    GoogleApiClient acquireClient(Context ctx) throws RuleExecutionException {
         if (client == null) {
-            client = new GoogleApiClient.Builder(ctx)
+            GoogleApiClient tmpClient = new GoogleApiClient.Builder(ctx)
                     .useDefaultAccount()
                     .addScope(new Scope(Scopes.FITNESS_BODY_READ))
                     .addScope(new Scope(Scopes.FITNESS_LOCATION_READ))
@@ -40,7 +42,10 @@ public class GoogleFitChannel extends Channel {
                     .addApi(Fitness.SESSIONS_API)
                     .addApi(Fitness.HISTORY_API)
                     .addApi(Fitness.SENSORS_API).build();
-            client.blockingConnect();
+            ConnectionResult result = tmpClient.blockingConnect();
+            if (!result.isSuccess())
+                throw new RuleExecutionException("Failed to connect to Google Fit");
+            client = tmpClient;
         }
 
         clientRefCount++;

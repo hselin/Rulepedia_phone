@@ -96,6 +96,7 @@ public class MainActivity extends ActionBarActivity implements BrowseFragment.On
     @Override
     public void onDestroy() {
         unbindService(connection);
+        super.onDestroy();
     }
 
 
@@ -270,5 +271,4 @@ public class MainActivity extends ActionBarActivity implements BrowseFragment.On
             return rootView;
         }
     }
-
 }

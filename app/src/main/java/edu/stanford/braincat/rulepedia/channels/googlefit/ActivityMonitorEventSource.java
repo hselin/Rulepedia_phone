@@ -14,6 +14,7 @@ import java.io.IOException;
 
 import edu.stanford.braincat.rulepedia.events.EventSource;
 import edu.stanford.braincat.rulepedia.events.IntentEventSource;
+import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
 
 /**
  * Created by gcampagn on 5/13/15.
@@ -56,7 +57,11 @@ public class ActivityMonitorEventSource implements EventSource {
 
     @Override
     public void install(Context ctx, Handler handler) throws IOException {
-        client = channel.acquireClient(ctx);
+        try {
+            client = channel.acquireClient(ctx);
+        } catch(RuleExecutionException e) {
+            throw new IOException(e);
+        }
 
         Intent intent = new Intent(ctx, IntentEventSource.EventSourceBroadcastReceiver.class);
         intent.setAction(INTENT);

@@ -13,12 +13,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
 
@@ -48,11 +44,9 @@ public class ObjectDatabase {
     }
 
     public synchronized Collection<Property> getAllProperties() {
-        ArrayList<Property> properties = new ArrayList<Property>();
+        ArrayList<Property> properties = new ArrayList<>();
 
-        Set<Map.Entry<String, String>> set = objects.entrySet();
-
-        for (Map.Entry<String, String> pair : set) {
+        for (Map.Entry<String, String> pair : objects.entrySet()) {
             properties.add(new Property(pair.getKey(), pair.getValue()));
         }
 
