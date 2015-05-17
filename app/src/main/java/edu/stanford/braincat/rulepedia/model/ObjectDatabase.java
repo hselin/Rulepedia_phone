@@ -65,6 +65,12 @@ public class ObjectDatabase {
         dirty = true;
     }
 
+    public void remove(String url)
+    {
+        objects.remove(url);
+        dirty = true;
+    }
+
     public synchronized void load(Context ctx) throws IOException {
         if (loaded)
             return;
