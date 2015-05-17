@@ -4,7 +4,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.Fragment;
@@ -12,7 +11,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -28,9 +26,7 @@ import edu.stanford.braincat.rulepedia.service.RuleExecutor;
 import edu.stanford.braincat.rulepedia.service.RuleExecutorService;
 
 
-public class MainActivity extends ActionBarActivity implements BrowseFragment.OnFragmentInteractionListener,
-        RuleManageFragment.OnFragmentInteractionListener, PropertyManageFragment.OnFragmentInteractionListener {
-
+public class MainActivity extends ActionBarActivity {
     public static final String LOG_TAG = "rulepedia.UI";
 
     /**
@@ -70,7 +66,6 @@ public class MainActivity extends ActionBarActivity implements BrowseFragment.On
         bindService(intent, connection, Context.BIND_AUTO_CREATE);
     }
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -99,13 +94,6 @@ public class MainActivity extends ActionBarActivity implements BrowseFragment.On
     public void onDestroy() {
         unbindService(connection);
         super.onDestroy();
-    }
-
-
-    @Override
-    public void onFragmentInteraction(Uri uri)
-    {
-
     }
 
     @Override

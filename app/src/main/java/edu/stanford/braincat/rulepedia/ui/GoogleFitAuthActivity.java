@@ -6,24 +6,18 @@ import android.content.IntentSender;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.Scopes;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Scope;
-import com.google.android.gms.fitness.Fitness;
-import com.google.android.gms.fitness.data.DataPoint;
-import com.google.android.gms.fitness.data.DataType;
-import com.google.android.gms.fitness.request.OnDataPointListener;
-import com.google.android.gms.fitness.request.SensorRequest;
 
 /**
  * Created by gcampagn on 5/16/15.
  */
 public class GoogleFitAuthActivity extends FragmentActivity
-        implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, OnDataPointListener {
+        implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
     private static final int REQUEST_OAUTH = 1001;
     private GoogleApiClient mGoogleApiClient;
 
@@ -31,8 +25,6 @@ public class GoogleFitAuthActivity extends FragmentActivity
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addApi(Fitness.SENSORS_API)  // Required for SensorsApi calls
-                        // Optional: specify more APIs used with additional calls to addApi
                 .useDefaultAccount()
                 .addScope(new Scope(Scopes.FITNESS_BODY_READ))
                 .addScope(new Scope(Scopes.FITNESS_LOCATION_READ))
@@ -46,21 +38,8 @@ public class GoogleFitAuthActivity extends FragmentActivity
     @Override
     public void onConnected(Bundle connectionHint) {
         // Connected to Google Fit Client.
-        Log.d("!!!!!!!!!!!!!!!!", "CONNECTED TO GOOGLE FIT!!!!!");
-
-        Fitness.SensorsApi.add(
-                mGoogleApiClient,
-                new SensorRequest.Builder()
-                        .setDataType(DataType.TYPE_STEP_COUNT_DELTA)
-                        .build(),
-                this);
         setResult(0);
         finish();
-    }
-
-    @Override
-    public void onDataPoint(DataPoint dataPoint) {
-        // Do cool stuff that matters.
     }
 
     @Override
@@ -77,12 +56,10 @@ public class GoogleFitAuthActivity extends FragmentActivity
 
     @Override
     public void onConnectionFailed(ConnectionResult result) {
-        Log.d("!!!!", "ERROR" + result.getErrorCode());
-
-        if (mResolvingError) {
-            // Already attempting to resolve an error.
+        if (mResolvingError) // Already attempting to resolve an error
             return;
-        } else if (result.hasResolution()) {
+
+        if (result.hasResolution()) {
             try {
                 mResolvingError = true;
                 result.startResolutionForResult(this, REQUEST_RESOLVE_ERROR);
@@ -113,13 +90,12 @@ public class GoogleFitAuthActivity extends FragmentActivity
     /* Called from ErrorDialogFragment when the dialog is dismissed. */
     public void onDialogDismissed() {
         mResolvingError = false;
+        setResult(1);
+        finish();
     }
 
     /* A fragment to display an error dialog */
     public static class ErrorDialogFragment extends DialogFragment {
-        public ErrorDialogFragment() {
-        }
-
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             // Get the error code and retrieve the appropriate dialog
