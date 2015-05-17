@@ -14,7 +14,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import edu.stanford.braincat.rulepedia.events.EventSource;
-import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
 import edu.stanford.braincat.rulepedia.exceptions.TriggerValueTypeException;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
 import edu.stanford.braincat.rulepedia.model.Channel;
@@ -24,17 +23,13 @@ import edu.stanford.braincat.rulepedia.model.Channel;
  */
 public class GenericChannel extends Channel {
     private final String text;
-    private final String id;
     private final Context ctx;
     private final Scriptable global;
 
-    private final Map<String, WeakReference<EventSource> > eventSourceRefs;
+    private final Map<String, WeakReference<EventSource>> eventSourceRefs;
 
-    private String response;
-
-    public GenericChannel(GenericChannelFactory factory, String url, String id, String text) {
+    public GenericChannel(GenericChannelFactory factory, String url, String text) {
         super(factory, url);
-        this.id = id;
         this.text = text;
         this.eventSourceRefs = new HashMap<>();
         this.ctx = Context.enter();
@@ -55,7 +50,7 @@ public class GenericChannel extends Channel {
             MalformedURLException, JSONException, TriggerValueTypeException, UnknownObjectException {
         Map<String, EventSource> result = new ArrayMap<>();
 
-        Collection<String> names = ((GenericChannelFactory)getFactory()).getEventSourceNames();
+        Collection<String> names = ((GenericChannelFactory) getFactory()).getEventSourceNames();
 
         for (String name : names) {
             WeakReference<EventSource> sourceRef = eventSourceRefs.get(name);
@@ -70,16 +65,6 @@ public class GenericChannel extends Channel {
         }
 
         return result;
-    }
-
-    private void checkData() throws RuleExecutionException {
-        if (response == null)
-            throw new RuleExecutionException("Movie data not available");
-    }
-
-    public synchronized String getData() throws RuleExecutionException {
-        checkData();
-        return response;
     }
 
     @Override

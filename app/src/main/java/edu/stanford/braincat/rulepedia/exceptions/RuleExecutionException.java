@@ -13,7 +13,7 @@ public class RuleExecutionException extends Exception {
         super("Rule execution failed: " + message, wrapped);
     }
 
-    public RuleExecutionException(String message){
+    public RuleExecutionException(String message) {
         super("Rule execution failed: " + message);
     }
 }

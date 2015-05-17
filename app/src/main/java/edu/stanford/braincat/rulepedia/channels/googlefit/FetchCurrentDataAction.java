@@ -47,6 +47,7 @@ public class FetchCurrentDataAction implements Action {
         return channel;
     }
 
+    @Override
     public Collection<ObjectPool.Object> getPlaceholders() {
         Collection<ObjectPool.Object> result = new HashSet<>();
 
@@ -73,7 +74,7 @@ public class FetchCurrentDataAction implements Action {
 
     @Override
     public void execute(Context ctx, Map<String, Value> context) throws UnknownObjectException, RuleExecutionException {
-        GoogleApiClient client = ((GoogleFitChannel)channel).acquireClient(ctx);
+        GoogleApiClient client = ((GoogleFitChannel) channel).acquireClient(ctx);
 
         try {
             long now = System.currentTimeMillis();

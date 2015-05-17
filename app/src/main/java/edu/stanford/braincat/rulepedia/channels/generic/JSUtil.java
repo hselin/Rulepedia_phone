@@ -1,5 +1,6 @@
 package edu.stanford.braincat.rulepedia.channels.generic;
 
+import android.support.annotation.Nullable;
 import android.util.ArrayMap;
 
 import org.mozilla.javascript.NativeObject;
@@ -32,18 +33,22 @@ public class JSUtil {
     }
 
     public static Value javascriptToValue(Object object) {
+        if (object == null)
+            throw new NullPointerException();
         if (object instanceof String)
-            return new Value.Text((String)object);
+            return new Value.Text((String) object);
         else if (object instanceof Boolean)
             return new Value.Text(object.toString());
         else if (object instanceof Number)
-            return new Value.Number((Number)object);
+            return new Value.Number((Number) object);
         else
             return new Value.Text(object.toString());
     }
 
-    public static Object valueToJavascript(Value value) {
-        if (value instanceof Value.Text) {
+    public static Object valueToJavascript(@Nullable Value value) {
+        if (value == null) {
+            return null;
+        } else if (value instanceof Value.Text) {
             return ((Value.Text) value).getText();
         } else if (value instanceof Value.Number) {
             return ((Value.Number) value).getNumber();

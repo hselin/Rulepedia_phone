@@ -65,9 +65,9 @@ public class PropertyManageFragment extends Fragment {
         // Inflate the layout for this fragment
         //return inflater.inflate(R.layout.fragment_property_manage, container, false);
 
-        View v =  inflater.inflate(R.layout.fragment_property_manage, container, false);
+        View v = inflater.inflate(R.layout.fragment_property_manage, container, false);
 
-        propertyListView = (ListView) v.findViewById( R.id.property_list );
+        propertyListView = (ListView) v.findViewById(R.id.property_list);
 
         //instantiate custom adapter
         listAdapter = new PropertyListItemCustomAdapter(this.getActivity(), this.getActivity().getApplicationContext(), listItems);
@@ -82,13 +82,12 @@ public class PropertyManageFragment extends Fragment {
     ArrayList<Property> listItems = new ArrayList<Property>();
     PropertyListItemCustomAdapter listAdapter;
 
-    private void loadProperties(Context ctx)
-    {
+    private void loadProperties(Context ctx) {
         listItems.clear();
 
-        try{
+        try {
             ObjectDatabase db = ObjectDatabase.get();
-            Collection <Property> properties = db.getAllProperties();
+            Collection<Property> properties = db.getAllProperties();
 
             Log.d("myTag", "properties.size(): " + properties.size());
 

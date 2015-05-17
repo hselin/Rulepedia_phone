@@ -68,14 +68,13 @@ public class RuleManageFragment extends Fragment {
     //ArrayAdapter<Rule> listAdapter;
     RuleListItemCustomAdapter listAdapter;
 
-    private void loadRules(Context ctx)
-    {
+    private void loadRules(Context ctx) {
         listItems.clear();
 
-        try{
+        try {
             RuleDatabase db = RuleDatabase.get();
             db.load(ctx);
-            Collection <Rule> rules = db.getAllRules();
+            Collection<Rule> rules = db.getAllRules();
 
             Log.d("myTag", "rules.size(): " + rules.size());
 
@@ -95,9 +94,9 @@ public class RuleManageFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View v =  inflater.inflate(R.layout.fragment_rule_manage, container, false);
+        View v = inflater.inflate(R.layout.fragment_rule_manage, container, false);
 
-        ruleListView = (ListView) v.findViewById( R.id.rule_list );
+        ruleListView = (ListView) v.findViewById(R.id.rule_list);
         //listAdapter = new ArrayAdapter<String>(this.getActivity().getApplicationContext(), android.R.layout.simple_list_item_1, listItems);
 
         /*

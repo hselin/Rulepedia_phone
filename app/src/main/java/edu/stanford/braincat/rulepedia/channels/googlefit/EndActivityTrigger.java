@@ -39,6 +39,7 @@ public class EndActivityTrigger extends SingleEventTrigger<ActivityMonitorEventS
         return channel;
     }
 
+    @Override
     public Collection<ObjectPool.Object> getPlaceholders() {
         Collection<ObjectPool.Object> result = new HashSet<>();
 
@@ -54,7 +55,7 @@ public class EndActivityTrigger extends SingleEventTrigger<ActivityMonitorEventS
         Channel newChannel = channel.resolve();
         if (!(newChannel instanceof GoogleFitChannel))
             throw new UnknownObjectException(newChannel.getUrl());
-        setSource(((GoogleFitChannel)newChannel).getActivityMonitorEventSource());
+        setSource(((GoogleFitChannel) newChannel).getActivityMonitorEventSource());
         channel = newChannel;
     }
 

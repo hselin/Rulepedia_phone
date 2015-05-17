@@ -1,23 +1,17 @@
 package edu.stanford.braincat.rulepedia.ui;
 
 import android.app.Activity;
+import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ListAdapter;
-
-import java.util.ArrayList;
-
-import android.content.Context;
 import android.widget.TextView;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.json.JSONTokener;
+import java.util.ArrayList;
 
 import edu.stanford.braincat.rulepedia.R;
 import edu.stanford.braincat.rulepedia.model.Rule;
@@ -61,14 +55,14 @@ public class RuleListItemCustomAdapter extends BaseAdapter implements ListAdapte
         }
 
         //Handle TextView and display string from your list
-        TextView listItemText = (TextView)view.findViewById(R.id.list_item_string);
+        TextView listItemText = (TextView) view.findViewById(R.id.list_item_string);
         listItemText.setText(list.get(position).getName());
 
         //Handle buttons and add onClickListeners
-        Button deleteBtn = (Button)view.findViewById(R.id.delete_btn);
+        Button deleteBtn = (Button) view.findViewById(R.id.delete_btn);
         //Button addBtn = (Button)view.findViewById(R.id.add_btn);
 
-        deleteBtn.setOnClickListener(new View.OnClickListener(){
+        deleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //do something
@@ -83,12 +77,10 @@ public class RuleListItemCustomAdapter extends BaseAdapter implements ListAdapte
                     executor.deleteRule(ruleID, new Callback<Boolean>() {
                         @Override
                         public void run(Boolean success, Exception error) {
-                            if(success != null) {
+                            if (success != null) {
                                 list.remove(position); //or some other task
                                 notifyDataSetChanged();
-                            }
-                            else
-                            {
+                            } else {
                                 Log.d("a", "CANNOT REMOVE RULE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
                             }
                         }

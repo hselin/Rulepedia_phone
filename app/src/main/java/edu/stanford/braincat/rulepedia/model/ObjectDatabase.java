@@ -36,7 +36,7 @@ public class ObjectDatabase {
         return instance;
     }
 
-    public Channel resolveChannel(String url) throws UnknownObjectException {
+    public synchronized Channel resolveChannel(String url) throws UnknownObjectException {
         String resolvedUrl = objects.get(url);
         if (resolvedUrl == null)
             throw new UnknownObjectException(url);
@@ -53,20 +53,19 @@ public class ObjectDatabase {
         return properties;
     }
 
-    public Contact resolveContact(String url) throws UnknownObjectException {
+    public synchronized Contact resolveContact(String url) throws UnknownObjectException {
         String resolvedUrl = objects.get(url);
         if (resolvedUrl == null)
             throw new UnknownObjectException(url);
         return ContactPool.get().getObject(resolvedUrl);
     }
 
-    public void store(String url, ObjectPool.Object object) {
+    public synchronized void store(String url, ObjectPool.Object object) {
         objects.put(url, object.getUrl());
         dirty = true;
     }
 
-    public void remove(String url)
-    {
+    public synchronized void remove(String url) {
         objects.remove(url);
         dirty = true;
     }
@@ -91,10 +90,10 @@ public class ObjectDatabase {
 
                     objects.put(split[0], split[1]);
                 }
-            } catch(EOFException e) {
+            } catch (EOFException e) {
                 // done
             }
-        } catch(FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
             // ignore
         }
     }

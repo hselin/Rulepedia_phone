@@ -71,10 +71,10 @@ public class GoogleFitChannelFactory extends ChannelFactory {
     public Action createAction(Channel channel, String method, Map<String, Value> params) throws UnknownObjectException, UnknownChannelException, TriggerValueTypeException {
         switch (method) {
             case FETCH_HISTORY:
-                return new FetchHistoryDataAction(channel, (HistoryDataTypeValue)params.get(DATA_TYPE).resolve(null),
+                return new FetchHistoryDataAction(channel, (HistoryDataTypeValue) params.get(DATA_TYPE).resolve(null),
                         params.get(AGGREGATE_PERIOD), params.get(ACTIVITY_FILTER));
             case FETCH_CURRENT:
-                return new FetchCurrentDataAction(channel, (CurrentDataTypeValue)params.get(DATA_TYPE).resolve(null));
+                return new FetchCurrentDataAction(channel, (CurrentDataTypeValue) params.get(DATA_TYPE).resolve(null));
             default:
                 throw new UnknownChannelException(method);
         }

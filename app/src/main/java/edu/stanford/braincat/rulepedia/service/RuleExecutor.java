@@ -43,7 +43,7 @@ public class RuleExecutor extends Handler {
             objectdb.load(ctx);
             ruledb = RuleDatabase.get();
             ruledb.load(ctx);
-        } catch(UnknownObjectException|UnknownChannelException e) {
+        } catch (UnknownObjectException | UnknownChannelException e) {
             throw new IOException("Failed to load database", e);
         }
     }
@@ -129,7 +129,7 @@ public class RuleExecutor extends Handler {
             try {
                 // save eagerly to catch problems
                 db.save(context);
-            } catch(IOException e) {
+            } catch (IOException e) {
                 Log.w(RuleExecutorService.LOG_TAG, "Failed to save rule database to disk", e);
                 // continue on failure, we'll try again later
             }
@@ -138,13 +138,13 @@ public class RuleExecutor extends Handler {
             if (rule.isEnabled())
                 doEnableRule(rule);
             callback.post(rule, null);
-        } catch(UnknownChannelException|TriggerValueTypeException|JSONException e) {
+        } catch (UnknownChannelException | TriggerValueTypeException | JSONException e) {
             Log.e(RuleExecutorService.LOG_TAG, "Failed to install rule (parsing problem)", e);
             callback.post(null, e);
-        } catch(UnknownObjectException e) {
+        } catch (UnknownObjectException e) {
             Log.e(RuleExecutorService.LOG_TAG, "Failed to install rule (object resolution problem)", e);
             callback.post(null, e);
-        } catch(RuntimeException e) {
+        } catch (RuntimeException e) {
             Log.e(RuleExecutorService.LOG_TAG, "RuntimeException while installing rule!", e);
             callback.post(null, e);
         }
@@ -171,10 +171,10 @@ public class RuleExecutor extends Handler {
             else
                 doDisableRule(rule);
             callback.post(rule, null);
-        } catch(UnknownObjectException e) {
+        } catch (UnknownObjectException e) {
             Log.e(RuleExecutorService.LOG_TAG, "Failed to reload rule (object resolution problem)", e);
             callback.post(null, e);
-        } catch(RuntimeException e) {
+        } catch (RuntimeException e) {
             Log.e(RuleExecutorService.LOG_TAG, "RuntimeException while reloading rule!", e);
             callback.post(null, e);
         }
@@ -201,10 +201,10 @@ public class RuleExecutor extends Handler {
         try {
             doDisableRule(rule);
             callback.post(true, null);
-        } catch(UnknownObjectException e) {
+        } catch (UnknownObjectException e) {
             Log.e(RuleExecutorService.LOG_TAG, "Failed to delete rule (object resolution problem)", e);
             callback.post(null, e);
-        } catch(RuntimeException e) {
+        } catch (RuntimeException e) {
             Log.e(RuleExecutorService.LOG_TAG, "RuntimeException while deleting rule!", e);
             callback.post(null, e);
         }
@@ -227,7 +227,7 @@ public class RuleExecutor extends Handler {
         for (EventSource s : eventSources) {
             try {
                 s.uninstall(context);
-            } catch(IOException e) {
+            } catch (IOException e) {
                 Log.e(RuleExecutorService.LOG_TAG, "Failed to uninstall event source " + s.toString(), e);
             }
         }

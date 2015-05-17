@@ -1,6 +1,7 @@
 package edu.stanford.braincat.rulepedia.channels.googlefit;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -42,7 +43,7 @@ public class FetchHistoryDataAction implements Action {
     private final Value aggregatePeriod;
     private final Value activityFilter;
 
-    public FetchHistoryDataAction(Channel channel, HistoryDataTypeValue dataType, Value aggregatePeriod, Value activityFilter) {
+    public FetchHistoryDataAction(@NonNull Channel channel, @NonNull HistoryDataTypeValue dataType, @NonNull Value aggregatePeriod, Value activityFilter) {
         this.channel = channel;
         this.dataType = dataType;
         this.aggregatePeriod = aggregatePeriod;
@@ -54,6 +55,7 @@ public class FetchHistoryDataAction implements Action {
         return channel;
     }
 
+    @Override
     public Collection<ObjectPool.Object> getPlaceholders() {
         Collection<ObjectPool.Object> result = new HashSet<>();
 
@@ -84,7 +86,7 @@ public class FetchHistoryDataAction implements Action {
 
     @Override
     public void execute(Context ctx, Map<String, Value> context) throws TriggerValueTypeException, UnknownObjectException, RuleExecutionException {
-        GoogleApiClient client = ((GoogleFitChannel)channel).acquireClient(ctx);
+        GoogleApiClient client = ((GoogleFitChannel) channel).acquireClient(ctx);
 
         try {
             Value.Number resolvedPeriod = (Value.Number) aggregatePeriod.resolve(context);

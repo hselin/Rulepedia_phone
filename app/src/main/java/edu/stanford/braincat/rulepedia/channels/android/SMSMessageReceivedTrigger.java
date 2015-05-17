@@ -1,5 +1,6 @@
 package edu.stanford.braincat.rulepedia.channels.android;
 
+import android.support.annotation.Nullable;
 import android.telephony.SmsMessage;
 
 import org.json.JSONArray;
@@ -32,15 +33,15 @@ public class SMSMessageReceivedTrigger extends SimpleEventTrigger<SMSEventSource
     private final String contentContains;
     private volatile Contact senderMatches;
 
-    public SMSMessageReceivedTrigger(Channel channel, Value contentContains, Value senderMatches) throws TriggerValueTypeException, UnknownObjectException {
+    public SMSMessageReceivedTrigger(Channel channel, @Nullable Value contentContains, @Nullable Value senderMatches) throws TriggerValueTypeException, UnknownObjectException {
         this.channel = channel;
 
         if (contentContains != null)
-            this.contentContains = ((Value.Text)contentContains.resolve(null)).getText();
+            this.contentContains = ((Value.Text) contentContains.resolve(null)).getText();
         else
             this.contentContains = null;
         if (senderMatches != null)
-            this.senderMatches = (Contact)((Value.DirectObject)senderMatches.resolve(null)).getObject();
+            this.senderMatches = (Contact) ((Value.DirectObject) senderMatches.resolve(null)).getObject();
         else
             this.senderMatches = null;
     }
@@ -145,7 +146,7 @@ public class SMSMessageReceivedTrigger extends SimpleEventTrigger<SMSEventSource
     public void updateContext(Map<String, Value> context) throws RuleExecutionException {
         try {
             context.put(Messaging.SENDER, new Value.DirectObject<>(ContactPool.get().getObject("sms:" + receivedMessage.getOriginatingAddress())));
-        } catch(UnknownObjectException e) {
+        } catch (UnknownObjectException e) {
             throw new RuntimeException(e);
         }
 

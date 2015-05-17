@@ -51,7 +51,7 @@ public class MainActivity extends ActionBarActivity {
     private class Connection implements ServiceConnection {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-            executor = ((RuleExecutorService.Binder)iBinder).getRuleExecutor();
+            executor = ((RuleExecutorService.Binder) iBinder).getRuleExecutor();
         }
 
         @Override

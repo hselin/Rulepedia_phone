@@ -1,5 +1,6 @@
 package edu.stanford.braincat.rulepedia.channels.generic;
 
+import android.support.annotation.Nullable;
 import android.util.ArrayMap;
 
 import org.json.JSONArray;
@@ -78,8 +79,8 @@ public class GenericChannelFactory extends ChannelFactory {
         }
 
         try {
-            return new GenericChannel(this, url, jsonFactory.getString("id"), jsonFactory.getString("description"));
-        } catch(JSONException e) {
+            return new GenericChannel(this, url, jsonFactory.getString("description"));
+        } catch (JSONException e) {
             throw new UnknownObjectException(url);
         }
     }
@@ -90,7 +91,7 @@ public class GenericChannelFactory extends ChannelFactory {
 
         try {
             text = jsonFactory.getString("text");
-        } catch(JSONException e) {
+        } catch (JSONException e) {
             text = "a generic channel";
         }
 
@@ -145,7 +146,7 @@ public class GenericChannelFactory extends ChannelFactory {
             }
 
             throw new UnknownChannelException(method);
-        } catch(JSONException|TriggerValueTypeException e) {
+        } catch (JSONException | TriggerValueTypeException e) {
             throw new UnknownChannelException(method);
         }
     }
@@ -173,7 +174,7 @@ public class GenericChannelFactory extends ChannelFactory {
                 return findParamType(jsonAction.getJSONArray("params"), name);
 
             throw new UnknownChannelException(method);
-        } catch(JSONException e) {
+        } catch (JSONException e) {
             throw new UnknownChannelException(method);
         }
     }
@@ -201,7 +202,7 @@ public class GenericChannelFactory extends ChannelFactory {
         try {
             return new GenericTrigger(channel, triggerMeta.getString("id"), triggerMeta.getString("text"),
                     triggerMeta.getString("script"), buildPrivateEventSources(triggerMeta, channel, params), params);
-        } catch(JSONException|MalformedURLException e) {
+        } catch (JSONException | MalformedURLException e) {
 
             throw new UnknownChannelException(method);
         }
@@ -216,16 +217,16 @@ public class GenericChannelFactory extends ChannelFactory {
         return eventSourceMetas.keySet();
     }
 
-    private Number parseNumberOrParam(Object object, Map<String, Value> params) throws JSONException, TriggerValueTypeException, UnknownObjectException {
+    private Number parseNumberOrParam(Object object, @Nullable Map<String, Value> params) throws JSONException, TriggerValueTypeException, UnknownObjectException {
         if (object instanceof Number)
-            return (Number)object;
+            return (Number) object;
         else if (object instanceof String && params != null)
-            return ((Value.Number)params.get(object).resolve(null)).getNumber();
+            return ((Value.Number) params.get(object).resolve(null)).getNumber();
         else
             throw new JSONException("invalid number value");
     }
 
-    private EventSource createEventSource(Channel channel, JSONObject eventSourceMeta, Map<String, Value> params) throws
+    private EventSource createEventSource(Channel channel, JSONObject eventSourceMeta, @Nullable Map<String, Value> params) throws
             MalformedURLException, JSONException, TriggerValueTypeException, UnknownObjectException {
         switch (eventSourceMeta.getString("type")) {
             case "polling":

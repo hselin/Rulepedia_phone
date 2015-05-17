@@ -100,7 +100,7 @@ public class BrowseFragment extends Fragment {
                 new ValueCallback<String>() {
                     @Override
                     public void onReceiveValue(String s) {
-                    // nothing to do
+                        // nothing to do
                     }
                 });
     }

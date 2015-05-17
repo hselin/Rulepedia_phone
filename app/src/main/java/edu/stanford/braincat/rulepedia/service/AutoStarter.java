@@ -7,7 +7,7 @@ import android.util.Log;
 
 /**
  * Created by gcampagn on 5/1/15.
- *
+ * <p>
  * Based on http://www.jjoe64.com/2011/06/autostart-service-on-device-boot.html
  */
 public class AutoStarter extends BroadcastReceiver {

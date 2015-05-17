@@ -37,10 +37,12 @@ public abstract class SendMessageAction implements Action {
         this.channel = channel;
     }
 
+    @Override
     public Channel getChannel() {
         return channel;
     }
 
+    @Override
     public Collection<ObjectPool.Object> getPlaceholders() {
         Collection<ObjectPool.Object> result = new HashSet<>();
 
@@ -80,7 +82,7 @@ public abstract class SendMessageAction implements Action {
         Value.DirectObject resolvedDestination = (Value.DirectObject) destination.resolve(context);
         Value.Text resolvedMessage = (Value.Text) message.resolve(context);
 
-        sendMessage(ctx, (Contact)resolvedDestination.getObject(), resolvedMessage.getText());
+        sendMessage(ctx, (Contact) resolvedDestination.getObject(), resolvedMessage.getText());
     }
 
     @Override

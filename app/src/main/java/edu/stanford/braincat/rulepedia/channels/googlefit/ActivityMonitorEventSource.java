@@ -25,7 +25,7 @@ public class ActivityMonitorEventSource implements EventSource {
     public static class Event {
         public enum Type {
             ACTIVITY_START, ACTIVITY_END
-        };
+        }
 
         private final Type type;
         private final Session session;
@@ -59,7 +59,7 @@ public class ActivityMonitorEventSource implements EventSource {
     public void install(Context ctx, Handler handler) throws IOException {
         try {
             client = channel.acquireClient(ctx);
-        } catch(RuleExecutionException e) {
+        } catch (RuleExecutionException e) {
             throw new IOException(e);
         }
 

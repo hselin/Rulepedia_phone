@@ -134,10 +134,14 @@ public abstract class CompositeTrigger implements Trigger {
         }
 
         @Override
-        protected String getHumanComposeOp() { return " or "; }
+        protected String getHumanComposeOp() {
+            return " or ";
+        }
 
         @Override
-        protected String getJSONComposeOp() { return OP; }
+        protected String getJSONComposeOp() {
+            return OP;
+        }
     }
 
     public static class And extends CompositeTrigger {
@@ -148,12 +152,18 @@ public abstract class CompositeTrigger implements Trigger {
         }
 
         @Override
-        protected boolean compose(boolean t1, boolean t2) { return t1 && t2; }
+        protected boolean compose(boolean t1, boolean t2) {
+            return t1 && t2;
+        }
 
         @Override
-        protected String getHumanComposeOp() { return " and "; }
+        protected String getHumanComposeOp() {
+            return " and ";
+        }
 
         @Override
-        protected String getJSONComposeOp() { return OP; }
+        protected String getJSONComposeOp() {
+            return OP;
+        }
     }
 }

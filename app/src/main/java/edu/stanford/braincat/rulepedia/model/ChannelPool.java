@@ -57,11 +57,11 @@ public class ChannelPool extends ObjectPool<Channel, ChannelFactory> {
                 try {
                     ChannelFactory factory = new GenericChannelFactory(channel);
                     registerFactory(factory);
-                } catch(JSONException e) {
+                } catch (JSONException e) {
                     Log.w(LOG_TAG, "Failed to parse channel factory " + id, e);
                 }
             }
-        } catch(IOException|JSONException e) {
+        } catch (IOException | JSONException e) {
             Log.e(LOG_TAG, "Failed to retrieve channel list from web server", e);
         }
     }

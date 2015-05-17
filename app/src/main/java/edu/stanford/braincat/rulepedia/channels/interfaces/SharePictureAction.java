@@ -37,10 +37,12 @@ public abstract class SharePictureAction implements Action {
         this.channel = channel;
     }
 
+    @Override
     public Channel getChannel() {
         return channel;
     }
 
+    @Override
     public Collection<ObjectPool.Object> getPlaceholders() {
         Collection<ObjectPool.Object> result = new HashSet<>();
 
@@ -60,7 +62,7 @@ public abstract class SharePictureAction implements Action {
                 if (((Value.DirectObject) destination).getObject().isPlaceholder())
                     result.add(((Value.DirectObject) destination).getObject());
             }
-        } catch(TriggerValueTypeException e) {
+        } catch (TriggerValueTypeException e) {
             // nothing to do
         }
 
@@ -80,7 +82,7 @@ public abstract class SharePictureAction implements Action {
         Value.DirectObject resolvedDestination = (Value.DirectObject) destination.resolve(context);
         Value.Picture resolvedPicture = (Value.Picture) message.resolve(context);
 
-        sharePicture(ctx, (Contact)resolvedDestination.getObject(), resolvedPicture);
+        sharePicture(ctx, (Contact) resolvedDestination.getObject(), resolvedPicture);
     }
 
     @Override

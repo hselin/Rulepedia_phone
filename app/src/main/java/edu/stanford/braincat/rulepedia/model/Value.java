@@ -3,6 +3,7 @@ package edu.stanford.braincat.rulepedia.model;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.support.annotation.Nullable;
 import android.util.Base64;
 
 import org.json.JSONException;
@@ -21,7 +22,7 @@ import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
  * Created by gcampagn on 4/30/15.
  */
 public abstract class Value {
-    public void typeCheck(Map<String, Class<? extends Value>> context, Class<? extends Value> expected) throws TriggerValueTypeException {
+    public void typeCheck(@Nullable Map<String, Class<? extends Value>> context, Class<? extends Value> expected) throws TriggerValueTypeException {
         // anything can be coerced to text
         if (expected.equals(Value.Text.class))
             return;
@@ -30,7 +31,7 @@ public abstract class Value {
             throw new TriggerValueTypeException("invalid value type, expected " + expected.getCanonicalName());
     }
 
-    public Value resolve(Map<String, Value> context) throws TriggerValueTypeException, UnknownObjectException {
+    public Value resolve(@Nullable Map<String, Value> context) throws TriggerValueTypeException, UnknownObjectException {
         return this;
     }
 
@@ -55,7 +56,7 @@ public abstract class Value {
         // we don't override typeCheck() without a trigger, because if we don't
         // have a trigger to get a value from we should fail to typecheck
         @Override
-        public void typeCheck(Map<String, Class<? extends Value>> context, Class<? extends Value> expected) throws TriggerValueTypeException {
+        public void typeCheck(@Nullable Map<String, Class<? extends Value>> context, Class<? extends Value> expected) throws TriggerValueTypeException {
             if (context == null)
                 throw new TriggerValueTypeException("context is not valid for trigger value");
             Class<? extends Value> produced = context.get(name);
@@ -66,7 +67,7 @@ public abstract class Value {
         }
 
         @Override
-        public Value resolve(Map<String, Value> context) throws TriggerValueTypeException, UnknownObjectException {
+        public Value resolve(@Nullable Map<String, Value> context) throws TriggerValueTypeException, UnknownObjectException {
             if (context == null)
                 throw new TriggerValueTypeException("trigger value not allowed here");
 
@@ -118,7 +119,7 @@ public abstract class Value {
 
         // FIXME: typechecking for objects? right now we would just say "channel"
 
-        protected <P extends ObjectPool<K, ?>> Value resolve(Map<String, Value> context, P pool) throws UnknownObjectException {
+        protected <P extends ObjectPool<K, ?>> Value resolve(@Nullable Map<String, Value> context, P pool) throws UnknownObjectException {
             K object = pool.getObject(url);
             if (object.isPlaceholder())
                 throw new UnknownObjectException(url);
@@ -138,7 +139,7 @@ public abstract class Value {
         }
 
         @Override
-        public Value resolve(Map<String, Value> context) throws UnknownObjectException {
+        public Value resolve(@Nullable Map<String, Value> context) throws UnknownObjectException {
             return resolve(context, ContactPool.get());
         }
     }
@@ -171,7 +172,7 @@ public abstract class Value {
         }
 
         @Override
-        public Value resolve(Map<String, Value> context) throws TriggerValueTypeException, UnknownObjectException {
+        public Value resolve(@Nullable Map<String, Value> context) throws TriggerValueTypeException, UnknownObjectException {
             if (resolved)
                 return this;
             if (context == null)
@@ -227,16 +228,18 @@ public abstract class Value {
         public static Number fromString(String string) throws TriggerValueTypeException {
             try {
                 return new Number(Integer.parseInt(string));
-            } catch(NumberFormatException e) {
+            } catch (NumberFormatException e) {
                 try {
                     return new Number(Double.parseDouble(string));
-                } catch(NumberFormatException e2) {
+                } catch (NumberFormatException e2) {
                     throw new TriggerValueTypeException("invalid numeric value");
                 }
             }
         }
 
-        public java.lang.Number getNumber() { return rep; }
+        public java.lang.Number getNumber() {
+            return rep;
+        }
 
         public String toString() {
             return rep.toString();
@@ -269,7 +272,7 @@ public abstract class Value {
         }
 
         @Override
-        public Value resolve(Map<String, Value> context) throws UnknownObjectException {
+        public Value resolve(@Nullable Map<String, Value> context) throws UnknownObjectException {
             if (rep == null)
                 throw new UnknownObjectException(PLACEHOLDER);
             return this;

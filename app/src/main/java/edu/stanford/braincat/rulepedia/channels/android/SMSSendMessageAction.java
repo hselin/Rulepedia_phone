@@ -25,7 +25,7 @@ public class SMSSendMessageAction extends SendMessageAction {
         try {
             SMSContact smsContact = (SMSContact) contact;
             smsManager.sendTextMessage(smsContact.getAddress(), null, message, null, null);
-        } catch(ClassCastException e) {
+        } catch (ClassCastException e) {
             throw new UnknownObjectException(contact.getUrl());
         }
     }

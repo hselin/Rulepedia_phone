@@ -1,5 +1,7 @@
 package edu.stanford.braincat.rulepedia.channels.omdb;
 
+import android.support.annotation.NonNull;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -9,6 +11,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 import edu.stanford.braincat.rulepedia.channels.HTTPUtil;
 import edu.stanford.braincat.rulepedia.channels.RefreshableObject;
@@ -51,8 +54,8 @@ public class OMDBChannel extends Channel implements RefreshableObject {
         return released;
     }
 
-    private static Date parseReleaseDate(String dateString) throws ParseException {
-        DateFormat df = new SimpleDateFormat("dd MMM yyyy");
+    private static Date parseReleaseDate(@NonNull String dateString) throws ParseException {
+        DateFormat df = new SimpleDateFormat("dd MMM yyyy", Locale.US);
         return df.parse(dateString);
     }
 
@@ -65,7 +68,7 @@ public class OMDBChannel extends Channel implements RefreshableObject {
             title = jsonMovie.getString("Title");
             released = parseReleaseDate(jsonMovie.getString("Released")).before(new Date());
             hasData = true;
-        } catch(ParseException|JSONException e) {
+        } catch (ParseException | JSONException e) {
             throw new IOException("Failed to parse web service response", e);
         }
     }

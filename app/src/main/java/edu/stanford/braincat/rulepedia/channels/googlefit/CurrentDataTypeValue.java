@@ -33,7 +33,7 @@ public class CurrentDataTypeValue extends Value {
     }
 
     public static CurrentDataTypeValue fromString(String rep) throws TriggerValueTypeException {
-        switch(rep) {
+        switch (rep) {
             case "weight":
                 return new CurrentDataTypeValue(rep, DataType.TYPE_WEIGHT, Field.FIELD_WEIGHT);
             case "height":

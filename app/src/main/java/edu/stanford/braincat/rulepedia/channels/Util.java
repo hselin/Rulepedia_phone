@@ -50,7 +50,7 @@ public class Util {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-1");
             return md.digest(string.getBytes()).toString();
-        } catch(NoSuchAlgorithmException e) {
+        } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
     }

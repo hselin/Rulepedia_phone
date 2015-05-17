@@ -46,6 +46,7 @@ public class OMDBMovieReleasedTrigger extends PollingTrigger {
         return json;
     }
 
+    @Override
     public Collection<ObjectPool.Object> getPlaceholders() {
         Collection<ObjectPool.Object> result = new HashSet<>();
 
@@ -71,14 +72,14 @@ public class OMDBMovieReleasedTrigger extends PollingTrigger {
 
     @Override
     public void updateContext(Map<String, Value> context) throws RuleExecutionException {
-        context.put(OMDBChannelFactory.MOVIE_TITLE, new Value.Text(((OMDBChannel)channel).getTitle(), true));
+        context.put(OMDBChannelFactory.MOVIE_TITLE, new Value.Text(((OMDBChannel) channel).getTitle(), true));
     }
 
     @Override
     public void update() throws RuleExecutionException {
         try {
             ((OMDBChannel) channel).refresh();
-        } catch(IOException ioe) {
+        } catch (IOException ioe) {
             throw new RuleExecutionException("IO exception while refreshing object", ioe);
         }
     }
@@ -87,7 +88,7 @@ public class OMDBMovieReleasedTrigger extends PollingTrigger {
     public boolean isFiring() throws RuleExecutionException {
         try {
             return ((OMDBChannel) channel).isReleased();
-        } catch(ClassCastException e) {
+        } catch (ClassCastException e) {
             throw new RuleExecutionException(e);
         }
     }

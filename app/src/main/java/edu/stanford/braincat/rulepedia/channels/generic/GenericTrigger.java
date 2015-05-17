@@ -58,8 +58,7 @@ public class GenericTrigger implements Trigger {
         }
     }
 
-
-
+    @Override
     public Channel getChannel() {
         return channel;
     }
@@ -69,6 +68,7 @@ public class GenericTrigger implements Trigger {
         return eventSources.values();
     }
 
+    @Override
     public Collection<ObjectPool.Object> getPlaceholders() {
         Collection<ObjectPool.Object> result = new HashSet<>();
 
@@ -114,7 +114,7 @@ public class GenericTrigger implements Trigger {
             }
 
             eventSourceValues = newEventSourceValues;
-        } catch(IOException e) {
+        } catch (IOException e) {
             throw new RuleExecutionException("IO exception while reading from event source", e);
         }
     }
@@ -129,7 +129,7 @@ public class GenericTrigger implements Trigger {
                     cachedJSParameters, eventSourceValues, jsProducedCtx);
             produced = JSUtil.javascriptToParameters(jsProducedCtx);
             return result;
-        } catch(Exception e) {
+        } catch (Exception e) {
             throw new RuleExecutionException("Exception while evaluating trigger script", e);
         }
     }
@@ -174,8 +174,8 @@ public class GenericTrigger implements Trigger {
     @Override
     public void typeCheck(Map<String, Class<? extends Value>> context) {
         try {
-            ((GenericChannelFactory)getChannel().getFactory()).updateGeneratesType(id, context);
-        } catch(UnknownChannelException e) {
+            ((GenericChannelFactory) getChannel().getFactory()).updateGeneratesType(id, context);
+        } catch (UnknownChannelException e) {
             throw new AssertionError(e);
         }
     }

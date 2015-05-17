@@ -18,7 +18,7 @@ public class ObjectPool<K extends ObjectPool.Object, F extends ObjectPool.Object
     public static final String PREDEFINED_PREFIX = PREFIX + "predefined/";
     public static final String PLACEHOLDER_PREFIX = PREFIX + "placeholder/";
 
-    public abstract static class Object<K extends Object, F extends ObjectFactory<K> > {
+    public abstract static class Object<K extends Object, F extends ObjectFactory<K>> {
         private final F factory;
         private final String url;
 
@@ -65,7 +65,9 @@ public class ObjectPool<K extends ObjectPool.Object, F extends ObjectPool.Object
             this.prefix = prefix;
         }
 
-        public String getPrefix() { return prefix; }
+        public String getPrefix() {
+            return prefix;
+        }
 
         public boolean acceptsURL(String url) {
             return url.startsWith(prefix);
@@ -104,7 +106,7 @@ public class ObjectPool<K extends ObjectPool.Object, F extends ObjectPool.Object
         // verify the url is valid
         try {
             new URL(url);
-        } catch(MalformedURLException mue) {
+        } catch (MalformedURLException mue) {
             throw new UnknownObjectException(url);
         }
 

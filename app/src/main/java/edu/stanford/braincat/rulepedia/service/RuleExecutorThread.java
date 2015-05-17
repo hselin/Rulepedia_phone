@@ -15,7 +15,7 @@ public class RuleExecutorThread extends Thread {
     private RuleExecutor executor;
     private Looper looper;
 
-    public RuleExecutorThread(Context ctx)  {
+    public RuleExecutorThread(Context ctx) {
         context = ctx;
     }
 
@@ -39,7 +39,7 @@ public class RuleExecutorThread extends Thread {
         synchronized (this) {
             try {
                 executor = new RuleExecutor(context, Looper.myLooper());
-            } catch(IOException e) {
+            } catch (IOException e) {
                 Log.e(RuleExecutorService.LOG_TAG, "Failed to initialize rule executor", e);
                 ok = false;
             }
@@ -55,7 +55,7 @@ public class RuleExecutorThread extends Thread {
         executor.destroy();
         try {
             executor.save();
-        } catch(IOException e) {
+        } catch (IOException e) {
             Log.e(RuleExecutorService.LOG_TAG, "Failed to save database to disk", e);
         }
     }

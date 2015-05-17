@@ -10,11 +10,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
-import java.io.IOException;
-
-import edu.stanford.braincat.rulepedia.model.ObjectDatabase;
 import edu.stanford.braincat.rulepedia.model.Rule;
-import edu.stanford.braincat.rulepedia.model.RuleDatabase;
 
 public class RuleExecutorService extends Service {
     private RuleExecutorThread executorThread;
@@ -76,7 +72,7 @@ public class RuleExecutorService extends Service {
             JSONObject jsonObject;
 
             if (intent.getData().toString().equals("rulepedia:json")) {
-                jsonObject = (JSONObject)new JSONTokener(intent.getStringExtra("json")).nextValue();
+                jsonObject = (JSONObject) new JSONTokener(intent.getStringExtra("json")).nextValue();
                 executor.installRule(jsonObject, new Callback<Rule>() {
                     @Override
                     public void run(Rule result, Exception error) {
@@ -87,7 +83,7 @@ public class RuleExecutorService extends Service {
                 // FIXME
                 throw new UnsupportedOperationException();
             }
-        } catch(JSONException e) {
+        } catch (JSONException e) {
             Log.e(LOG_TAG, "Failed to add rule to the database: " + e.getMessage());
             // FIXME
         }

@@ -71,10 +71,10 @@ public class RuleDatabase {
             return new Value.TriggerValue(jsonParam.getString("trigger-value"), valueType);
         } else {
             try {
-                return (Value)valueType.getMethod("fromString", String.class).invoke(null, jsonParam.getString("value"));
-            } catch(IllegalAccessException|NoSuchMethodException|ClassCastException e) {
+                return (Value) valueType.getMethod("fromString", String.class).invoke(null, jsonParam.getString("value"));
+            } catch (IllegalAccessException | NoSuchMethodException | ClassCastException e) {
                 throw new AssertionError(e);
-            } catch(InvocationTargetException e) {
+            } catch (InvocationTargetException e) {
                 throw new TriggerValueTypeException(e);
             }
         }
@@ -204,10 +204,10 @@ public class RuleDatabase {
 
                 for (int i = 0; i < root.length(); i++)
                     loadRule(root.getJSONObject(i), i);
-            } catch (TriggerValueTypeException|NullPointerException|ClassCastException|JSONException e) {
+            } catch (TriggerValueTypeException | NullPointerException | ClassCastException | JSONException e) {
                 throw new IOException("Invalid database format on disk", e);
             }
-        } catch(FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
             // if there is no file, it's all good
         }
     }
@@ -225,7 +225,7 @@ public class RuleDatabase {
                 }
 
                 Util.writeJSON(file, allRules);
-            } catch(JSONException e) {
+            } catch (JSONException e) {
                 throw new IOException("Failed to serialize db to json: " + e.getMessage());
             }
         }

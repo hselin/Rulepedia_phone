@@ -8,7 +8,7 @@ import edu.stanford.braincat.rulepedia.model.Trigger;
 
 /**
  * Created by gcampagn on 4/30/15.
- *
+ * <p>
  * Helper code for triggers that have only one associated event source.
  */
 public abstract class SingleEventTrigger<K extends EventSource> implements Trigger {
@@ -18,7 +18,9 @@ public abstract class SingleEventTrigger<K extends EventSource> implements Trigg
         source = null;
     }
 
-    protected void setSource(K source) { this.source = source; }
+    protected void setSource(K source) {
+        this.source = source;
+    }
 
     protected K getSource() {
         return source;
@@ -26,6 +28,6 @@ public abstract class SingleEventTrigger<K extends EventSource> implements Trigg
 
     @Override
     public Collection<EventSource> getEventSources() {
-        return Arrays.asList(new EventSource[] { source });
+        return Arrays.asList(new EventSource[]{source});
     }
 }
