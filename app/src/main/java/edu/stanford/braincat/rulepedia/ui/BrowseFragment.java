@@ -60,7 +60,7 @@ public class BrowseFragment extends Fragment {
         WebSettings webSettings = mWebView.getSettings();
         webSettings.setJavaScriptEnabled(true);
         mWebView.addJavascriptInterface(new WebAppInterface(), "Android");
-        mWebView.loadUrl("https://vast-hamlet-6003.herokuapp.com/create");
+        mWebView.loadUrl("https://vast-hamlet-6003.herokuapp.com/browse");
 
         return v;
     }
