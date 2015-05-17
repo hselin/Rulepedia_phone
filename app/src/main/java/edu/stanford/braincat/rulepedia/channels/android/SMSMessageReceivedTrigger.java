@@ -64,6 +64,11 @@ public class SMSMessageReceivedTrigger extends SimpleEventTrigger<SMSEventSource
 
     @Override
     public void update() {
+        if (!getSource().checkEvent()) {
+            receivedMessage = null;
+            return;
+        }
+
         receivedMessage = getSource().getLastMessage();
         assert receivedMessage != null;
 

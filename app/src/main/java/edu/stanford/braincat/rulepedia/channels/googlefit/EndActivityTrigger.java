@@ -60,6 +60,11 @@ public class EndActivityTrigger extends SingleEventTrigger<ActivityMonitorEventS
 
     @Override
     public void update() {
+        if (!getSource().checkEvent()) {
+            activity = null;
+            return;
+        }
+
         ActivityMonitorEventSource.Event event = getSource().getLastEvent();
 
         if (event.getType() == ActivityMonitorEventSource.Event.Type.ACTIVITY_END)

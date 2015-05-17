@@ -105,10 +105,12 @@ public class GenericTrigger implements Trigger {
             for (Map.Entry<String, EventSource> e : eventSources.entrySet()) {
                 EventSource source = e.getValue();
 
-                if (source instanceof WebPollingEventSource)
-                    ScriptableObject.putProperty(newEventSourceValues, e.getKey(), Util.readString(((WebPollingEventSource) source).getLastConnection()));
-                else
-                    ScriptableObject.putProperty(newEventSourceValues, e.getKey(), source.checkEvent());
+                if (source.checkEvent()) {
+                    if (source instanceof WebPollingEventSource)
+                        ScriptableObject.putProperty(newEventSourceValues, e.getKey(), Util.readString(((WebPollingEventSource) source).getLastConnection()));
+                    else
+                        ScriptableObject.putProperty(newEventSourceValues, e.getKey(), source.checkEvent());
+                }
             }
 
             eventSourceValues = newEventSourceValues;
