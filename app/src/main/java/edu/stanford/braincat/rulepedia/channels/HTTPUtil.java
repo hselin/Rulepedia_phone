@@ -1,6 +1,5 @@
 package edu.stanford.braincat.rulepedia.channels;
 
-import org.json.JSONException;
 import org.json.JSONTokener;
 
 import java.io.IOException;
@@ -24,7 +23,7 @@ public class HTTPUtil {
         }
     }
 
-    public static JSONTokener getJSON(String stringUrl) throws IOException, JSONException {
+    public static JSONTokener getJSON(String stringUrl) throws IOException {
         return new JSONTokener(getString(stringUrl));
     }
 }

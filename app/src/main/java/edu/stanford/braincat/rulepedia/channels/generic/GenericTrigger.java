@@ -38,7 +38,7 @@ public class GenericTrigger implements Trigger {
     private final String scriptBody;
     private Function script;
     private Scriptable thisArg;
-    private Map<String, Value> parameters;
+    private final Map<String, Value> parameters;
     private NativeObject cachedJSParameters;
     private NativeObject eventSourceValues;
     private Map<String, Value> produced;

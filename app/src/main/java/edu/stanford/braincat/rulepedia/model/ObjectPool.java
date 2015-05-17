@@ -47,6 +47,7 @@ public class ObjectPool<K extends ObjectPool.Object, F extends ObjectPool.Object
                 return false;
             if (object == this)
                 return true;
+            //noinspection SimplifiableIfStatement
             if (!(object instanceof Channel))
                 return false;
             return url.equals(((Channel) object).getUrl());

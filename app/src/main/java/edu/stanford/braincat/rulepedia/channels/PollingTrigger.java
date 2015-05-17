@@ -13,7 +13,7 @@ import edu.stanford.braincat.rulepedia.events.TimeoutEventSource;
 public abstract class PollingTrigger extends SingleEventTrigger<TimeoutEventSource> {
     public static final long ONE_DAY = 24 * 3600 * 1000;
 
-    public PollingTrigger(long interval) {
-        setSource(new TimeoutEventSource(interval, true));
+    protected PollingTrigger(long interval) {
+        setSource(new TimeoutEventSource(interval));
     }
 }

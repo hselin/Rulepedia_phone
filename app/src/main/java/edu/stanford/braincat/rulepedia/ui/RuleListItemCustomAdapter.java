@@ -19,7 +19,7 @@ import edu.stanford.braincat.rulepedia.service.Callback;
 import edu.stanford.braincat.rulepedia.service.RuleExecutor;
 
 public class RuleListItemCustomAdapter extends BaseAdapter implements ListAdapter {
-    private ArrayList<Rule> list = new ArrayList<Rule>();
+    private ArrayList<Rule> list = new ArrayList<>();
     private Activity activity;
     private Context context;
 

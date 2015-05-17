@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 
@@ -48,7 +49,7 @@ public class GoogleFitAuthActivity extends FragmentActivity
     }
 
     // Request code to use when launching the resolution activity
-    public static final int REQUEST_RESOLVE_ERROR = 1001;
+    private static final int REQUEST_RESOLVE_ERROR = 1001;
     // Unique tag for the error dialog fragment
     private static final String DIALOG_ERROR = "dialog_error";
     // Bool to track whether the app is already resolving an error
@@ -97,7 +98,7 @@ public class GoogleFitAuthActivity extends FragmentActivity
     /* A fragment to display an error dialog */
     public static class ErrorDialogFragment extends DialogFragment {
         @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
+        public Dialog onCreateDialog(@NonNull Bundle savedInstanceState) {
             // Get the error code and retrieve the appropriate dialog
             int errorCode = this.getArguments().getInt(DIALOG_ERROR);
             return GooglePlayServicesUtil.getErrorDialog(errorCode,

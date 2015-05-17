@@ -10,7 +10,7 @@ import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
  * Created by gcampagn on 4/30/15.
  */
 public abstract class ChannelFactory extends ObjectPool.ObjectFactory<Channel> {
-    public ChannelFactory(String prefix) {
+    protected ChannelFactory(String prefix) {
         super(prefix);
     }
 

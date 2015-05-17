@@ -110,12 +110,14 @@ public class RuleExecutorService extends Service {
         }
     }
 
+    @SuppressWarnings("SameReturnValue")
     private int onInstallRule(Intent intent) {
         ensureService();
         doInstallRule(intent);
         return START_STICKY;
     }
 
+    @SuppressWarnings("SameReturnValue")
     private int onStartService() {
         ensureService();
 

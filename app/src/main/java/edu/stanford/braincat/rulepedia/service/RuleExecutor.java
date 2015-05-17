@@ -15,6 +15,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import edu.stanford.braincat.rulepedia.BuildConfig;
 import edu.stanford.braincat.rulepedia.events.EventSource;
 import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
 import edu.stanford.braincat.rulepedia.exceptions.TriggerValueTypeException;
@@ -134,7 +135,8 @@ public class RuleExecutor extends Handler {
                 // continue on failure, we'll try again later
             }
 
-            assert !rule.isInstalled();
+            if (BuildConfig.DEBUG && !rule.isInstalled())
+                throw new AssertionError();
             if (rule.isEnabled())
                 doEnableRule(rule);
             callback.post(rule, null);
@@ -156,7 +158,7 @@ public class RuleExecutor extends Handler {
         if (rule == null) {
             // perfectly legitimate, possible race condition
             Log.i(RuleExecutorService.LOG_TAG, "No rule with id " + id);
-            callback.post(rule, null);
+            callback.post(null, null);
             return;
         }
 

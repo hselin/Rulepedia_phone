@@ -32,7 +32,7 @@ import edu.stanford.braincat.rulepedia.model.Value;
  * Created by gcampagn on 5/13/15.
  */
 public class FetchCurrentDataAction implements Action {
-    public static final String FITNESS_CURRENT_VALUE_PREFIX = "fitness-current-value-";
+    private static final String FITNESS_CURRENT_VALUE_PREFIX = "fitness-current-value-";
 
     private volatile Channel channel;
     private final CurrentDataTypeValue dataType;

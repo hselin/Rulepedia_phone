@@ -1,7 +1,6 @@
 package edu.stanford.braincat.rulepedia.channels;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONTokener;
 
 import java.io.BufferedReader;
@@ -36,7 +35,7 @@ public class Util {
         return builder.toString();
     }
 
-    public static JSONTokener readJSON(InputStream input) throws IOException, JSONException {
+    public static JSONTokener readJSON(InputStream input) throws IOException {
         return new JSONTokener(readString(input));
     }
 
@@ -49,7 +48,7 @@ public class Util {
     public static String toSHA1(String string) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-1");
-            return md.digest(string.getBytes()).toString();
+            return new String(md.digest(string.getBytes()));
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }

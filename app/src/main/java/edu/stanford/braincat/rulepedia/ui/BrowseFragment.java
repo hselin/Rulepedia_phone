@@ -1,5 +1,6 @@
 package edu.stanford.braincat.rulepedia.ui;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -27,16 +28,7 @@ import edu.stanford.braincat.rulepedia.service.Callback;
 import edu.stanford.braincat.rulepedia.service.RuleExecutor;
 
 public class BrowseFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
     public static final String LOG_TAG = "rulepedia.UI.Install";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
 
     private WebView mWebView;
 
@@ -44,17 +36,12 @@ public class BrowseFragment extends Fragment {
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
      * @return A new instance of fragment BrowseFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static BrowseFragment newInstance(String param1, String param2) {
+    public static BrowseFragment newInstance() {
         BrowseFragment fragment = new BrowseFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
+        fragment.setArguments(new Bundle());
         return fragment;
     }
 
@@ -62,15 +49,7 @@ public class BrowseFragment extends Fragment {
         // Required empty public constructor
     }
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-    }
-
+    @SuppressLint("SetJavaScriptEnabled")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -86,7 +65,7 @@ public class BrowseFragment extends Fragment {
         return v;
     }
 
-    private void reportInstallationSuccess(Rule rule) {
+    private void reportInstallationSuccess() {
         mWebView.evaluateJavascript("Rulepedia.Android.installationSuccess();", new ValueCallback<String>() {
             @Override
             public void onReceiveValue(String s) {
@@ -128,7 +107,7 @@ public class BrowseFragment extends Fragment {
                     getActivity().runOnUiThread(new Runnable() {
                         public void run() {
                             if (result != null) {
-                                reportInstallationSuccess(result);
+                                reportInstallationSuccess();
 
                                 /*
                                 Collection<ObjectPool.Object> placeholders =  result.getPlaceholders();

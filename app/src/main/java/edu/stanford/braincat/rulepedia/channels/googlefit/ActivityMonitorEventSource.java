@@ -20,7 +20,7 @@ import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
  * Created by gcampagn on 5/13/15.
  */
 public class ActivityMonitorEventSource implements EventSource {
-    public static final String INTENT = "edu.stanford.braincat.rulepedia.channels.googlefit.ACTIVITY";
+    private static final String INTENT = "edu.stanford.braincat.rulepedia.channels.googlefit.ACTIVITY";
 
     public static class Event {
         public enum Type {

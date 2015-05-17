@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
+import edu.stanford.braincat.rulepedia.BuildConfig;
 import edu.stanford.braincat.rulepedia.events.EventSource;
 import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
 import edu.stanford.braincat.rulepedia.exceptions.TriggerValueTypeException;
@@ -44,7 +45,7 @@ public class Rule {
 
         this.name = name;
         this.trigger = trigger;
-        this.actions = new ArrayList<Action>();
+        this.actions = new ArrayList<>();
         this.actions.addAll(actions);
         this.enabled = false;
         this.description = description;
@@ -57,7 +58,8 @@ public class Rule {
     }
 
     public boolean isInstalled() {
-        assert Thread.currentThread() instanceof RuleExecutorThread;
+        if (BuildConfig.DEBUG && !(Thread.currentThread() instanceof RuleExecutorThread))
+            throw new AssertionError();
         return installed;
     }
 
@@ -66,7 +68,8 @@ public class Rule {
     }
 
     public void setInstalled(boolean installed) {
-        assert Thread.currentThread() instanceof RuleExecutorThread;
+        if (BuildConfig.DEBUG && !(Thread.currentThread() instanceof RuleExecutorThread))
+            throw new AssertionError();
         this.installed = installed;
     }
 

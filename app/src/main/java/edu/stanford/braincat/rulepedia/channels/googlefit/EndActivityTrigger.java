@@ -105,6 +105,6 @@ public class EndActivityTrigger extends SingleEventTrigger<ActivityMonitorEventS
         context.put(ACTIVITY_DESCRIPTION, new Value.Text(activity.getDescription(), true));
         context.put(ACTIVITY_DURATION,
                 new Value.Number(activity.getEndTime(TimeUnit.MILLISECONDS) - activity.getStartTime(TimeUnit.MILLISECONDS)));
-        context.put(ACTIVITY_END_TIME, new Value.Text(new Date().toLocaleString(), true));
+        context.put(ACTIVITY_END_TIME, new Value.Text(new Date(activity.getEndTime(TimeUnit.MILLISECONDS)).toLocaleString(), true));
     }
 }

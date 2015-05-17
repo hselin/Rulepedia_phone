@@ -36,7 +36,7 @@ import edu.stanford.braincat.rulepedia.service.RuleExecutorService;
  * Created by gcampagn on 5/13/15.
  */
 public class FetchHistoryDataAction implements Action {
-    public static final String FITNESS_STATISTICS_PREFIX = "fitness-statistics-";
+    private static final String FITNESS_STATISTICS_PREFIX = "fitness-statistics-";
 
     private volatile Channel channel;
     private final HistoryDataTypeValue dataType;

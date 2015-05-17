@@ -16,7 +16,7 @@ public class ContactPool extends ObjectPool<Contact, ContactFactory> {
         return instance;
     }
 
-    public ContactPool() {
+    private ContactPool() {
         super(KIND);
 
         registerFactory(new SMSContactFactory());

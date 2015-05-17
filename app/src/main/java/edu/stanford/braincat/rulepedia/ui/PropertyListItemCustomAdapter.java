@@ -17,7 +17,7 @@ import edu.stanford.braincat.rulepedia.model.ObjectDatabase;
 import edu.stanford.braincat.rulepedia.model.Property;
 
 public class PropertyListItemCustomAdapter extends BaseAdapter implements ListAdapter {
-    private ArrayList<Property> list = new ArrayList<Property>();
+    private ArrayList<Property> list = new ArrayList<>();
     private Activity activity;
     private Context context;
 

@@ -34,7 +34,7 @@ public class ChannelPool extends ObjectPool<Channel, ChannelFactory> {
         return instance;
     }
 
-    public ChannelPool() {
+    private ChannelPool() {
         super(KIND);
 
         //registerFactory(new TimerFactory());

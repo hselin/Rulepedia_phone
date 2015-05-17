@@ -27,7 +27,7 @@ public abstract class SendMessageAction implements Action {
     private final Value destination;
     private final Value message;
 
-    public SendMessageAction(Channel channel, Value destination, Value message) {
+    protected SendMessageAction(Channel channel, Value destination, Value message) {
         this.channel = channel;
         this.destination = destination;
         this.message = message;

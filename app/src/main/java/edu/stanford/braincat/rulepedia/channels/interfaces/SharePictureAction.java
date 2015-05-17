@@ -27,7 +27,7 @@ public abstract class SharePictureAction implements Action {
     private final Value destination;
     private final Value message;
 
-    public SharePictureAction(Channel channel, Value destination, Value message) {
+    protected SharePictureAction(Channel channel, Value destination, Value message) {
         this.channel = channel;
         this.destination = destination;
         this.message = message;

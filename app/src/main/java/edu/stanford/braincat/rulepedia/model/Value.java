@@ -48,7 +48,7 @@ public abstract class Value {
         private final String name;
         private final Class<? extends Value> type;
 
-        public TriggerValue(String name, Class<? extends Value> type) throws TriggerValueTypeException {
+        public TriggerValue(String name, Class<? extends Value> type) {
             this.name = name;
             this.type = type;
         }

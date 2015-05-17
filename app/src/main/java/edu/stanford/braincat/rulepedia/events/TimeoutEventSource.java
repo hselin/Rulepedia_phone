@@ -12,10 +12,6 @@ public class TimeoutEventSource implements EventSource, Runnable {
     private boolean triggered;
 
     public TimeoutEventSource(long timeout) {
-        this(timeout, false);
-    }
-
-    public TimeoutEventSource(long timeout, boolean repeat) {
         if (timeout <= 0)
             throw new IllegalArgumentException("timeout must be positive");
 
