@@ -83,7 +83,7 @@ public class RuleListItemCustomAdapter extends BaseAdapter implements ListAdapte
                     executor.deleteRule(ruleID, new Callback<Boolean>() {
                         @Override
                         public void run(Boolean success, Exception error) {
-                            if(success) {
+                            if(success != null) {
                                 list.remove(position); //or some other task
                                 notifyDataSetChanged();
                             }
