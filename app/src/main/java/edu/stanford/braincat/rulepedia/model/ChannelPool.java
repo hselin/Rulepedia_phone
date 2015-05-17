@@ -37,10 +37,8 @@ public class ChannelPool extends ObjectPool<Channel, ChannelFactory> {
     private ChannelPool() {
         super(KIND);
 
-        //registerFactory(new TimerFactory());
         registerFactory(new SMSChannelFactory());
         registerFactory(new NotificationManagerChannelFactory());
-        //registerFactory(new OMDBChannelFactory());
         registerFactory(new GoogleFitChannelFactory());
         registerFactory(new OmletChannelFactory());
 

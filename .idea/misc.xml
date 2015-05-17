@@ -4,6 +4,13 @@
     <entry_points version="2.0">
       <entry_point TYPE="method" FQNAME="edu.stanford.braincat.rulepedia.ui.BrowseFragment.WebAppInterface void installRule(java.lang.String ruleJSON)" />
       <entry_point TYPE="method" FQNAME="edu.stanford.braincat.rulepedia.channels.googlefit.CurrentDataTypeValue edu.stanford.braincat.rulepedia.channels.googlefit.CurrentDataTypeValue fromString(java.lang.String rep)" />
+      <entry_point TYPE="method" FQNAME="edu.stanford.braincat.rulepedia.ui.GoogleFitAuthActivity void onDialogDismissed()" />
+      <entry_point TYPE="method" FQNAME="edu.stanford.braincat.rulepedia.model.Value.Contact edu.stanford.braincat.rulepedia.model.Value.Contact fromString(java.lang.String string)" />
+      <entry_point TYPE="method" FQNAME="edu.stanford.braincat.rulepedia.model.Value.Text edu.stanford.braincat.rulepedia.model.Value.Text fromString(java.lang.String string)" />
+      <entry_point TYPE="method" FQNAME="edu.stanford.braincat.rulepedia.model.Value.Select edu.stanford.braincat.rulepedia.model.Value.Select fromString(java.lang.String string)" />
+      <entry_point TYPE="method" FQNAME="edu.stanford.braincat.rulepedia.model.Value.Number edu.stanford.braincat.rulepedia.model.Value.Number fromString(java.lang.String string)" />
+      <entry_point TYPE="method" FQNAME="edu.stanford.braincat.rulepedia.model.Value.Picture edu.stanford.braincat.rulepedia.model.Value.Picture fromString(java.lang.String string)" />
+      <entry_point TYPE="method" FQNAME="edu.stanford.braincat.rulepedia.channels.googlefit.HistoryDataTypeValue edu.stanford.braincat.rulepedia.channels.googlefit.HistoryDataTypeValue fromString(java.lang.String rep)" />
     </entry_points>
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="false">

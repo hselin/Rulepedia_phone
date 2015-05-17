@@ -19,7 +19,6 @@ import com.google.android.gms.common.api.Scope;
  */
 public class GoogleFitAuthActivity extends FragmentActivity
         implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
-    private static final int REQUEST_OAUTH = 1001;
     private GoogleApiClient mGoogleApiClient;
 
     @Override
@@ -110,7 +109,7 @@ public class GoogleFitAuthActivity extends FragmentActivity
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == GoogleFitAuthActivity.REQUEST_RESOLVE_ERROR) {
+        if (requestCode == REQUEST_RESOLVE_ERROR) {
             mResolvingError = false;
             if (resultCode == RESULT_OK) {
                 // Make sure the app is not already connected or attempting to connect
