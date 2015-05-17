@@ -135,7 +135,7 @@ public class RuleExecutor extends Handler {
                 // continue on failure, we'll try again later
             }
 
-            if (BuildConfig.DEBUG && !rule.isInstalled())
+            if (BuildConfig.DEBUG && rule.isInstalled())
                 throw new AssertionError();
             if (rule.isEnabled())
                 doEnableRule(rule);
