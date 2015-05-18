@@ -39,10 +39,14 @@ public class Util {
         return new JSONTokener(readString(input));
     }
 
-    public static void writeJSON(OutputStream output, JSONArray array) throws IOException {
+    public static void writeString(OutputStream output, String data) throws IOException {
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(output));
-        writer.write(array.toString());
+        writer.write(data);
         writer.flush();
+    }
+
+    public static void writeJSON(OutputStream output, JSONArray array) throws IOException {
+        writeString(output, array.toString());
     }
 
     public static String toSHA1(String string) {

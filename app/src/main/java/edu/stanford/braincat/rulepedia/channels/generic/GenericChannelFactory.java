@@ -6,15 +6,19 @@ import android.util.ArrayMap;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.mozilla.javascript.ScriptableObject;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import edu.stanford.braincat.rulepedia.channels.HTTPUtil;
 import edu.stanford.braincat.rulepedia.events.EventSource;
 import edu.stanford.braincat.rulepedia.events.TimeoutEventSource;
+import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
 import edu.stanford.braincat.rulepedia.exceptions.TriggerValueTypeException;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownChannelException;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
@@ -151,6 +155,34 @@ public class GenericChannelFactory extends ChannelFactory {
         }
     }
 
+    private void typeCheckParametersFor(JSONArray jsonParams,  Map<String, Value> params, Map<String, Class<? extends Value>> context)
+            throws JSONException, TriggerValueTypeException {
+        for (Map.Entry<String, Value> e : params.entrySet()) {
+            e.getValue().typeCheck(context, findParamType(jsonParams, e.getKey()));
+        }
+    }
+
+    public void typeCheckParameters(String method, Map<String, Value> params, Map<String, Class<? extends Value>> context) throws UnknownChannelException, TriggerValueTypeException {
+        try {
+            JSONObject jsonTrigger = triggerMetas.get(method);
+            if (jsonTrigger != null) {
+                typeCheckParametersFor(jsonTrigger.getJSONArray("params"), params, context);
+                return;
+            }
+
+            JSONObject jsonAction = actionMetas.get(method);
+            if (jsonAction != null) {
+                typeCheckParametersFor(jsonAction.getJSONArray("params"), params, context);
+                return;
+            }
+
+            throw new UnknownChannelException(method);
+        } catch (JSONException e) {
+            throw new UnknownChannelException(method);
+        }
+
+    }
+
     private static Class<? extends Value> findParamType(JSONArray jsonParams, String name) throws JSONException, TriggerValueTypeException {
         for (int i = 0; i < jsonParams.length(); i++) {
             JSONObject paramspec = jsonParams.getJSONObject(i);
@@ -210,7 +242,17 @@ public class GenericChannelFactory extends ChannelFactory {
 
     @Override
     public Action createAction(Channel channel, String method, Map<String, Value> params) throws UnknownObjectException, UnknownChannelException, TriggerValueTypeException {
-        throw new UnknownChannelException(method);
+        JSONObject actionMeta = actionMetas.get(method);
+
+        if (actionMeta == null)
+            throw new UnknownChannelException(method);
+
+        try {
+            return new GenericAction(channel, actionMeta.getString("id"), actionMeta.getString("text"),
+                    actionMeta.getString("script"), params);
+        } catch (JSONException e) {
+            throw new UnknownChannelException(method);
+        }
     }
 
     public Collection<String> getEventSourceNames() {
@@ -246,5 +288,43 @@ public class GenericChannelFactory extends ChannelFactory {
             throw new JSONException("no event source with id " + id);
 
         return createEventSource(channel, eventSourceMeta, null);
+    }
+
+    private RuleRunnable parseHTTPActionResult(ScriptableObject result) {
+        final String method;
+        if (ScriptableObject.hasProperty(result, "method"))
+            method = ScriptableObject.getProperty(result, "method").toString().toLowerCase();
+        else
+            method = "get";
+
+        final String url = ScriptableObject.getProperty(result, "url").toString();
+        final String data;
+        if (ScriptableObject.hasProperty(result, "data"))
+            data = ScriptableObject.getProperty(result, "data").toString();
+        else
+            data = null;
+
+        return new RuleRunnable() {
+            @Override
+            public void run() throws RuleExecutionException {
+                try {
+                    if (method.equals("post"))
+                        HTTPUtil.postString(url, data);
+                    else
+                        HTTPUtil.getString(url);
+                } catch(IOException e) {
+                    throw new RuleExecutionException("Failed to execute HTTP action", e);
+                }
+            }
+        };
+    }
+
+    public RuleRunnable parseActionResult(ScriptableObject result) throws RuleExecutionException {
+        switch (ScriptableObject.getProperty(result, "type").toString()) {
+            case "http":
+                return parseHTTPActionResult(result);
+            default:
+                throw new RuleExecutionException("Action code returned invalid result");
+        }
     }
 }

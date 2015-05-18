@@ -34,7 +34,7 @@ public class GenericTrigger implements Trigger {
     private final String id;
     private final String text;
     private final Map<String, EventSource> eventSources;
-    private Channel channel;
+    private volatile Channel channel;
     private final String scriptBody;
     private Function script;
     private Scriptable thisArg;
