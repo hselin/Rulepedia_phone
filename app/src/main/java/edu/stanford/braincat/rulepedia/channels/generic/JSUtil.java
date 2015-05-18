@@ -6,6 +6,7 @@ import android.util.ArrayMap;
 import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.ScriptableObject;
 
+import java.io.Serializable;
 import java.util.Map;
 
 import edu.stanford.braincat.rulepedia.model.Value;
@@ -59,6 +60,20 @@ public class JSUtil {
         } else {
             // what else?
             return value.toString();
+        }
+    }
+
+    public static void parseExtras(Map<String, Serializable> parsed, ScriptableObject extras) {
+        for (Object id : ScriptableObject.getPropertyIds(extras)) {
+            Object value = ScriptableObject.getProperty(extras, id.toString());
+            Serializable serializable;
+            if (value == null)
+                continue;
+            if (value instanceof String || value instanceof Boolean || value instanceof Number)
+                serializable = (Serializable) value;
+            else
+                serializable = value.toString();
+            parsed.put(id.toString(), serializable);
         }
     }
 }

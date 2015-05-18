@@ -1,5 +1,7 @@
 package edu.stanford.braincat.rulepedia.channels.generic;
 
+import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.Nullable;
 import android.util.ArrayMap;
 
@@ -9,6 +11,7 @@ import org.json.JSONObject;
 import org.mozilla.javascript.ScriptableObject;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -306,7 +309,7 @@ public class GenericChannelFactory extends ChannelFactory {
 
         return new RuleRunnable() {
             @Override
-            public void run() throws RuleExecutionException {
+            public void run(Context ctx) throws RuleExecutionException {
                 try {
                     if (method.equals("post"))
                         HTTPUtil.postString(url, data);
@@ -315,6 +318,47 @@ public class GenericChannelFactory extends ChannelFactory {
                 } catch(IOException e) {
                     throw new RuleExecutionException("Failed to execute HTTP action", e);
                 }
+            }
+        };
+    }
+
+    private RuleRunnable parseIntentActionResult(ScriptableObject result) {
+        final String action = (String) ScriptableObject.getProperty(result, "action");
+        final String category;
+        if (ScriptableObject.hasProperty(result, "category"))
+            category = (String) ScriptableObject.getProperty(result, "category");
+        else
+            category = null;
+        final String pkg;
+        if (ScriptableObject.hasProperty(result, "package"))
+            pkg = (String) ScriptableObject.getProperty(result, "package");
+        else
+            pkg = null;
+        final boolean activity;
+        if (ScriptableObject.hasProperty(result, "activity"))
+            activity = (Boolean) ScriptableObject.getProperty(result, "activity");
+        else
+            activity = false;
+        final Map<String, Serializable> extras = new ArrayMap<>();
+        if (ScriptableObject.hasProperty(result, "extras"))
+            JSUtil.parseExtras(extras, (ScriptableObject) ScriptableObject.getProperty(result, "extras"));
+
+        return new RuleRunnable() {
+            @Override
+            public void run(Context ctx) throws RuleExecutionException {
+                Intent intent = new Intent(action);
+                if (category != null)
+                    intent.addCategory(category);
+                if (pkg != null)
+                    intent.setPackage(pkg);
+                for (Map.Entry<String, Serializable> e : extras.entrySet()) {
+                    intent.putExtra(e.getKey(), e.getValue());
+                }
+
+                if (activity)
+                    ctx.startActivity(intent);
+                else
+                    ctx.startService(intent);
             }
         };
     }
