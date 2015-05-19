@@ -18,6 +18,7 @@ import java.util.Map;
 
 import edu.stanford.braincat.rulepedia.channels.Util;
 import edu.stanford.braincat.rulepedia.events.EventSource;
+import edu.stanford.braincat.rulepedia.events.IntentEventSource;
 import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
 import edu.stanford.braincat.rulepedia.exceptions.TriggerValueTypeException;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownChannelException;
@@ -107,6 +108,8 @@ public class GenericTrigger implements Trigger {
 
                 if (source instanceof WebPollingEventSource)
                     ScriptableObject.putProperty(newEventSourceValues, e.getKey(), Util.readString(((WebPollingEventSource) source).getLastConnection()));
+                else if (source instanceof IntentEventSource)
+                    ScriptableObject.putProperty(newEventSourceValues, e.getKey(), JSUtil.intentToJavascript(((IntentEventSource) source).getLastIntent()));
                 else
                     ScriptableObject.putProperty(newEventSourceValues, e.getKey(), source.checkEvent());
             }

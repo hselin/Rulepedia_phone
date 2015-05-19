@@ -1,8 +1,11 @@
 package edu.stanford.braincat.rulepedia.channels.generic;
 
+import android.content.Intent;
+import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.ArrayMap;
 
+import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.ScriptableObject;
 
@@ -63,17 +66,57 @@ public class JSUtil {
         }
     }
 
-    public static void parseExtras(Map<String, Serializable> parsed, ScriptableObject extras) {
-        for (Object id : ScriptableObject.getPropertyIds(extras)) {
-            Object value = ScriptableObject.getProperty(extras, id.toString());
-            Serializable serializable;
-            if (value == null)
-                continue;
-            if (value instanceof String || value instanceof Boolean || value instanceof Number)
-                serializable = (Serializable) value;
-            else
-                serializable = value.toString();
-            parsed.put(id.toString(), serializable);
+    public static Intent javascriptToIntent(ScriptableObject object) {
+        Intent intent = new Intent((String) ScriptableObject.getProperty(object, "action"));
+
+        if (ScriptableObject.hasProperty(object, "categories")) {
+            for (String cat : (String[]) ScriptableObject.getProperty(object, "categories"))
+                intent.addCategory(cat);
         }
+
+        if (ScriptableObject.hasProperty(object, "package"))
+            intent.setPackage((String) ScriptableObject.getProperty(object, "package"));
+
+        if (ScriptableObject.hasProperty(object, "extras")) {
+            ScriptableObject extras = (ScriptableObject) ScriptableObject.getProperty(object, "extras");
+            for (Object id : ScriptableObject.getPropertyIds(extras)) {
+                Object value = ScriptableObject.getProperty(extras, id.toString());
+
+                if (value == null)
+                    continue;
+                if (value instanceof Boolean)
+                    intent.putExtra(id.toString(), ((Boolean) value).booleanValue());
+                else if (value instanceof String)
+                    intent.putExtra(id.toString(), (String) value);
+                else if (value instanceof Integer)
+                    intent.putExtra(id.toString(), ((Integer) value).intValue());
+                else if (value instanceof Double)
+                    intent.putExtra(id.toString(), ((Double) value).doubleValue());
+                else if (value instanceof Serializable)
+                    intent.putExtra(id.toString(), (Serializable) value);
+                else
+                    intent.putExtra(id.toString(), value.toString());
+            }
+        }
+
+        return intent;
+    }
+
+    public static ScriptableObject intentToJavascript(Intent intent) {
+        ScriptableObject object = new NativeObject();
+
+        ScriptableObject.putProperty(object, "action", intent.getAction());
+        ScriptableObject.putProperty(object, "categories", new NativeArray(intent.getCategories().toArray()));
+
+        ScriptableObject jsExtras = new NativeObject();
+        ScriptableObject.putProperty(object, "extras", jsExtras);
+
+        Bundle extras = intent.getExtras();
+        if (extras != null) {
+            for (String key : extras.keySet())
+                ScriptableObject.putProperty(jsExtras, key, extras.get(key));
+        }
+
+        return object;
     }
 }

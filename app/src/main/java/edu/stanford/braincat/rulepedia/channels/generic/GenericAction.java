@@ -119,7 +119,7 @@ public class GenericAction implements Action {
             throw new RuleExecutionException("Exception while evaluating action script", e);
         }
 
-        ((GenericChannelFactory) getChannel().getFactory()).parseActionResult(result).run(ctx);
+        GenericChannelFactory.parseActionResult(result).run(ctx);
     }
 
     @Override

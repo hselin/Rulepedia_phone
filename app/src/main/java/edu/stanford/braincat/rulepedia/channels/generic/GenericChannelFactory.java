@@ -2,6 +2,7 @@ package edu.stanford.braincat.rulepedia.channels.generic;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.support.annotation.Nullable;
 import android.util.ArrayMap;
 
@@ -11,7 +12,6 @@ import org.json.JSONObject;
 import org.mozilla.javascript.ScriptableObject;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -20,6 +20,7 @@ import java.util.regex.Pattern;
 
 import edu.stanford.braincat.rulepedia.channels.HTTPUtil;
 import edu.stanford.braincat.rulepedia.events.EventSource;
+import edu.stanford.braincat.rulepedia.events.IntentEventSource;
 import edu.stanford.braincat.rulepedia.events.TimeoutEventSource;
 import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
 import edu.stanford.braincat.rulepedia.exceptions.TriggerValueTypeException;
@@ -130,7 +131,7 @@ public class GenericChannelFactory extends ChannelFactory {
         }
     }
 
-    private void updateGeneratesTypeFor(JSONArray generates, Map<String, Class<? extends Value>> context) throws JSONException, TriggerValueTypeException {
+    private static void updateGeneratesTypeFor(JSONArray generates, Map<String, Class<? extends Value>> context) throws JSONException, TriggerValueTypeException {
         for (int i = 0; i < generates.length(); i++) {
             JSONObject generatespec = generates.getJSONObject(i);
             String paramtype = generatespec.getString("type");
@@ -158,7 +159,7 @@ public class GenericChannelFactory extends ChannelFactory {
         }
     }
 
-    private void typeCheckParametersFor(JSONArray jsonParams,  Map<String, Value> params, Map<String, Class<? extends Value>> context)
+    private static void typeCheckParametersFor(JSONArray jsonParams,  Map<String, Value> params, Map<String, Class<? extends Value>> context)
             throws JSONException, TriggerValueTypeException {
         for (Map.Entry<String, Value> e : params.entrySet()) {
             e.getValue().typeCheck(context, findParamType(jsonParams, e.getKey()));
@@ -262,22 +263,57 @@ public class GenericChannelFactory extends ChannelFactory {
         return eventSourceMetas.keySet();
     }
 
-    private Number parseNumberOrParam(Object object, @Nullable Map<String, Value> params) throws JSONException, TriggerValueTypeException, UnknownObjectException {
+    private static Number parseNumber(Object object, @Nullable Map<String, Value> params) throws JSONException, TriggerValueTypeException, UnknownObjectException {
         if (object instanceof Number)
             return (Number) object;
-        else if (object instanceof String && params != null)
-            return ((Value.Number) params.get(object).resolve(null)).getNumber();
-        else
+        else if (object instanceof String && params != null) {
+            if (((String)object).startsWith("{{"))
+                return ((Value.Number) params.get(((String) object).substring(2, ((String) object).length()-2)).resolve(null)).getNumber();
+            else
+                return ((Value.Number) params.get(object).resolve(null)).getNumber();
+        } else
             throw new JSONException("invalid number value");
     }
 
-    private EventSource createEventSource(Channel channel, JSONObject eventSourceMeta, @Nullable Map<String, Value> params) throws
+    private static String parseText(String str, String url, @Nullable Map<String, Value> params) throws TriggerValueTypeException, UnknownObjectException {
+        String replace = "{{url}}";
+        if (str.contains(replace))
+            str = str.replace(replace, url);
+
+        if (params == null)
+            return str;
+
+        for (Map.Entry<String, Value> e : params.entrySet()) {
+            replace = "{{" + e.getKey() + "}}";
+            if (str.contains(replace))
+                str = str.replace(replace, e.getValue().resolve(null).toString());
+        }
+
+        return str;
+    }
+
+    private static EventSource createEventSource(Channel channel, JSONObject eventSourceMeta, @Nullable Map<String, Value> params) throws
             MalformedURLException, JSONException, TriggerValueTypeException, UnknownObjectException {
         switch (eventSourceMeta.getString("type")) {
             case "polling":
-                return new TimeoutEventSource(parseNumberOrParam(eventSourceMeta.get("polling-interval"), params).longValue());
-            case "polling-http":
-                return new WebPollingEventSource(channel.getUrl(), parseNumberOrParam(eventSourceMeta.get("polling-interval"), params).longValue());
+                return new TimeoutEventSource(parseNumber(eventSourceMeta.get("polling-interval"), params).longValue());
+            case "polling-http": {
+                String url;
+                if (eventSourceMeta.has("url"))
+                    url = parseText(eventSourceMeta.getString("url"), channel.getUrl(), params);
+                else
+                    url = channel.getUrl();
+                return new WebPollingEventSource(url, parseNumber(eventSourceMeta.get("polling-interval"), params).longValue());
+            }
+            case "broadcast-receiver":
+                IntentFilter filter = new IntentFilter(parseText(eventSourceMeta.getString("intent-action"), channel.getUrl(), params));
+                if (eventSourceMeta.has("intent-category"))
+                    filter.addCategory(parseText(eventSourceMeta.getString("intent-category"), channel.getUrl(), params));
+                return new IntentEventSource(filter);
+            case "sse":
+                throw new UnsupportedOperationException("Server Sent Events are not yet implemented");
+            case "omlet":
+                throw new UnsupportedOperationException("Omlet based event sources are not yet implemented");
             default:
                 throw new JSONException("invalid event source type");
         }
@@ -293,7 +329,7 @@ public class GenericChannelFactory extends ChannelFactory {
         return createEventSource(channel, eventSourceMeta, null);
     }
 
-    private RuleRunnable parseHTTPActionResult(ScriptableObject result) {
+    private static RuleRunnable parseHTTPActionResult(ScriptableObject result) {
         final String method;
         if (ScriptableObject.hasProperty(result, "method"))
             method = ScriptableObject.getProperty(result, "method").toString().toLowerCase();
@@ -322,39 +358,17 @@ public class GenericChannelFactory extends ChannelFactory {
         };
     }
 
-    private RuleRunnable parseIntentActionResult(ScriptableObject result) {
-        final String action = (String) ScriptableObject.getProperty(result, "action");
-        final String category;
-        if (ScriptableObject.hasProperty(result, "category"))
-            category = (String) ScriptableObject.getProperty(result, "category");
-        else
-            category = null;
-        final String pkg;
-        if (ScriptableObject.hasProperty(result, "package"))
-            pkg = (String) ScriptableObject.getProperty(result, "package");
-        else
-            pkg = null;
+    private static RuleRunnable parseIntentActionResult(ScriptableObject result) {
+        final Intent intent = JSUtil.javascriptToIntent(result);
         final boolean activity;
         if (ScriptableObject.hasProperty(result, "activity"))
             activity = (Boolean) ScriptableObject.getProperty(result, "activity");
         else
             activity = false;
-        final Map<String, Serializable> extras = new ArrayMap<>();
-        if (ScriptableObject.hasProperty(result, "extras"))
-            JSUtil.parseExtras(extras, (ScriptableObject) ScriptableObject.getProperty(result, "extras"));
 
         return new RuleRunnable() {
             @Override
             public void run(Context ctx) throws RuleExecutionException {
-                Intent intent = new Intent(action);
-                if (category != null)
-                    intent.addCategory(category);
-                if (pkg != null)
-                    intent.setPackage(pkg);
-                for (Map.Entry<String, Serializable> e : extras.entrySet()) {
-                    intent.putExtra(e.getKey(), e.getValue());
-                }
-
                 if (activity)
                     ctx.startActivity(intent);
                 else
@@ -363,10 +377,12 @@ public class GenericChannelFactory extends ChannelFactory {
         };
     }
 
-    public RuleRunnable parseActionResult(ScriptableObject result) throws RuleExecutionException {
+    public static RuleRunnable parseActionResult(ScriptableObject result) throws RuleExecutionException {
         switch (ScriptableObject.getProperty(result, "type").toString()) {
             case "http":
                 return parseHTTPActionResult(result);
+            case "intent":
+                return parseIntentActionResult(result);
             default:
                 throw new RuleExecutionException("Action code returned invalid result");
         }
