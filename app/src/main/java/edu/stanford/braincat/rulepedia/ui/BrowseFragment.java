@@ -1,9 +1,11 @@
 package edu.stanford.braincat.rulepedia.ui;
 
 import android.annotation.SuppressLint;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,6 +22,7 @@ import org.json.JSONTokener;
 import java.util.Collection;
 
 import edu.stanford.braincat.rulepedia.R;
+import edu.stanford.braincat.rulepedia.exceptions.DuplicatedRuleException;
 import edu.stanford.braincat.rulepedia.model.Channel;
 import edu.stanford.braincat.rulepedia.model.CompositeTrigger;
 import edu.stanford.braincat.rulepedia.model.Rule;
@@ -66,22 +69,66 @@ public class BrowseFragment extends Fragment {
     }
 
     private void reportInstallationSuccess() {
+        /*
         mWebView.evaluateJavascript("Rulepedia.Android.installationSuccess();", new ValueCallback<String>() {
             @Override
             public void onReceiveValue(String s) {
                 // nothing to do
             }
         });
+        */
+
+        new AlertDialog.Builder(this.getActivity())
+                .setTitle("Success")
+                .setMessage("Rule added to database")
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // continue with delete
+                    }
+                })
+                .setIcon(android.R.drawable.ic_dialog_info)
+                .show();
     }
 
     private void reportInstallationError(Exception error) {
+        //Log.d("AA", "DUPL");
+
+        if(error instanceof DuplicatedRuleException) {
+            new AlertDialog.Builder(this.getActivity())
+                .setTitle("Error")
+                .setMessage("Rule already in database")
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // continue with delete
+                    }
+                })
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
+        }
+        else
+        {
+            new AlertDialog.Builder(this.getActivity())
+                    .setTitle("Error adding rule")
+                    .setMessage("Internal error " + error.toString())
+                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            // continue with delete
+                        }
+                    })
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .show();
+        }
+
+        /*
         mWebView.evaluateJavascript("Rulepedia.Android.installationError('" + error.getMessage().replace("'", "\\'") + "');",
+
                 new ValueCallback<String>() {
                     @Override
                     public void onReceiveValue(String s) {
                         // nothing to do
                     }
                 });
+        */
     }
 
     private void sendIntentToRuleEngine(String ruleJSON) {

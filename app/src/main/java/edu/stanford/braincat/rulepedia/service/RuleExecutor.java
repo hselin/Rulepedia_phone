@@ -17,6 +17,7 @@ import java.util.Set;
 
 import edu.stanford.braincat.rulepedia.BuildConfig;
 import edu.stanford.braincat.rulepedia.events.EventSource;
+import edu.stanford.braincat.rulepedia.exceptions.DuplicatedRuleException;
 import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
 import edu.stanford.braincat.rulepedia.exceptions.TriggerValueTypeException;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownChannelException;
@@ -127,6 +128,7 @@ public class RuleExecutor extends Handler {
         try {
             RuleDatabase db = RuleDatabase.get();
             Rule rule = db.addRule(jsonRule);
+
             try {
                 // save eagerly to catch problems
                 db.save(context);
@@ -140,7 +142,11 @@ public class RuleExecutor extends Handler {
             if (rule.isEnabled())
                 doEnableRule(rule);
             callback.post(rule, null);
-        } catch (UnknownChannelException | TriggerValueTypeException | JSONException e) {
+        }
+        catch(DuplicatedRuleException e){
+            callback.post(null, e);
+        }
+        catch (UnknownChannelException | TriggerValueTypeException | JSONException e) {
             Log.e(RuleExecutorService.LOG_TAG, "Failed to install rule (parsing problem)", e);
             callback.post(null, e);
         } catch (UnknownObjectException e) {

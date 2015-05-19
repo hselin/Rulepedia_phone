@@ -21,6 +21,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import edu.stanford.braincat.rulepedia.channels.Util;
+import edu.stanford.braincat.rulepedia.exceptions.DuplicatedRuleException;
 import edu.stanford.braincat.rulepedia.exceptions.TriggerValueTypeException;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownChannelException;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
@@ -232,8 +233,14 @@ public class RuleDatabase {
     }
 
     public synchronized Rule addRule(JSONObject jsonRule) throws
-            JSONException, UnknownObjectException, UnknownChannelException, TriggerValueTypeException {
+            JSONException, UnknownObjectException, UnknownChannelException, TriggerValueTypeException,
+            DuplicatedRuleException {
         Rule rule = parseRule(jsonRule);
+
+        if(rules.containsKey(rule.getId())) {
+            throw new DuplicatedRuleException();
+        }
+
 
         rule.setEnabled(true);
         // FIXME: verify...
