@@ -113,6 +113,7 @@ public class GenericAction implements Action {
 
         try {
             NativeObject jsParameters = JSUtil.parametersToJavascript(resolved);
+            ScriptableObject.putProperty(jsParameters, "url", getChannel().getUrl());
             result = (ScriptableObject) ((GenericChannel) channel).callFunction(script, thisArg,
                     jsParameters);
         } catch (Exception e) {
