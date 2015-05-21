@@ -1,5 +1,6 @@
 package edu.stanford.braincat.rulepedia.model;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -10,8 +11,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.Collection;
 import java.util.Map;
 
@@ -246,13 +252,14 @@ public abstract class Value {
         }
     }
 
-    public static class Picture extends Value {
-        public static final String ID = "picture";
-        public static final String PLACEHOLDER = "https://rulepedia.stanford.edu/oid/placeholder/picture/any";
+    public static class DirectPicture extends Value {
+        public static final String ID = "direct-picture";
 
+        private final String url;
         private final Bitmap rep;
 
-        public Picture(Bitmap rep) {
+        public DirectPicture(@Nullable String url, Bitmap rep) {
+            this.url = url;
             this.rep = rep;
         }
 
@@ -262,39 +269,94 @@ public abstract class Value {
 
         @Override
         public String toString() {
-            if (rep == null) {
-                return PLACEHOLDER;
+            if (url != null) {
+                return url;
             } else {
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
                 rep.compress(Bitmap.CompressFormat.PNG, 100, stream);
                 return "data:text/png;base64," + Uri.encode(Base64.encodeToString(stream.toByteArray(), Base64.DEFAULT));
             }
         }
+    }
+
+    public static class Picture extends Value {
+        public static final String ID = "picture";
+        public static final String PLACEHOLDER = "https://rulepedia.stanford.edu/oid/placeholder/picture/any";
+
+        private final String rep;
+
+        public Picture(String rep) {
+            this.rep = rep;
+        }
+
+        @Override
+        public String toString() {
+            return rep;
+        }
 
         @Override
         public Value resolve(@Nullable Map<String, Value> context) throws UnknownObjectException {
-            if (rep == null)
-                throw new UnknownObjectException(PLACEHOLDER);
+            if (rep.equals(PLACEHOLDER))
+                throw new UnknownObjectException(rep);
+
             return this;
         }
 
-        public static Picture fromString(String string) throws UnknownObjectException {
-            if (string.equals(PLACEHOLDER))
-                return new Picture(null);
+        public Value.DirectPicture toPicture(Context ctx) throws UnknownObjectException {
+            if (rep.equals(PLACEHOLDER))
+                throw new UnknownObjectException(rep);
 
-            if (string.startsWith("data:")) {
-                String[] split = string.split(",");
+            if (rep.startsWith("data:")) {
+                String[] split = rep.split(",");
 
                 if (split.length != 2 || !split[0].endsWith(";base64"))
-                    throw new UnknownObjectException(string);
+                    throw new UnknownObjectException(rep);
 
                 String uriDecoded = Uri.decode(split[1]);
                 byte[] decoded = Base64.decode(uriDecoded, Base64.DEFAULT);
 
-                return new Picture(BitmapFactory.decodeByteArray(decoded, 0, decoded.length));
+                return new DirectPicture(null, BitmapFactory.decodeByteArray(decoded, 0, decoded.length));
             }
 
-            throw new UnknownObjectException(string);
+            if (rep.startsWith("content:")) {
+                if (ctx == null)
+                    throw new UnknownObjectException(rep);
+
+                try {
+                    return new DirectPicture(rep, BitmapFactory.decodeStream(ctx.getContentResolver().openInputStream(Uri.parse(rep))));
+                } catch(FileNotFoundException e) {
+                    throw new UnknownObjectException(rep);
+                }
+            }
+
+            try {
+                URL url = new URL(rep);
+                URLConnection connection = url.openConnection();
+                try {
+                    try (InputStream is = connection.getInputStream()) {
+                        return new DirectPicture(rep, BitmapFactory.decodeStream(is));
+                    }
+                } finally {
+                    if (connection instanceof HttpURLConnection)
+                        ((HttpURLConnection) connection).disconnect();
+                }
+            } catch(IOException e) {
+                // fall through
+            }
+
+            throw new UnknownObjectException(rep);
+        }
+
+        public static Picture fromString(String string) throws UnknownObjectException {
+            if (string.equals(PLACEHOLDER) || string.startsWith("data:") || string.startsWith("content:"))
+                return new Picture(string);
+
+            try {
+                new URL(string);
+                return new Picture(string);
+            } catch(MalformedURLException e){
+                throw new UnknownObjectException(string);
+            }
         }
     }
 }
