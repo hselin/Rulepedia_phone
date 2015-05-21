@@ -1,6 +1,7 @@
 package edu.stanford.braincat.rulepedia.model;
 
 import android.content.Context;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -174,7 +175,8 @@ public class RuleDatabase {
         if (!jsonRule.has("id")) {
             rule.setId(Util.toSHA1(rule.toJSON().toString()));
         } else {
-            jsonRule.getString("id");
+            String ruleID = jsonRule.getString("id");
+            rule.setId(ruleID);
         }
 
         return rule;
@@ -189,6 +191,8 @@ public class RuleDatabase {
             rule.setEnabled(jsonRule.getBoolean(Rule.ENABLED));
         else
             rule.setEnabled(true);
+
+        Log.d("!!!", "Trying to load rule with ID " + rule.getId());
 
         rules.put(rule.getId(), rule);
         sortedRules.add(rule);
