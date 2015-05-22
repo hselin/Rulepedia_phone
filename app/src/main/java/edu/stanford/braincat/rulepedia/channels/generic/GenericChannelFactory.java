@@ -113,17 +113,17 @@ public class GenericChannelFactory extends ChannelFactory {
 
     private static Class<? extends Value> classForTypeName(String paramtype) throws TriggerValueTypeException {
         switch (paramtype) {
-            case "text":
+            case Value.Text.ID:
             case "textarea":
                 return Value.Text.class;
             case "time":
-            case "number":
+            case Value.Number.ID:
                 return Value.Number.class;
-            case "select":
+            case Value.Select.ID:
                 return Value.Select.class;
-            case "picture":
+            case Value.Picture.ID:
                 return Value.Picture.class;
-            case "contact":
+            case Value.Contact.ID:
             case "message-destination":
                 return Value.Contact.class;
             default:

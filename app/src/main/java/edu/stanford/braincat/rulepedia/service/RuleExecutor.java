@@ -142,11 +142,10 @@ public class RuleExecutor extends Handler {
             if (rule.isEnabled())
                 doEnableRule(rule);
             callback.post(rule, null);
-        }
-        catch(DuplicatedRuleException e){
+        } catch (DuplicatedRuleException e) {
+            Log.d(RuleExecutorService.LOG_TAG, "Failed to install rule (duplicated)", e);
             callback.post(null, e);
-        }
-        catch (UnknownChannelException | TriggerValueTypeException | JSONException e) {
+        } catch (UnknownChannelException | TriggerValueTypeException | JSONException e) {
             Log.e(RuleExecutorService.LOG_TAG, "Failed to install rule (parsing problem)", e);
             callback.post(null, e);
         } catch (UnknownObjectException e) {

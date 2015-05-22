@@ -11,7 +11,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.JavascriptInterface;
-import android.webkit.ValueCallback;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
@@ -43,7 +42,6 @@ public class BrowseFragment extends Fragment {
      *
      * @return A new instance of fragment BrowseFragment.
      */
-    // TODO: Rename and change types and number of parameters
     public static BrowseFragment newInstance() {
         BrowseFragment fragment = new BrowseFragment();
         fragment.setArguments(new Bundle());
@@ -80,15 +78,6 @@ public class BrowseFragment extends Fragment {
     */
 
     private void reportInstallationSuccess() {
-        /*
-        mWebView.evaluateJavascript("Rulepedia.Android.installationSuccess();", new ValueCallback<String>() {
-            @Override
-            public void onReceiveValue(String s) {
-                // nothing to do
-            }
-        });
-        */
-
         new AlertDialog.Builder(this.getActivity())
                 .setTitle("Success")
                 .setMessage("Rule added to database")
@@ -102,8 +91,6 @@ public class BrowseFragment extends Fragment {
     }
 
     private void reportInstallationError(Exception error) {
-        //Log.d("AA", "DUPL");
-
         if(error instanceof DuplicatedRuleException) {
             new AlertDialog.Builder(this.getActivity())
                 .setTitle("Error")
@@ -115,9 +102,7 @@ public class BrowseFragment extends Fragment {
                 })
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .show();
-        }
-        else
-        {
+        } else {
             new AlertDialog.Builder(this.getActivity())
                     .setTitle("Error adding rule")
                     .setMessage("Internal error " + error.toString())
@@ -129,17 +114,6 @@ public class BrowseFragment extends Fragment {
                     .setIcon(android.R.drawable.ic_dialog_alert)
                     .show();
         }
-
-        /*
-        mWebView.evaluateJavascript("Rulepedia.Android.installationError('" + error.getMessage().replace("'", "\\'") + "');",
-
-                new ValueCallback<String>() {
-                    @Override
-                    public void onReceiveValue(String s) {
-                        // nothing to do
-                    }
-                });
-        */
     }
 
     private void sendIntentToRuleEngine(String ruleJSON) {
@@ -199,7 +173,7 @@ public class BrowseFragment extends Fragment {
         }
     }
 
-    public class WebAppInterface {
+    private class WebAppInterface {
         @JavascriptInterface
         public void installRule(String ruleJSON) {
             sendIntentToRuleEngine(ruleJSON);

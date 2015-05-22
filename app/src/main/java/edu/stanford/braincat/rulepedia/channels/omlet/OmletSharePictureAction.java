@@ -19,7 +19,7 @@ public class OmletSharePictureAction extends SharePictureAction {
     }
 
     @Override
-    protected void sharePicture(Context ctx, Contact contact, Value.Picture picture) {
+    protected void sharePicture(Context ctx, Contact contact, Value.DirectPicture picture) {
         // FIXME should be SENDTO
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.putExtra(Intent.EXTRA_STREAM, picture.toString());

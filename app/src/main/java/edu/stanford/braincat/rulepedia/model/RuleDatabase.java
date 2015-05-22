@@ -241,12 +241,8 @@ public class RuleDatabase {
             DuplicatedRuleException {
         Rule rule = parseRule(jsonRule);
 
-        Log.d("!!!", "Trying to add rule with ID " + rule.getId());
-
-        if(rules.containsKey(rule.getId())) {
+        if (rules.containsKey(rule.getId()))
             throw new DuplicatedRuleException();
-        }
-
 
         rule.setEnabled(true);
         // FIXME: verify...

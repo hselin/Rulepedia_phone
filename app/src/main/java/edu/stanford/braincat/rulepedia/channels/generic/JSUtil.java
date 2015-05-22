@@ -58,10 +58,8 @@ public class JSUtil {
             return ((Value.Number) value).getNumber();
         } else if (value instanceof Value.DirectObject) {
             return ((Value.DirectObject) value).getObject().getUrl();
-        } else if (value instanceof Value.Picture) {
-            return value.toString();
         } else {
-            // what else?
+            // Contact, Picture, DirectPicture, something else?
             return value.toString();
         }
     }
