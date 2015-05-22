@@ -12,7 +12,7 @@ public class SMSContact extends Contact {
 
     @Override
     public String toHumanString() {
-        return "a contact";
+        return getAddress();
     }
 
     public String getAddress() {

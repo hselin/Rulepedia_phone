@@ -19,15 +19,18 @@ public class SMSSendMessageAction extends SendMessageAction {
     }
 
     @Override
-    protected void sendMessage(Context cxt, Contact contact, String message) throws UnknownObjectException {
+    protected void sendMessage(Context ctx, Contact contact, String message) throws UnknownObjectException {
         SmsManager smsManager = SmsManager.getDefault();
 
-        try {
-            SMSContact smsContact = (SMSContact) contact;
-            smsManager.sendTextMessage(smsContact.getAddress(), null, message, null, null);
-        } catch (ClassCastException e) {
+        String phoneNumber;
+        if (contact instanceof SMSContact)
+            phoneNumber = ((SMSContact) contact).getAddress();
+        else if (contact instanceof ContentProviderContact)
+            phoneNumber = ((ContentProviderContact) contact).getPhoneNumber(ctx);
+        else
             throw new UnknownObjectException(contact.getUrl());
-        }
+
+        smsManager.sendTextMessage(phoneNumber, null, message, null, null);
     }
 
     @Override

@@ -1,5 +1,7 @@
 package edu.stanford.braincat.rulepedia.model;
 
+import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -318,7 +320,7 @@ public abstract class Value {
                 return new DirectPicture(null, BitmapFactory.decodeByteArray(decoded, 0, decoded.length));
             }
 
-            if (rep.startsWith("content:")) {
+            if (rep.startsWith(ContentResolver.SCHEME_CONTENT)) {
                 if (ctx == null)
                     throw new UnknownObjectException(rep);
 
@@ -348,8 +350,17 @@ public abstract class Value {
         }
 
         public static Picture fromString(String string) throws UnknownObjectException {
-            if (string.equals(PLACEHOLDER) || string.startsWith("data:") || string.startsWith("content:"))
+            if (string.equals(PLACEHOLDER) || string.startsWith("data:"))
                 return new Picture(string);
+
+            if (string.startsWith(ContentResolver.SCHEME_CONTENT)) {
+                try {
+                    ContentUris.parseId(Uri.parse(string));
+                    return new Picture(string);
+                } catch(NumberFormatException|UnsupportedOperationException e) {
+                    throw new UnknownObjectException(string);
+                }
+            }
 
             try {
                 new URL(string);

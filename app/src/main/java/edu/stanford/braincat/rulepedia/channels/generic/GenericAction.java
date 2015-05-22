@@ -35,8 +35,7 @@ public class GenericAction implements Action {
     private Scriptable thisArg;
     private final Map<String, Value> parameters;
 
-    public GenericAction(Channel channel, String id, String text, String scriptBody, Map<String, Value> params)
-            throws TriggerValueTypeException, UnknownObjectException {
+    public GenericAction(Channel channel, String id, String text, String scriptBody, Map<String, Value> params) {
         super();
         this.id = id;
         this.text = text;

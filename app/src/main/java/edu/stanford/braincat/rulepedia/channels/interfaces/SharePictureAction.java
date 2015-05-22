@@ -75,7 +75,7 @@ public abstract class SharePictureAction implements Action {
         message.typeCheck(context, Value.Text.class);
     }
 
-    protected abstract void sharePicture(Context ctx, Contact destination, Value.DirectPicture picture) throws UnknownObjectException, RuleExecutionException;
+    protected abstract void sharePicture(Context ctx, Contact destination, Value.DirectPicture picture) throws UnknownObjectException;
 
     @Override
     public void execute(Context ctx, Map<String, Value> context) throws TriggerValueTypeException, RuleExecutionException, UnknownObjectException {

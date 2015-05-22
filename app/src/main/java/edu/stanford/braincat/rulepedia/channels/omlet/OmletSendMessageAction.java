@@ -2,6 +2,7 @@ package edu.stanford.braincat.rulepedia.channels.omlet;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 
 import edu.stanford.braincat.rulepedia.channels.interfaces.SendMessageAction;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
@@ -21,7 +22,7 @@ public class OmletSendMessageAction extends SendMessageAction {
     @Override
     protected void sendMessage(Context ctx, Contact contact, String message) {
         // FIXME should be SENDTO
-        Intent intent = new Intent(Intent.ACTION_SEND);
+        Intent intent = new Intent(Intent.ACTION_SENDTO, Uri.parse(contact.getUrl()));
         intent.putExtra(Intent.EXTRA_TEXT, message);
         intent.setType("text/plain");
         intent.setPackage(OmletChannel.OMLET_PACKAGE);

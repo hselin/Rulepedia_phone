@@ -2,6 +2,7 @@ package edu.stanford.braincat.rulepedia.channels.omlet;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 
 import edu.stanford.braincat.rulepedia.channels.interfaces.SharePictureAction;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
@@ -21,7 +22,7 @@ public class OmletSharePictureAction extends SharePictureAction {
     @Override
     protected void sharePicture(Context ctx, Contact contact, Value.DirectPicture picture) {
         // FIXME should be SENDTO
-        Intent intent = new Intent(Intent.ACTION_SEND);
+        Intent intent = new Intent(Intent.ACTION_SENDTO, Uri.parse(contact.getUrl()));
         intent.putExtra(Intent.EXTRA_STREAM, picture.toString());
         intent.setType("image/png");
         intent.setPackage(OmletChannel.OMLET_PACKAGE);

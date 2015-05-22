@@ -21,7 +21,7 @@ public class SMSContactFactory extends ContactFactory {
 
     @Override
     public Contact createPlaceholder(String url) {
-        return new PlaceholderContact(this, url, "a contact");
+        return new PlaceholderContact(this, url, "a phone number");
     }
 
     @Override

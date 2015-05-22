@@ -75,7 +75,7 @@ public abstract class SendMessageAction implements Action {
         message.typeCheck(context, Value.Text.class);
     }
 
-    protected abstract void sendMessage(Context ctx, Contact destination, String message) throws UnknownObjectException, RuleExecutionException;
+    protected abstract void sendMessage(Context ctx, Contact destination, String message) throws UnknownObjectException;
 
     @Override
     public void execute(Context ctx, Map<String, Value> context) throws TriggerValueTypeException, RuleExecutionException, UnknownObjectException {
