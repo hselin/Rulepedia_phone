@@ -20,6 +20,8 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import java.util.Collection;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import edu.stanford.braincat.rulepedia.R;
 import edu.stanford.braincat.rulepedia.exceptions.DuplicatedRuleException;
@@ -67,6 +69,15 @@ public class BrowseFragment extends Fragment {
 
         return v;
     }
+
+    /*
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if (isVisibleToUser) { if(mWebView != null) mWebView.reload(); }
+        else {  }
+    }
+    */
 
     private void reportInstallationSuccess() {
         /*
@@ -193,5 +204,31 @@ public class BrowseFragment extends Fragment {
         public void installRule(String ruleJSON) {
             sendIntentToRuleEngine(ruleJSON);
         }
+    }
+
+    private Timer autoUpdate;
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        autoUpdate = new Timer();
+        autoUpdate.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                getActivity().runOnUiThread(new Runnable() {
+                    public void run() {
+                        mWebView.loadUrl("javascript:pollRules(false);");
+                        //updateHTML();
+                        //loadRules(getActivity().getApplicationContext());
+                    }
+                });
+            }
+        }, 0, 5000); // updates each 40 secs
+    }
+
+    @Override
+    public void onPause() {
+        autoUpdate.cancel();
+        super.onPause();
     }
 }
