@@ -2,20 +2,33 @@ package edu.stanford.braincat.rulepedia.ui;
 
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONTokener;
+
 import edu.stanford.braincat.rulepedia.R;
+import edu.stanford.braincat.rulepedia.channels.Util;
+import edu.stanford.braincat.rulepedia.exceptions.DuplicatedRuleException;
+import edu.stanford.braincat.rulepedia.model.Rule;
 import edu.stanford.braincat.rulepedia.service.AutoStarter;
+import edu.stanford.braincat.rulepedia.service.Callback;
 import edu.stanford.braincat.rulepedia.service.RuleExecutor;
 import edu.stanford.braincat.rulepedia.service.RuleExecutorService;
 
@@ -76,6 +89,125 @@ public class MainActivity extends ActionBarActivity {
         // ensure the service is running
         connection = new Connection();
         startService();
+    }
+
+    public void onRuleInstalled() {
+        new AlertDialog.Builder(this)
+                .setTitle("Success")
+                .setMessage("Rule added to database")
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        startActivityForResult(new Intent(MainActivity.this, GoogleFitAuthActivity.class), 0);
+
+                        // continue with delete
+                    }
+                })
+                .setIcon(android.R.drawable.ic_dialog_info)
+                .show();
+    }
+
+    public void onRuleInstallationError(Exception error) {
+        if(error instanceof DuplicatedRuleException) {
+            new AlertDialog.Builder(this)
+                    .setTitle("Error")
+                    .setMessage("Rule already in database")
+                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            // continue with delete
+                        }
+                    })
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .show();
+        } else {
+            new AlertDialog.Builder(this)
+                    .setTitle("Error adding rule")
+                    .setMessage("Internal error " + error.toString())
+                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            // continue with delete
+                        }
+                    })
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .show();
+        }
+    }
+
+    private void installRule(final JSONObject jsonRule) throws JSONException {
+        new AlertDialog.Builder(this)
+                .setTitle("Install rule")
+                .setMessage("Do you want to install the rule " + jsonRule.getString("name") + "?\n" +
+                "The description says: " + jsonRule.getString("description"))
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        RuleExecutor executor = getRuleExecutor();
+                        if (executor == null)
+                            return;
+
+                        executor.installRule(jsonRule, new Callback<Rule>() {
+                            @Override
+                            public void run(@Nullable Rule result, @Nullable Exception error) {
+                                if (result != null)
+                                    onRuleInstalled();
+                                else
+                                    onRuleInstallationError(error);
+                            }
+                        });
+
+                        // continue with delete
+                    }
+                })
+                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        // continue with delete
+                    }
+                })
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        Intent startIntent = getIntent();
+
+        if (startIntent == null)
+            return;
+
+        switch (startIntent.getAction()) {
+            case Intent.ACTION_VIEW:
+                Uri data = startIntent.getData();
+
+                if (!data.getScheme().equals("https") ||
+                        (!data.getHost().equals("vast-hamlet-6003.herokuapp.com") &&
+                                !data.getHost().equals("rulepedia.stanford.edu")) ||
+                        !data.getPath().startsWith("/rule/")) {
+                    Log.w(LOG_TAG, "Received spurious intent for URL " + data);
+                    return;
+                }
+
+                try {
+                    JSONObject json = Util.parseEncodedRule(startIntent.getData().getLastPathSegment());
+                    installRule(json);
+                } catch (Exception e) {
+                    Log.w(LOG_TAG, "Failed to act on received rule URL", e);
+                }
+                return;
+            case RuleExecutorService.INSTALL_RULE_INTENT:
+                try {
+                    installRule((JSONObject) new JSONTokener(startIntent.getStringExtra("json")).nextValue());
+                } catch (Exception e) {
+                    Log.w(LOG_TAG, "Failed to act on received rule install intent", e);
+                }
+                return;
+
+            case Intent.ACTION_MAIN:
+                return;
+
+            default:
+                Log.w(LOG_TAG, "Received spurious intent " + startIntent.getAction());
+        }
     }
 
     public RuleExecutor getRuleExecutor() {

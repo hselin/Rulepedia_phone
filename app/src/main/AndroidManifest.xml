@@ -20,6 +20,25 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" android:host="vast-hamlet-6003.herokuapp.com" android:pathPrefix="/rule/" />
+            </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" android:host="rulepedia.stanford.edu" android:pathPrefix="/rule/" />
+            </intent-filter>
+
+            <intent-filter>
+                <action android:name="edu.stanford.braincat.rulepedia.INSTALL_RULE" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
         </activity>
         <activity android:name=".ui.GoogleFitAuthActivity" android:label="Google Fit Authorization"/>
 
@@ -32,7 +51,7 @@
         <service
             android:name=".service.RuleExecutorService"
             android:enabled="true"
-            android:exported="true" >
+            android:exported="false" >
         </service>
 
         <meta-data android:name="com.google.android.gms.version"

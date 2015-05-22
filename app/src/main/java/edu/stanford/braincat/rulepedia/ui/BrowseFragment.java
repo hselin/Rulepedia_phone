@@ -1,11 +1,8 @@
 package edu.stanford.braincat.rulepedia.ui;
 
 import android.annotation.SuppressLint;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,7 +20,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import edu.stanford.braincat.rulepedia.R;
-import edu.stanford.braincat.rulepedia.exceptions.DuplicatedRuleException;
 import edu.stanford.braincat.rulepedia.model.Channel;
 import edu.stanford.braincat.rulepedia.model.CompositeTrigger;
 import edu.stanford.braincat.rulepedia.model.Rule;
@@ -78,42 +74,11 @@ public class BrowseFragment extends Fragment {
     */
 
     private void reportInstallationSuccess() {
-        new AlertDialog.Builder(this.getActivity())
-                .setTitle("Success")
-                .setMessage("Rule added to database")
-                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        // continue with delete
-                    }
-                })
-                .setIcon(android.R.drawable.ic_dialog_info)
-                .show();
+        ((MainActivity)getActivity()).onRuleInstalled();
     }
 
     private void reportInstallationError(Exception error) {
-        if(error instanceof DuplicatedRuleException) {
-            new AlertDialog.Builder(this.getActivity())
-                .setTitle("Error")
-                .setMessage("Rule already in database")
-                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        // continue with delete
-                    }
-                })
-                .setIcon(android.R.drawable.ic_dialog_alert)
-                .show();
-        } else {
-            new AlertDialog.Builder(this.getActivity())
-                    .setTitle("Error adding rule")
-                    .setMessage("Internal error " + error.toString())
-                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            // continue with delete
-                        }
-                    })
-                    .setIcon(android.R.drawable.ic_dialog_alert)
-                    .show();
-        }
+        ((MainActivity)getActivity()).onRuleInstallationError(error);
     }
 
     private void sendIntentToRuleEngine(String ruleJSON) {
@@ -158,8 +123,6 @@ public class BrowseFragment extends Fragment {
 
                                 }
                                 */
-
-                                getActivity().startActivityForResult(new Intent(getActivity(), GoogleFitAuthActivity.class), 0);
                             } else {
                                 reportInstallationError(error);
                             }
