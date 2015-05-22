@@ -92,8 +92,6 @@ public abstract class Value {
     }
 
     public static class DirectObject<K extends ObjectPool.Object> extends Value {
-        public static final String ID = "direct-object";
-
         private final K object;
 
         public DirectObject(K object) {
@@ -255,8 +253,6 @@ public abstract class Value {
     }
 
     public static class DirectPicture extends Value {
-        public static final String ID = "direct-picture";
-
         private final String url;
         private final Bitmap rep;
 

@@ -69,8 +69,8 @@ public class RuleDatabase {
             JSONException, UnknownChannelException, TriggerValueTypeException {
         Class<? extends Value> valueType = factory.getParamType(method, name);
 
-        if (jsonParam.has("trigger-value")) {
-            return new Value.TriggerValue(jsonParam.getString("trigger-value"), valueType);
+        if (jsonParam.has(Value.TriggerValue.ID)) {
+            return new Value.TriggerValue(jsonParam.getString(Value.TriggerValue.ID), valueType);
         } else {
             try {
                 return (Value) valueType.getMethod("fromString", String.class).invoke(null, jsonParam.getString("value"));
