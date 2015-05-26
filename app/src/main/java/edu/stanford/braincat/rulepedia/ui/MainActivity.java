@@ -275,11 +275,11 @@ public class MainActivity extends ActionBarActivity {
         public Fragment getItem(int position) {
             switch (position) {
                 case 0:
-                    return BrowseFragment.newInstance();
+                    return RuleCreationFragment.newInstance();
                 case 1:
-                    return RuleManageFragment.newInstance();
+                    return BrowseFragment.newInstance();
                 case 2:
-                    return PropertyManageFragment.newInstance();
+                    return RuleManageFragment.newInstance();
                 default:
                     return null;
             }
@@ -295,11 +295,11 @@ public class MainActivity extends ActionBarActivity {
         public CharSequence getPageTitle(int position) {
             switch (position) {
                 case 0:
-                    return "Browse rules";
+                    return "Create rules";
                 case 1:
-                    return "Manage rules";
+                    return "Browse rules";
                 case 2:
-                    return "Manage properties";
+                    return "Manage rules";
             }
             return null;
         }
