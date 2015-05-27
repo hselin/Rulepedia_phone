@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.os.Handler;
 import android.provider.Telephony;
 import android.telephony.SmsMessage;
 
@@ -14,6 +13,7 @@ import java.util.Arrays;
 import java.util.Queue;
 
 import edu.stanford.braincat.rulepedia.events.EventSource;
+import edu.stanford.braincat.rulepedia.events.EventSourceHandler;
 import edu.stanford.braincat.rulepedia.events.IntentEventSource;
 
 /**
@@ -42,7 +42,7 @@ public class SMSEventSource implements EventSource {
     }
 
     @Override
-    public void install(Context ctx, Handler handler) throws IOException {
+    public void install(Context ctx, EventSourceHandler handler) throws IOException {
         if (!ctx.getPackageManager().hasSystemFeature(PackageManager.FEATURE_TELEPHONY))
             return;
         installed = true;

@@ -3,7 +3,11 @@ package edu.stanford.braincat.rulepedia.channels.android;
 import android.content.Context;
 import android.telephony.SmsManager;
 
+import java.util.Collection;
+import java.util.Collections;
+
 import edu.stanford.braincat.rulepedia.channels.interfaces.SendMessageAction;
+import edu.stanford.braincat.rulepedia.events.EventSource;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
 import edu.stanford.braincat.rulepedia.model.Channel;
 import edu.stanford.braincat.rulepedia.model.Contact;

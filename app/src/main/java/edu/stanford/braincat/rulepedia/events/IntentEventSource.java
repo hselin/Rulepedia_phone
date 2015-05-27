@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.Handler;
 
 import java.io.IOException;
 import java.util.ArrayDeque;
@@ -35,7 +34,7 @@ public class IntentEventSource implements EventSource {
     }
 
     @Override
-    public void install(Context ctx, Handler handler) throws IOException {
+    public void install(Context ctx, EventSourceHandler handler) throws IOException {
         if (receiver != null)
             throw new IllegalStateException("double install");
         receiver = new EventSourceBroadcastReceiver();

@@ -30,7 +30,7 @@ public class TimeoutEventSource implements EventSource, Runnable {
     }
 
     @Override
-    public void install(Context ctx, Handler handler) {
+    public void install(Context ctx, EventSourceHandler handler) {
         this.handler = handler;
         post();
     }

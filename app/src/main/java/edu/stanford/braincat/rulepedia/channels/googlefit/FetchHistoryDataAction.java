@@ -18,11 +18,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import edu.stanford.braincat.rulepedia.events.EventSource;
 import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
 import edu.stanford.braincat.rulepedia.exceptions.TriggerValueTypeException;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
@@ -53,6 +55,11 @@ public class FetchHistoryDataAction implements Action {
     @Override
     public Channel getChannel() {
         return channel;
+    }
+
+    @Override
+    public Collection<EventSource> getEventSources() {
+        return Collections.emptySet();
     }
 
     @Override

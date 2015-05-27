@@ -7,9 +7,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 
+import edu.stanford.braincat.rulepedia.events.EventSource;
 import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
 import edu.stanford.braincat.rulepedia.exceptions.TriggerValueTypeException;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
@@ -40,6 +42,11 @@ public abstract class SharePictureAction implements Action {
     @Override
     public Channel getChannel() {
         return channel;
+    }
+
+    @Override
+    public Collection<EventSource> getEventSources() {
+        return Collections.emptySet();
     }
 
     @Override

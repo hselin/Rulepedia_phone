@@ -4,7 +4,6 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.Handler;
 
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.fitness.Fitness;
@@ -13,6 +12,7 @@ import com.google.android.gms.fitness.data.Session;
 import java.io.IOException;
 
 import edu.stanford.braincat.rulepedia.events.EventSource;
+import edu.stanford.braincat.rulepedia.events.EventSourceHandler;
 import edu.stanford.braincat.rulepedia.events.IntentEventSource;
 import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
 
@@ -56,7 +56,7 @@ public class ActivityMonitorEventSource implements EventSource {
     }
 
     @Override
-    public void install(Context ctx, Handler handler) throws IOException {
+    public void install(Context ctx, EventSourceHandler handler) throws IOException {
         try {
             client = channel.acquireClient(ctx);
         } catch (RuleExecutionException e) {

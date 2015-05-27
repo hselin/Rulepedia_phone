@@ -1,5 +1,7 @@
 package edu.stanford.braincat.rulepedia.channels.omlet;
 
+import java.lang.ref.WeakReference;
+
 import edu.stanford.braincat.rulepedia.model.Channel;
 
 /**
@@ -8,6 +10,8 @@ import edu.stanford.braincat.rulepedia.model.Channel;
 public class OmletChannel extends Channel {
     public static final String OMLET_PACKAGE = "mobisocial.omlet";
 
+    private WeakReference<OmletMessageEventSource> sourceRef;
+
     public OmletChannel(OmletChannelFactory factory, String url) {
         super(factory, url);
     }
@@ -15,5 +19,21 @@ public class OmletChannel extends Channel {
     @Override
     public String toHumanString() {
         return "Omlet";
+    }
+
+    public OmletMessageEventSource getEventSource() {
+        OmletMessageEventSource source;
+
+        if (sourceRef != null)
+            source = sourceRef.get();
+        else
+            source = null;
+
+        if (source == null) {
+            source = new OmletMessageEventSource();
+            sourceRef = new WeakReference<>(source);
+        }
+
+        return source;
     }
 }
