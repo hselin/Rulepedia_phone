@@ -4,12 +4,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.RemoteException;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-
 import edu.stanford.braincat.rulepedia.channels.interfaces.SendMessageAction;
-import edu.stanford.braincat.rulepedia.events.EventSource;
 import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
 import edu.stanford.braincat.rulepedia.model.Channel;
@@ -27,7 +22,7 @@ public class OmletSendMessageAction extends SendMessageAction {
 
     @Override
     protected void sendMessage(Context ctx, Contact contact, String message) throws RuleExecutionException {
-        IOsmService service = (IOsmService) ((OmletChannel)getChannel()).getEventSource().getService();
+        IOsmService service = (IOsmService) ((OmletChannel)getChannel()).getService();
 
         if (service == null)
             throw new RuleExecutionException("Omlet service not available");

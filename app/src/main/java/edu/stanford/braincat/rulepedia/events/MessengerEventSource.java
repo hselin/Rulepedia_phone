@@ -16,7 +16,7 @@ import java.io.IOException;
  * Created by gcampagn on 5/26/15.
  */
 public abstract class MessengerEventSource implements EventSource {
-    private IBinder service;
+    private volatile IBinder service;
     private ServiceConnection connection;
 
     private static class MessageHandler extends EventSourceHandler {

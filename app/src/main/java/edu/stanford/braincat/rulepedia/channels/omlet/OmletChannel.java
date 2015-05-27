@@ -1,13 +1,15 @@
 package edu.stanford.braincat.rulepedia.channels.omlet;
 
+import android.content.Intent;
+
 import java.lang.ref.WeakReference;
 
-import edu.stanford.braincat.rulepedia.model.Channel;
+import edu.stanford.braincat.rulepedia.channels.BindServiceChannel;
 
 /**
  * Created by gcampagn on 5/14/15.
  */
-public class OmletChannel extends Channel {
+public class OmletChannel extends BindServiceChannel {
     public static final String OMLET_PACKAGE = "mobisocial.omlet";
     public static final String CONTENT_URI = "content://mobisocial.osm/objects";
     public static final String FEED_CONTENT_URI = "content://mobisocial.osm/feeds/";
@@ -37,5 +39,12 @@ public class OmletChannel extends Channel {
         }
 
         return source;
+    }
+
+    @Override
+    protected Intent createIntent() {
+        Intent intent = new Intent("mobisocial.intent.action.BIND_SERVICE");
+        intent.setPackage("mobisocial.omlet");
+        return intent;
     }
 }
