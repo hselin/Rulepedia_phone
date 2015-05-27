@@ -22,6 +22,7 @@ import java.util.regex.Pattern;
 
 import edu.stanford.braincat.rulepedia.channels.HTTPUtil;
 import edu.stanford.braincat.rulepedia.channels.ServiceBinder;
+import edu.stanford.braincat.rulepedia.channels.omlet.OmletMessageEventSource;
 import edu.stanford.braincat.rulepedia.events.EventSource;
 import edu.stanford.braincat.rulepedia.events.IntentEventSource;
 import edu.stanford.braincat.rulepedia.events.TimeoutEventSource;
@@ -318,7 +319,7 @@ public class GenericChannelFactory extends ChannelFactory {
             case "sse":
                 throw new UnsupportedOperationException("Server Sent Events are not yet implemented");
             case "omlet":
-                throw new UnsupportedOperationException("Omlet based event sources are not yet implemented");
+                return new OmletMessageEventSource();
             default:
                 throw new JSONException("invalid event source type");
         }

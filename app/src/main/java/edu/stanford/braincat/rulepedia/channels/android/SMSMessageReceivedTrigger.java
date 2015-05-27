@@ -1,5 +1,6 @@
 package edu.stanford.braincat.rulepedia.channels.android;
 
+import android.content.Context;
 import android.support.annotation.Nullable;
 import android.telephony.SmsMessage;
 
@@ -64,7 +65,7 @@ public class SMSMessageReceivedTrigger extends SimpleEventTrigger<SMSEventSource
     }
 
     @Override
-    public void update() {
+    public void update(Context ctx) {
         if (!getSource().checkEvent()) {
             receivedMessage = null;
             return;

@@ -6,10 +6,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.json.JSONTokener;
-
 /**
  * Created by gcampagn on 5/26/15.
  */
@@ -17,7 +13,7 @@ public class OmletMessage {
     private final long objectId;
     private final String objectType;
     private final long feedId;
-    private JSONObject json;
+    private String json;
 
     private OmletMessage(long objectId, String objectType, long feedId) {
         this.objectId = objectId;
@@ -29,52 +25,30 @@ public class OmletMessage {
         return objectType;
     }
 
-    private void ensureJSON(Context ctx) throws JSONException {
+    public String getFeedUri() {
+        return OmletChannel.FEED_CONTENT_URI + feedId;
+    }
+
+    private void ensureJSON(Context ctx) {
         if (json != null)
             return;
 
-        try (Cursor queryCursor = ctx.getContentResolver().query(Uri.parse(OmletChannel.FEED_CONTENT_URI + feedId),
+        try (Cursor queryCursor = ctx.getContentResolver().query(Uri.parse(getFeedUri()),
                 new String[]{"json"},
                 "id = ? and type = ?",
-                new String[]{String.valueOf(feedId), objectType}, null)) {
+                new String[]{String.valueOf(objectId), objectType}, null)) {
 
             if (!queryCursor.moveToFirst())
                 return;
 
-            json = (JSONObject) new JSONTokener(queryCursor.getString(0)).nextValue();
+            json = queryCursor.getString(0);
         }
     }
 
     @Nullable
-    public String getMessageText(Context ctx) {
-        if (!objectType.equals("text"))
-            return null;
-
-        try {
-            ensureJSON(ctx);
-            if (json == null)
-                return null;
-
-            return json.getString("text");
-        } catch(JSONException e) {
-            return null;
-        }
-    }
-
-    @Nullable
-    public String getMessagePictureUri(Context ctx) {
-        if (!objectType.equals("picture"))
-            return null;
-
-        try {
-            ensureJSON(ctx);
-            if (json == null)
-                return null;
-
-            return json.getString("imageUrl");
-        } catch(JSONException e) {
-            return null;
-        }
+    public String getJSON(Context ctx) {
+        ensureJSON(ctx);
+        return json;
     }
 
     public static OmletMessage fromBundle(Bundle bundle) {

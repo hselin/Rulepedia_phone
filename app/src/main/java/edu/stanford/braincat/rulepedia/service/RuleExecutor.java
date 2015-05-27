@@ -283,7 +283,7 @@ public class RuleExecutor extends EventSourceHandler {
     private void updateTriggers() {
         for (Rule r : RuleDatabase.get().getAllRules()) {
             try {
-                r.updateTrigger();
+                r.updateTrigger(context);
             } catch (RuleExecutionException e) {
                 // FIXME: notify the user!
                 Log.e(RuleExecutorService.LOG_TAG, "Failed to update the trigger for rule " + r.toHumanString(), e);

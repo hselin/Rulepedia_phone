@@ -99,7 +99,24 @@ public class GenericChannel extends Channel {
     }
 
     public String toJSON(Object value) {
-        return NativeJSON.stringify(ctx, global, value, null, "").toString();
+        return NativeJSON.stringify(ctx, global, value, null, 0).toString();
+    }
+
+    public Object fromJSON(String json) {
+        return NativeJSON.parse(ctx, global, json, new BaseFunction() {
+            @Override
+            public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object... args) {
+                if (args.length != 2)
+                    throw new IllegalArgumentException("Invalid argument to reviver function");
+
+                return args[1];
+            }
+
+            @Override
+            public int getArity() {
+                return 2;
+            }
+        });
     }
 
     public IBinder getService(String serviceType) {

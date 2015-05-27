@@ -1,5 +1,6 @@
 package edu.stanford.braincat.rulepedia.channels.generic;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -12,6 +13,7 @@ import org.mozilla.javascript.ScriptableObject;
 import java.io.Serializable;
 import java.util.Map;
 
+import edu.stanford.braincat.rulepedia.channels.omlet.OmletMessage;
 import edu.stanford.braincat.rulepedia.model.Value;
 
 /**
@@ -114,6 +116,20 @@ public class JSUtil {
             for (String key : extras.keySet())
                 ScriptableObject.putProperty(jsExtras, key, extras.get(key));
         }
+
+        return object;
+    }
+
+    public static ScriptableObject omletMessageToJavascript(OmletMessage message, GenericChannel channel, Context ctx) {
+        String json = message.getJSON(ctx);
+        if (json == null)
+            return null;
+
+        ScriptableObject object = new NativeObject();
+
+        ScriptableObject.putProperty(object, "feedUri", message.getFeedUri());
+        ScriptableObject.putProperty(object, "type", message.getType());
+        ScriptableObject.putProperty(object, "message", channel.fromJSON(json));
 
         return object;
     }

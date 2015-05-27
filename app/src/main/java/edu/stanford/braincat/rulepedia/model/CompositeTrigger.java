@@ -1,5 +1,7 @@
 package edu.stanford.braincat.rulepedia.model;
 
+import android.content.Context;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -48,9 +50,9 @@ public abstract class CompositeTrigger implements Trigger {
 
     protected abstract String getJSONComposeOp();
 
-    public void update() throws RuleExecutionException {
+    public void update(Context ctx) throws RuleExecutionException {
         for (Trigger t : children)
-            t.update();
+            t.update(ctx);
     }
 
     @Override

@@ -152,10 +152,10 @@ public class Rule {
             a.resolve();
     }
 
-    public void updateTrigger() throws RuleExecutionException {
+    public void updateTrigger(Context ctx) throws RuleExecutionException {
         if (!enabled)
             return;
-        trigger.update();
+        trigger.update(ctx);
     }
 
     public boolean isFiring() throws RuleExecutionException {
