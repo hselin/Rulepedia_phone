@@ -8,6 +8,7 @@ import org.json.JSONObject;
 import java.util.Collection;
 import java.util.Map;
 
+import edu.stanford.braincat.rulepedia.events.EventSource;
 import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
 import edu.stanford.braincat.rulepedia.exceptions.TriggerValueTypeException;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
@@ -21,6 +22,8 @@ public interface Action {
     String PARAMS = "params";
 
     Channel getChannel();
+
+    Collection<EventSource> getEventSources();
 
     Collection<ObjectPool.Object> getPlaceholders();
 

@@ -118,7 +118,11 @@ public class Rule {
     }
 
     public Collection<EventSource> getEventSources() {
-        return trigger.getEventSources();
+        Collection<EventSource> sources = new HashSet<>();
+        sources.addAll(trigger.getEventSources());
+        for (Action a : actions)
+            sources.addAll(a.getEventSources());
+        return sources;
     }
 
     public void typeCheck() throws TriggerValueTypeException {

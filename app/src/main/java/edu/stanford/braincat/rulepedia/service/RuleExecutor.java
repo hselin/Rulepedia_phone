@@ -1,10 +1,7 @@
 package edu.stanford.braincat.rulepedia.service;
 
 import android.content.Context;
-import android.os.Handler;
 import android.os.Looper;
-import android.os.Message;
-import android.support.annotation.NonNull;
 import android.util.Log;
 
 import org.json.JSONException;
@@ -17,6 +14,7 @@ import java.util.Set;
 
 import edu.stanford.braincat.rulepedia.BuildConfig;
 import edu.stanford.braincat.rulepedia.events.EventSource;
+import edu.stanford.braincat.rulepedia.events.EventSourceHandler;
 import edu.stanford.braincat.rulepedia.exceptions.DuplicatedRuleException;
 import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
 import edu.stanford.braincat.rulepedia.exceptions.TriggerValueTypeException;
@@ -29,7 +27,7 @@ import edu.stanford.braincat.rulepedia.model.RuleDatabase;
 /**
  * Created by gcampagn on 5/2/15.
  */
-public class RuleExecutor extends Handler {
+public class RuleExecutor extends EventSourceHandler {
     private final Context context;
     private final Set<EventSource> eventSources;
     private ObjectDatabase objectdb;
@@ -245,10 +243,7 @@ public class RuleExecutor extends Handler {
     }
 
     @Override
-    public void dispatchMessage(@NonNull Message msg) {
-        // dispatch message to event sources
-        super.dispatchMessage(msg);
-
+    public void messageReceived() {
         // recompute triggers based on the new state of the event sources
         updateTriggers();
 

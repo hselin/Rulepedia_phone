@@ -1,7 +1,6 @@
 package edu.stanford.braincat.rulepedia.events;
 
 import android.content.Context;
-import android.os.Handler;
 
 import java.io.IOException;
 
@@ -12,7 +11,7 @@ public interface EventSource {
     /**
      * Start watching for events on this source.
      */
-    void install(Context ctx, Handler handler) throws IOException;
+    void install(Context ctx, EventSourceHandler handler) throws IOException;
 
     /**
      * Stop watching for events on this source.
