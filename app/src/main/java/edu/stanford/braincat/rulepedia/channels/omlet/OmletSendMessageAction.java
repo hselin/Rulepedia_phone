@@ -22,7 +22,7 @@ public class OmletSendMessageAction extends SendMessageAction {
 
     @Override
     protected void sendMessage(Context ctx, Contact contact, String message) throws RuleExecutionException {
-        IOsmService service = (IOsmService) ((OmletChannel)getChannel()).getService();
+        IOsmService service = ((OmletChannel)getChannel()).getService();
 
         if (service == null)
             throw new RuleExecutionException("Omlet service not available");

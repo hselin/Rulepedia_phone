@@ -11,11 +11,9 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 
-import edu.stanford.braincat.rulepedia.events.EventSource;
 import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
 import edu.stanford.braincat.rulepedia.exceptions.TriggerValueTypeException;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownChannelException;
@@ -121,7 +119,7 @@ public class GenericAction implements Action {
             throw new RuleExecutionException("Exception while evaluating action script", e);
         }
 
-        GenericChannelFactory.parseActionResult(result).run(ctx);
+        GenericChannelFactory.parseActionResult(result).run(ctx, ((GenericChannel) channel));
     }
 
     @Override

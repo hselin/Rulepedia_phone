@@ -13,12 +13,12 @@ import edu.stanford.braincat.rulepedia.model.ChannelFactory;
 /**
  * Created by gcampagn on 5/26/15.
  */
-public abstract class BindServiceChannel extends Channel implements ServiceConnection {
+public class ServiceBinder implements ServiceConnection {
+    private final Intent intent;
     private volatile IBinder service;
-    private ServiceConnection connection;
 
-    public BindServiceChannel(ChannelFactory factory, String url) {
-        super(factory, url);
+    public ServiceBinder(Intent intent) {
+        this.intent = intent;
     }
 
     public IBinder getService() {
@@ -35,16 +35,11 @@ public abstract class BindServiceChannel extends Channel implements ServiceConne
         service = null;
     }
 
-    protected abstract Intent createIntent();
-
-    @Override
     public void enable(Context ctx, EventSourceHandler handler) {
-        ctx.bindService(createIntent(), connection, Context.BIND_AUTO_CREATE);
+        ctx.bindService(intent, this, Context.BIND_AUTO_CREATE);
     }
 
-    @Override
     public void disable(Context ctx) {
-        ctx.unbindService(connection);
-        connection = null;
+        ctx.unbindService(this);
     }
 }

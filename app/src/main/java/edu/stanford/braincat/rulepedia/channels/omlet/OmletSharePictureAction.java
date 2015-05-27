@@ -23,7 +23,7 @@ public class OmletSharePictureAction extends SharePictureAction {
 
     @Override
     protected void sharePicture(Context ctx, Contact contact, Value.DirectPicture picture) throws RuleExecutionException {
-        IOsmService service = (IOsmService) ((OmletChannel)getChannel()).getService();
+        IOsmService service = ((OmletChannel)getChannel()).getService();
 
         if (service == null)
             throw new RuleExecutionException("Omlet service not available");

@@ -3,6 +3,8 @@ package edu.stanford.braincat.rulepedia.channels.generic;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.Uri;
+import android.os.RemoteException;
 import android.support.annotation.Nullable;
 import android.util.ArrayMap;
 
@@ -19,6 +21,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import edu.stanford.braincat.rulepedia.channels.HTTPUtil;
+import edu.stanford.braincat.rulepedia.channels.ServiceBinder;
 import edu.stanford.braincat.rulepedia.events.EventSource;
 import edu.stanford.braincat.rulepedia.events.IntentEventSource;
 import edu.stanford.braincat.rulepedia.events.TimeoutEventSource;
@@ -32,6 +35,7 @@ import edu.stanford.braincat.rulepedia.model.ChannelFactory;
 import edu.stanford.braincat.rulepedia.model.PlaceholderChannel;
 import edu.stanford.braincat.rulepedia.model.Trigger;
 import edu.stanford.braincat.rulepedia.model.Value;
+import mobisocial.osm.IOsmService;
 
 /**
  * Created by gcampagn on 5/8/15.
@@ -87,8 +91,9 @@ public class GenericChannelFactory extends ChannelFactory {
         }
 
         try {
-            return new GenericChannel(this, url, id, jsonFactory.getString("description"));
-        } catch (JSONException e) {
+            return new GenericChannel(this, url, id, jsonFactory.getString("description"),
+                    jsonFactory.has("services") ? jsonFactory.getJSONArray("services") : new JSONArray());
+        } catch (JSONException|UnknownChannelException e) {
             throw new UnknownObjectException(url);
         }
     }
@@ -345,7 +350,7 @@ public class GenericChannelFactory extends ChannelFactory {
 
         return new RuleRunnable() {
             @Override
-            public void run(Context ctx) throws RuleExecutionException {
+            public void run(Context ctx, GenericChannel channel) throws RuleExecutionException {
                 try {
                     if (method.equals("post"))
                         HTTPUtil.postString(url, data);
@@ -368,11 +373,34 @@ public class GenericChannelFactory extends ChannelFactory {
 
         return new RuleRunnable() {
             @Override
-            public void run(Context ctx) throws RuleExecutionException {
+            public void run(Context ctx, GenericChannel channel) throws RuleExecutionException {
                 if (activity)
                     ctx.startActivity(intent);
                 else
                     ctx.startService(intent);
+            }
+        };
+    }
+
+    private static RuleRunnable parseOmletActionResult(ScriptableObject result) {
+        final String groupUri = ScriptableObject.getProperty(result, "groupUri").toString();
+        final String messageType = ScriptableObject.getProperty(result, "messageType").toString();
+        final Object jsonObject = ScriptableObject.getProperty(result, "message");
+
+        return new RuleRunnable() {
+            @Override
+            public void run(Context ctx, GenericChannel channel) throws RuleExecutionException {
+                IOsmService omletService = (IOsmService) channel.getService("omlet");
+
+                if (omletService == null)
+                    throw new RuleExecutionException("Omlet service is not available");
+
+                String json = channel.toJSON(jsonObject);
+                try {
+                    omletService.sendObj(Uri.parse(groupUri), messageType, json);
+                } catch(RemoteException e) {
+                    throw new RuleExecutionException(e);
+                }
             }
         };
     }
@@ -383,8 +411,23 @@ public class GenericChannelFactory extends ChannelFactory {
                 return parseHTTPActionResult(result);
             case "intent":
                 return parseIntentActionResult(result);
+            case "omlet":
+                return parseOmletActionResult(result);
             default:
                 throw new RuleExecutionException("Action code returned invalid result");
+        }
+    }
+
+    public static ServiceBinder createServiceBinder(String type) throws UnknownChannelException {
+        switch (type) {
+            case "omlet": {
+                Intent intent = new Intent("mobisocial.intent.action.BIND_SERVICE");
+                intent.setPackage("mobisocial.omlet");
+                return new ServiceBinder(intent);
+            }
+
+            default:
+                throw new UnknownChannelException(type);
         }
     }
 }

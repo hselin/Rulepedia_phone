@@ -1,12 +1,15 @@
 package edu.stanford.braincat.rulepedia.channels.generic;
 
+import android.os.IBinder;
 import android.util.ArrayMap;
 import android.util.Log;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.mozilla.javascript.BaseFunction;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
+import org.mozilla.javascript.NativeJSON;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.Undefined;
@@ -17,8 +20,11 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import edu.stanford.braincat.rulepedia.channels.ServiceBinder;
 import edu.stanford.braincat.rulepedia.events.EventSource;
+import edu.stanford.braincat.rulepedia.events.EventSourceHandler;
 import edu.stanford.braincat.rulepedia.exceptions.TriggerValueTypeException;
+import edu.stanford.braincat.rulepedia.exceptions.UnknownChannelException;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
 import edu.stanford.braincat.rulepedia.model.Channel;
 
@@ -32,12 +38,21 @@ public class GenericChannel extends Channel {
     private final Context ctx;
     private final Scriptable global;
 
+    private final Map<String, ServiceBinder> services;
     private final Map<String, WeakReference<EventSource>> eventSourceRefs;
 
-    public GenericChannel(GenericChannelFactory factory, String url, final String id, String text) {
+    public GenericChannel(GenericChannelFactory factory, String url, final String id, String text, JSONArray jsonServices)
+            throws JSONException, UnknownChannelException {
         super(factory, url);
         this.text = text;
         eventSourceRefs = new HashMap<>();
+
+        services = new ArrayMap<>();
+        for (int i = 0; i < jsonServices.length(); i++) {
+            String serviceType = jsonServices.getString(i);
+            services.put(serviceType, GenericChannelFactory.createServiceBinder(id));
+        }
+
         ctx = Context.enter();
         ctx.setLanguageVersion(Context.VERSION_1_8);
         ctx.setOptimizationLevel(-1);
@@ -63,12 +78,35 @@ public class GenericChannel extends Channel {
         // FIXME auth
     }
 
+    @Override
+    public void enable(android.content.Context ctx, EventSourceHandler handler) {
+        for (ServiceBinder b : services.values())
+            b.enable(ctx, handler);
+    }
+
+    @Override
+    public void disable(android.content.Context ctx) {
+        for (ServiceBinder b : services.values())
+            b.disable(ctx);
+    }
+
     public Function compileFunction(String body) {
         return ctx.compileFunction(global, body, "channels.json", 1, null);
     }
 
     public Object callFunction(Function function, Scriptable thisArg, Object... args) {
         return function.call(ctx, global, thisArg, args);
+    }
+
+    public String toJSON(Object value) {
+        return NativeJSON.stringify(ctx, global, value, null, "").toString();
+    }
+
+    public IBinder getService(String serviceType) {
+        ServiceBinder binder = services.get(serviceType);
+        if (binder == null)
+            return null;
+        return binder.getService();
     }
 
     public Map<String, EventSource> getEventSources() throws
