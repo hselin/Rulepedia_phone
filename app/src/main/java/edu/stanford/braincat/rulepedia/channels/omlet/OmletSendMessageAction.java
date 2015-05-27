@@ -26,15 +26,6 @@ public class OmletSendMessageAction extends SendMessageAction {
     }
 
     @Override
-    public Collection<EventSource> getEventSources() {
-        Channel currentChannel = getChannel();
-        if (currentChannel instanceof OmletChannel)
-            return Arrays.asList(new EventSource[]{((OmletChannel) currentChannel).getEventSource()});
-        else
-            return Collections.emptySet();
-    }
-
-    @Override
     protected void sendMessage(Context ctx, Contact contact, String message) throws RuleExecutionException {
         IOsmService service = (IOsmService) ((OmletChannel)getChannel()).getEventSource().getService();
 
@@ -42,7 +33,7 @@ public class OmletSendMessageAction extends SendMessageAction {
             throw new RuleExecutionException("Omlet service not available");
 
         try {
-            service.sendText(Uri.parse("http://foo"), message);
+            service.sendText(Uri.parse(contact.getUrl()), message);
         } catch(RemoteException e) {
             throw new RuleExecutionException(e);
         }

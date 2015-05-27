@@ -118,11 +118,25 @@ public class Rule {
     }
 
     public Collection<EventSource> getEventSources() {
-        Collection<EventSource> sources = new HashSet<>();
-        sources.addAll(trigger.getEventSources());
+        return trigger.getEventSources();
+    }
+
+    private static void collectTriggerChannels(Trigger trigger, Collection<Channel> ctx) {
+        if (trigger instanceof CompositeTrigger) {
+            for (Trigger t : ((CompositeTrigger) trigger).getChildren())
+                collectTriggerChannels(t, ctx);
+        } else {
+            ctx.add(trigger.getChannel());
+        }
+    }
+
+    public Collection<Channel> getChannels() {
+        Collection<Channel> channels = new HashSet<>();
+        collectTriggerChannels(trigger, channels);
         for (Action a : actions)
-            sources.addAll(a.getEventSources());
-        return sources;
+            channels.add(a.getChannel());
+
+        return channels;
     }
 
     public void typeCheck() throws TriggerValueTypeException {

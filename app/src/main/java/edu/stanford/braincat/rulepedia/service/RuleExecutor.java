@@ -20,6 +20,7 @@ import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
 import edu.stanford.braincat.rulepedia.exceptions.TriggerValueTypeException;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownChannelException;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
+import edu.stanford.braincat.rulepedia.model.Channel;
 import edu.stanford.braincat.rulepedia.model.ObjectDatabase;
 import edu.stanford.braincat.rulepedia.model.Rule;
 import edu.stanford.braincat.rulepedia.model.RuleDatabase;
@@ -30,6 +31,7 @@ import edu.stanford.braincat.rulepedia.model.RuleDatabase;
 public class RuleExecutor extends EventSourceHandler {
     private final Context context;
     private final Set<EventSource> eventSources;
+    private final Set<Channel> channels;
     private ObjectDatabase objectdb;
     private RuleDatabase ruledb;
 
@@ -37,6 +39,7 @@ public class RuleExecutor extends EventSourceHandler {
         super(looper);
         context = ctx;
         eventSources = new HashSet<>();
+        channels = new HashSet<>();
 
         try {
             objectdb = ObjectDatabase.get();
@@ -90,12 +93,24 @@ public class RuleExecutor extends EventSourceHandler {
                 s.install(context, this);
                 anySuccess = true;
             } catch (IOException e) {
-                Log.e(RuleExecutorService.LOG_TAG, "Failed to install event source " + s.toString(), e);
+                Log.e(RuleExecutorService.LOG_TAG, "Failed to install event source " + s, e);
                 anyFailed = true;
             }
         }
-        if (!anyFailed)
+        Collection<Channel> channels = rule.getChannels();
+        for (Channel c : channels) {
+            try {
+                c.enable(context, this);
+                anySuccess = true;
+            } catch (IOException e) {
+                Log.e(RuleExecutorService.LOG_TAG, "Failed to enable channel " + c, e);
+                anyFailed = true;
+            }
+        }
+        if (!anyFailed) {
             eventSources.addAll(sources);
+            this.channels.addAll(channels);
+        }
         if (anySuccess)
             rule.setInstalled(true);
     }
@@ -116,8 +131,19 @@ public class RuleExecutor extends EventSourceHandler {
                 anyFailed = true;
             }
         }
-        if (!anyFailed)
+        Collection<Channel> channels = rule.getChannels();
+        for (Channel c : channels) {
+            try {
+                c.disable(context);
+            } catch (IOException e) {
+                Log.e(RuleExecutorService.LOG_TAG, "Failed to disable channel " + c, e);
+                anyFailed = true;
+            }
+        }
+        if (!anyFailed) {
             eventSources.removeAll(sources);
+            this.channels.removeAll(channels);
+        }
         if (anySuccess)
             rule.setInstalled(false);
     }

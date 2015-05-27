@@ -53,11 +53,6 @@ public class GenericAction implements Action {
     }
 
     @Override
-    public Collection<EventSource> getEventSources() {
-        return Collections.emptySet();
-    }
-
-    @Override
     public Collection<ObjectPool.Object> getPlaceholders() {
         Collection<ObjectPool.Object> result = new HashSet<>();
 

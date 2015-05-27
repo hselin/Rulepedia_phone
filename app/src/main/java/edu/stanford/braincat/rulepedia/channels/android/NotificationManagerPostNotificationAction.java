@@ -41,11 +41,6 @@ public class NotificationManagerPostNotificationAction implements Action {
         return channel;
     }
 
-    @Override
-    public Collection<EventSource> getEventSources() {
-        return Collections.emptySet();
-    }
-
     public Collection<ObjectPool.Object> getPlaceholders() {
         Collection<ObjectPool.Object> result = new HashSet<>();
 

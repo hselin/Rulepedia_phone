@@ -9,6 +9,8 @@ import edu.stanford.braincat.rulepedia.model.Channel;
  */
 public class OmletChannel extends Channel {
     public static final String OMLET_PACKAGE = "mobisocial.omlet";
+    public static final String CONTENT_URI = "content://mobisocial.osm/objects";
+    public static final String FEED_CONTENT_URI = "content://mobisocial.osm/feeds/";
 
     private WeakReference<OmletMessageEventSource> sourceRef;
 

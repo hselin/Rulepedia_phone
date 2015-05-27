@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.ContactsContract;
+import android.support.annotation.Nullable;
 
 import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
 import edu.stanford.braincat.rulepedia.model.Contact;
@@ -17,6 +18,7 @@ public class ContentProviderContact extends Contact {
         super(factory, url);
     }
 
+    @Nullable
     public String getPhoneNumber(Context ctx) throws UnknownObjectException {
         ContentResolver resolver = ctx.getContentResolver();
 
