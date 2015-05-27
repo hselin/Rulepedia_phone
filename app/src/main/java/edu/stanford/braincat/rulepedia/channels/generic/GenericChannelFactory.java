@@ -87,7 +87,7 @@ public class GenericChannelFactory extends ChannelFactory {
         }
 
         try {
-            return new GenericChannel(this, url, jsonFactory.getString("description"));
+            return new GenericChannel(this, url, id, jsonFactory.getString("description"));
         } catch (JSONException e) {
             throw new UnknownObjectException(url);
         }

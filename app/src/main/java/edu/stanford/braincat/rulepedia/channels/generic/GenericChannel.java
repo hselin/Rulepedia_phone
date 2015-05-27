@@ -59,7 +59,7 @@ public class GenericChannel extends Channel {
                 return 1;
             }
         });
-        
+
         // FIXME auth
     }
 
