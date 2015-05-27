@@ -123,12 +123,18 @@ public class FetchHistoryDataAction implements Action {
             DataSet dataSet = bucket.getDataSet(dataType.getOutput());
             List<DataPoint> dataPoints = dataSet.getDataPoints();
 
+            String dataTypeId = dataType.toString();
+
+            if (dataPoints.size() == 0) {
+                context.put(FITNESS_STATISTICS_PREFIX + dataTypeId, new Value.Number(0));
+                return;
+            }
+
             if (dataPoints.size() != 1)
                 throw new RuleExecutionException("Google Fit did not bucket the data properly, got " + dataPoints.size() + " points in one bucket");
 
             com.google.android.gms.fitness.data.Value value = dataPoints.get(0).getValue(dataType.getField());
 
-            String dataTypeId = dataType.toString();
 
             if (value.getFormat() == Field.FORMAT_INT32)
                 context.put(FITNESS_STATISTICS_PREFIX + dataTypeId, new Value.Number(value.asInt()));
