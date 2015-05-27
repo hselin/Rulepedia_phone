@@ -1,11 +1,15 @@
 package edu.stanford.braincat.rulepedia.channels.generic;
 
 import android.util.ArrayMap;
+import android.util.Log;
 
 import org.json.JSONException;
+import org.mozilla.javascript.BaseFunction;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.ScriptableObject;
+import org.mozilla.javascript.Undefined;
 
 import java.lang.ref.WeakReference;
 import java.net.MalformedURLException;
@@ -22,20 +26,40 @@ import edu.stanford.braincat.rulepedia.model.Channel;
  * Created by gcampagn on 5/8/15.
  */
 public class GenericChannel extends Channel {
+    private static final String LOG_TAG = "rulepedia.Channel.";
+
     private final String text;
     private final Context ctx;
     private final Scriptable global;
 
     private final Map<String, WeakReference<EventSource>> eventSourceRefs;
 
-    public GenericChannel(GenericChannelFactory factory, String url, String text) {
+    public GenericChannel(GenericChannelFactory factory, String url, final String id, String text) {
         super(factory, url);
         this.text = text;
-        this.eventSourceRefs = new HashMap<>();
-        this.ctx = Context.enter();
+        eventSourceRefs = new HashMap<>();
+        ctx = Context.enter();
         ctx.setLanguageVersion(Context.VERSION_1_8);
         ctx.setOptimizationLevel(-1);
-        this.global = ctx.initSafeStandardObjects();
+        global = ctx.initSafeStandardObjects();
+
+        ScriptableObject.putProperty(global, "log", new BaseFunction() {
+            @Override
+            public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object... args) {
+                if (args.length < 1 || args[0] == null)
+                    throw new IllegalArgumentException("Must provide at least one argument");
+
+                Log.i(LOG_TAG + id, args[0].toString());
+
+                return Undefined.instance;
+            }
+
+            @Override
+            public int getArity() {
+                return 1;
+            }
+        });
+        
         // FIXME auth
     }
 
