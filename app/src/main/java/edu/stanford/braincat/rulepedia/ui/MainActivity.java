@@ -92,6 +92,8 @@ public class MainActivity extends ActionBarActivity {
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
         initBLE();
+        startBLE();
+        //scanLeDevice(true);
 
         // ensure the service is running
         connection = new Connection();
@@ -375,13 +377,13 @@ public class MainActivity extends ActionBarActivity {
             new BluetoothAdapter.LeScanCallback() {
 
                 @Override
-                public void onLeScan(final BluetoothDevice device, int rssi, byte[] scanRecord) {
+                public void onLeScan(final BluetoothDevice device, int rssi, final byte[] scanRecord) {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             Log.d("!!!!!!!!", "FOUND BLE DEVICE: " + device.toString());
 
-
+                            Log.d("!!!!!!!!", "scanRecord: " + bytesToHex(scanRecord));
 
                             //mLeDeviceListAdapter.addDevice(device);
                             //mLeDeviceListAdapter.notifyDataSetChanged();
@@ -389,4 +391,15 @@ public class MainActivity extends ActionBarActivity {
                     });
                 }
             };
+
+    final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
+    public static String bytesToHex(byte[] bytes) {
+        char[] hexChars = new char[bytes.length * 2];
+        for ( int j = 0; j < bytes.length; j++ ) {
+            int v = bytes[j] & 0xFF;
+            hexChars[j * 2] = hexArray[v >>> 4];
+            hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+        }
+        return new String(hexChars);
+    }
 }
