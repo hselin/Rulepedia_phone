@@ -46,6 +46,30 @@ public class ContentProviderContact extends Contact {
         }
     }
 
+    @Nullable
+    public String getEmail(Context ctx) throws UnknownObjectException {
+        ContentResolver resolver = ctx.getContentResolver();
+
+        try (Cursor contactCursor = resolver.query(Uri.parse(getUrl()),
+                new String[]{ ContactsContract.Contacts._ID },
+                null, null, null)) {
+
+            if (!contactCursor.moveToFirst())
+                throw new UnknownObjectException(getUrl());
+
+            long contactId = contactCursor.getLong(1);
+
+            try (Cursor dataCursor = resolver.query(ContactsContract.Data.CONTENT_URI,
+                    new String[] { ContactsContract.CommonDataKinds.Email.ADDRESS },
+                    ContactsContract.Data.CONTACT_ID + "=? and " +
+                            ContactsContract.Data.MIMETYPE + "='" + ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE + "'",
+                    new String[] { String.valueOf(contactId) }, null)) {
+                dataCursor.moveToFirst();
+                return dataCursor.getString(0);
+            }
+        }
+    }
+
     @Override
     public String toHumanString() {
         return "a contact";
