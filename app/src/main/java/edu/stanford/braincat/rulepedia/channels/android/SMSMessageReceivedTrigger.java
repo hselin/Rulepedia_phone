@@ -9,6 +9,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
@@ -113,7 +114,7 @@ public class SMSMessageReceivedTrigger extends SimpleEventTrigger<SMSEventSource
         if (senderMatches != null) {
             try {
                 jsonParams.put(new Value.Contact(senderMatches.getUrl()).toJSON(Messaging.SENDER_MATCHES));
-            } catch (MalformedURLException e) {
+            } catch (URISyntaxException e) {
                 throw new RuntimeException(e);
             }
         }

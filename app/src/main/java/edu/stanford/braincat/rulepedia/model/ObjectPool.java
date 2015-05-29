@@ -1,7 +1,7 @@
 package edu.stanford.braincat.rulepedia.model;
 
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -106,8 +106,8 @@ public class ObjectPool<K extends ObjectPool.Object, F extends ObjectPool.Object
 
         // verify the url is valid
         try {
-            new URL(url);
-        } catch (MalformedURLException mue) {
+            new URI(url);
+        } catch (URISyntaxException e) {
             throw new UnknownObjectException(url);
         }
 

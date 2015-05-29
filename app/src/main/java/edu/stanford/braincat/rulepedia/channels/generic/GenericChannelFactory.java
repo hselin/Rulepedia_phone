@@ -245,7 +245,6 @@ public class GenericChannelFactory extends ChannelFactory {
             return new GenericTrigger(channel, triggerMeta.getString("id"), triggerMeta.getString("text"),
                     triggerMeta.getString("script"), buildPrivateEventSources(triggerMeta, channel, params), params);
         } catch (JSONException | MalformedURLException e) {
-
             throw new UnknownChannelException(method);
         }
     }
