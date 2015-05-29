@@ -144,7 +144,8 @@ public abstract class Value {
 
         public static Contact fromString(String string) throws UnknownObjectException {
             try {
-                return new Contact(string);
+                // we should not need to trim here, but I screwed up during input so whatever
+                return new Contact(string.trim());
             } catch(URISyntaxException e) {
                 throw new UnknownObjectException(string);
             }

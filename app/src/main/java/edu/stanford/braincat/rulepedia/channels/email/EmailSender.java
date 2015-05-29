@@ -38,20 +38,24 @@ public class EmailSender {
 
     public static void sendEmail(String email, String subject, String body) throws IOException {
         InetAddress address = InetAddress.getByName("smtp.gmail.com");
-        try (Socket socket = SSLSocketFactory.getDefault().createSocket(address, 456)) {
+        try (Socket socket = SSLSocketFactory.getDefault().createSocket(address, 465)) {
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
                 try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()))) {
                     expect(reader, 220);
                     writer.write("EHLO rulepedia.stanford.edu\r\n");
                     writer.flush();
                     expect(reader, 250);
-                    writer.write("AUTH PLAIN " + Base64.encodeToString((USERNAME + "\0" + USERNAME + "\0" + PASSWORD).getBytes(), 0) + "\r\n");
+                    String auth = Base64.encodeToString((USERNAME + "\0" + USERNAME + "\0" + PASSWORD).getBytes(), Base64.NO_WRAP);
+                    writer.write("AUTH PLAIN " + auth + "\r\n");
                     writer.flush();
                     expect(reader, 235);
                     writer.write("MAIL FROM: <" + USERNAME + ">\r\n");
                     writer.flush();
                     expect(reader, 250);
                     writer.write("RCPT TO: <" + email + ">\r\n");
+                    writer.flush();
+                    expect(reader, 250);
+                    writer.write("DATA\r\n");
                     writer.flush();
                     expect(reader, 354);
                     writer.write("From: Sabrina Braincat <" + USERNAME + ">\r\n");
