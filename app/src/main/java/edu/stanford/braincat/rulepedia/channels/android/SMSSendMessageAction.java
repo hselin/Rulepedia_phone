@@ -23,8 +23,8 @@ public class SMSSendMessageAction extends SendMessageAction {
         SmsManager smsManager = SmsManager.getDefault();
 
         String phoneNumber;
-        if (contact instanceof SMSContact)
-            phoneNumber = ((SMSContact) contact).getAddress();
+        if (contact instanceof TelephoneContact)
+            phoneNumber = ((TelephoneContact) contact).getAddress();
         else if (contact instanceof ContentProviderContact)
             phoneNumber = ((ContentProviderContact) contact).getPhoneNumber(ctx);
         else

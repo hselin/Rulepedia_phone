@@ -5,8 +5,8 @@ import edu.stanford.braincat.rulepedia.model.Contact;
 /**
  * Created by gcampagn on 5/2/15.
  */
-public class SMSContact extends Contact {
-    public SMSContact(SMSContactFactory factory, String url) {
+public class TelephoneContact extends Contact {
+    public TelephoneContact(TelephoneContactFactory factory, String url) {
         super(factory, url);
     }
 
@@ -16,6 +16,6 @@ public class SMSContact extends Contact {
     }
 
     public String getAddress() {
-        return getUrl().substring("sms:".length());
+        return getUrl().substring("tel:".length());
     }
 }

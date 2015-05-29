@@ -8,7 +8,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.HashSet;
@@ -130,7 +129,7 @@ public class SMSMessageReceivedTrigger extends SimpleEventTrigger<SMSEventSource
         if (!(newChannel instanceof SMSChannel))
             throw new UnknownObjectException(newChannel.getUrl());
         Contact newSenderMatches = senderMatches != null ? senderMatches.resolve() : null;
-        if (newSenderMatches != null && !(newSenderMatches instanceof SMSContact))
+        if (newSenderMatches != null && !(newSenderMatches instanceof TelephoneContact))
             throw new UnknownObjectException(newSenderMatches.getUrl());
 
         setSource(((SMSChannel) newChannel).getEventSource());
