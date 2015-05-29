@@ -505,8 +505,8 @@ public class MainActivity extends ActionBarActivity {
                             if(ibd != null) {
                                 Intent intent = new Intent(MainActivity.this, OmletUIService.class);
                                 intent.setAction(OmletUIService.NOTIFY_USER_NEW_DEVICE_DETECTED);
-                                intent.putExtra("UUID", ibd.uuid.toString());
-                                intent.putExtra("TYPE", ibd.deviceType.toString());
+                                intent.putExtra("UUID", ibd.uuid);
+                                intent.putExtra("TYPE", ibd.deviceType);
                                 startService(intent);
                             }
                         }
