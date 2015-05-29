@@ -106,6 +106,10 @@ public class MainActivity extends ActionBarActivity {
                 throw new RuntimeException(je);
             }
 
+            SharedPreferences.Editor editor = getSharedPreferences("omlet", MODE_PRIVATE).edit();
+            editor.putString("feedUri", sabrinaFeed.toString());
+            editor.apply();
+
             if (false) {
                 // FIXME: does not seem to work, and crashes our app
                 Intent viewIntent = new Intent(Intent.ACTION_VIEW, sabrinaFeed);
@@ -118,8 +122,9 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private void ensureOmletUI() {
-        String webhook = getSharedPreferences("omlet", MODE_PRIVATE).getString("webhook", null);
-        if (webhook != null)
+        SharedPreferences prefs = getSharedPreferences("omlet", MODE_PRIVATE);
+        String sabrinaFeed = prefs.getString("feedUri", null);
+        if (sabrinaFeed != null)
             return;
 
         omletServiceConnection = new ServiceConnection() {
@@ -271,7 +276,11 @@ public class MainActivity extends ActionBarActivity {
                 } else if (data.getPath().startsWith("/webhook/hook/")) {
                     try {
                         String webhook = new String(Base64.decode(data.getLastPathSegment(), Base64.URL_SAFE));
-                        SharedPreferences.Editor editor = getSharedPreferences("omlet", MODE_PRIVATE).edit();
+                        SharedPreferences prefs = getSharedPreferences("omlet", MODE_PRIVATE);
+                        if (webhook.equals(prefs.getString("webhook", null)))
+                            return;
+
+                        SharedPreferences.Editor editor = prefs.edit();
                         editor.putString("webhook", webhook);
                         editor.apply();
 
