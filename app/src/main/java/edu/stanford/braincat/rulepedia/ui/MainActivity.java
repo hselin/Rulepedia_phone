@@ -355,6 +355,9 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private void scanLeDevice(final boolean enable) {
+        if (mBluetoothAdapter == null)
+            return;
+
         if (enable) {
             // Stops scanning after a pre-defined scan period.
             mHandler.postDelayed(new Runnable() {

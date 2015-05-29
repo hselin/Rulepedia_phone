@@ -1,5 +1,7 @@
 package edu.stanford.braincat.rulepedia.model;
 
+import android.content.Context;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -25,7 +27,7 @@ public interface Trigger {
 
     Collection<ObjectPool.Object> getPlaceholders();
 
-    void update() throws RuleExecutionException;
+    void update(Context ctx) throws RuleExecutionException;
 
     boolean isFiring() throws RuleExecutionException;
 

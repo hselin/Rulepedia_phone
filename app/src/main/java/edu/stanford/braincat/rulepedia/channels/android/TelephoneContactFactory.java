@@ -7,16 +7,16 @@ import edu.stanford.braincat.rulepedia.model.PlaceholderContact;
 /**
  * Created by gcampagn on 5/2/15.
  */
-public class SMSContactFactory extends ContactFactory {
-    public static final String ID = "sms-contact";
+public class TelephoneContactFactory extends ContactFactory {
+    public static final String ID = "telephone-contact";
 
-    public SMSContactFactory() {
-        super("sms:");
+    public TelephoneContactFactory() {
+        super("tel:");
     }
 
     @Override
     public Contact create(String url) {
-        return new SMSContact(this, url);
+        return new TelephoneContact(this, url);
     }
 
     @Override

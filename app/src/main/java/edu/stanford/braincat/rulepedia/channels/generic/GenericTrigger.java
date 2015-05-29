@@ -1,5 +1,6 @@
 package edu.stanford.braincat.rulepedia.channels.generic;
 
+import android.content.Context;
 import android.util.ArrayMap;
 
 import org.json.JSONArray;
@@ -17,6 +18,7 @@ import java.util.HashSet;
 import java.util.Map;
 
 import edu.stanford.braincat.rulepedia.channels.Util;
+import edu.stanford.braincat.rulepedia.channels.omlet.OmletMessageEventSource;
 import edu.stanford.braincat.rulepedia.events.EventSource;
 import edu.stanford.braincat.rulepedia.events.IntentEventSource;
 import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
@@ -99,7 +101,7 @@ public class GenericTrigger implements Trigger {
     }
 
     @Override
-    public void update() throws RuleExecutionException {
+    public void update(Context ctx) throws RuleExecutionException {
         try {
             NativeObject newEventSourceValues = new NativeObject();
 
@@ -110,6 +112,9 @@ public class GenericTrigger implements Trigger {
                     ScriptableObject.putProperty(newEventSourceValues, e.getKey(), Util.readString(((WebPollingEventSource) source).getLastConnection()));
                 else if (source instanceof IntentEventSource && source.checkEvent())
                     ScriptableObject.putProperty(newEventSourceValues, e.getKey(), JSUtil.intentToJavascript(((IntentEventSource) source).getLastIntent()));
+                else if (source instanceof OmletMessageEventSource && source.checkEvent())
+                    ScriptableObject.putProperty(newEventSourceValues, e.getKey(),
+                            JSUtil.omletMessageToJavascript(((OmletMessageEventSource) source).getLastMessage(), (GenericChannel) channel, ctx));
                 else
                     ScriptableObject.putProperty(newEventSourceValues, e.getKey(), source.checkEvent());
             }

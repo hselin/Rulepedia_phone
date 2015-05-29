@@ -18,6 +18,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Collection;
@@ -114,8 +116,8 @@ public abstract class Value {
     private static class Object<K extends ObjectPool.Object> extends Value {
         private final String url;
 
-        public Object(String rep) throws MalformedURLException {
-            new URL(rep);
+        public Object(String rep) throws URISyntaxException {
+            new URI(rep);
             url = rep;
         }
 
@@ -136,12 +138,16 @@ public abstract class Value {
     public static class Contact extends Object<edu.stanford.braincat.rulepedia.model.Contact> {
         public static final String ID = "contact";
 
-        public Contact(String url) throws MalformedURLException {
+        public Contact(String url) throws URISyntaxException {
             super(url);
         }
 
-        public static Contact fromString(String string) throws MalformedURLException {
-            return new Contact(string);
+        public static Contact fromString(String string) throws UnknownObjectException {
+            try {
+                return new Contact(string);
+            } catch(URISyntaxException e) {
+                throw new UnknownObjectException(string);
+            }
         }
 
         @Override

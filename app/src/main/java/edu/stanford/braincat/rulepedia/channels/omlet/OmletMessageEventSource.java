@@ -22,6 +22,10 @@ public class OmletMessageEventSource extends MessengerEventSource {
         messageQueue = new ArrayDeque<>();
     }
 
+    public OmletMessage getLastMessage() {
+        return messageQueue.element();
+    }
+
     @Override
     protected void handleMessage(Message message) {
         if (message.what == OBJECT_ADDED)

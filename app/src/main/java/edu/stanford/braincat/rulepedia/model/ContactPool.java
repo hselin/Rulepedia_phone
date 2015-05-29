@@ -1,7 +1,7 @@
 package edu.stanford.braincat.rulepedia.model;
 
 import edu.stanford.braincat.rulepedia.channels.android.ContentProviderContactFactory;
-import edu.stanford.braincat.rulepedia.channels.android.SMSContactFactory;
+import edu.stanford.braincat.rulepedia.channels.android.TelephoneContactFactory;
 
 /**
  * Created by gcampagn on 5/9/15.
@@ -19,7 +19,7 @@ public class ContactPool extends ObjectPool<Contact, ContactFactory> {
     private ContactPool() {
         super(KIND);
 
-        registerFactory(new SMSContactFactory());
+        registerFactory(new TelephoneContactFactory());
         registerFactory(new ContentProviderContactFactory());
     }
 }

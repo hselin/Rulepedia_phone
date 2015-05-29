@@ -1,5 +1,7 @@
 package edu.stanford.braincat.rulepedia.channels.googlefit;
 
+import android.content.Context;
+
 import com.google.android.gms.fitness.data.Session;
 
 import org.json.JSONArray;
@@ -60,7 +62,7 @@ public class EndActivityTrigger extends SingleEventTrigger<ActivityMonitorEventS
     }
 
     @Override
-    public void update() {
+    public void update(Context ctx) {
         if (!getSource().checkEvent()) {
             activity = null;
             return;

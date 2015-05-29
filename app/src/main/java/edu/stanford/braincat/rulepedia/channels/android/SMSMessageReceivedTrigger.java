@@ -1,5 +1,6 @@
 package edu.stanford.braincat.rulepedia.channels.android;
 
+import android.content.Context;
 import android.support.annotation.Nullable;
 import android.telephony.SmsMessage;
 
@@ -7,7 +8,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
@@ -64,7 +65,7 @@ public class SMSMessageReceivedTrigger extends SimpleEventTrigger<SMSEventSource
     }
 
     @Override
-    public void update() {
+    public void update(Context ctx) {
         if (!getSource().checkEvent()) {
             receivedMessage = null;
             return;
@@ -112,7 +113,7 @@ public class SMSMessageReceivedTrigger extends SimpleEventTrigger<SMSEventSource
         if (senderMatches != null) {
             try {
                 jsonParams.put(new Value.Contact(senderMatches.getUrl()).toJSON(Messaging.SENDER_MATCHES));
-            } catch (MalformedURLException e) {
+            } catch (URISyntaxException e) {
                 throw new RuntimeException(e);
             }
         }
@@ -128,7 +129,7 @@ public class SMSMessageReceivedTrigger extends SimpleEventTrigger<SMSEventSource
         if (!(newChannel instanceof SMSChannel))
             throw new UnknownObjectException(newChannel.getUrl());
         Contact newSenderMatches = senderMatches != null ? senderMatches.resolve() : null;
-        if (newSenderMatches != null && !(newSenderMatches instanceof SMSContact))
+        if (newSenderMatches != null && !(newSenderMatches instanceof TelephoneContact))
             throw new UnknownObjectException(newSenderMatches.getUrl());
 
         setSource(((SMSChannel) newChannel).getEventSource());

@@ -4,12 +4,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.RemoteException;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-
 import edu.stanford.braincat.rulepedia.channels.interfaces.SendMessageAction;
-import edu.stanford.braincat.rulepedia.events.EventSource;
 import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
 import edu.stanford.braincat.rulepedia.model.Channel;
@@ -26,23 +21,14 @@ public class OmletSendMessageAction extends SendMessageAction {
     }
 
     @Override
-    public Collection<EventSource> getEventSources() {
-        Channel currentChannel = getChannel();
-        if (currentChannel instanceof OmletChannel)
-            return Arrays.asList(new EventSource[]{((OmletChannel) currentChannel).getEventSource()});
-        else
-            return Collections.emptySet();
-    }
-
-    @Override
     protected void sendMessage(Context ctx, Contact contact, String message) throws RuleExecutionException {
-        IOsmService service = (IOsmService) ((OmletChannel)getChannel()).getEventSource().getService();
+        IOsmService service = ((OmletChannel)getChannel()).getService();
 
         if (service == null)
             throw new RuleExecutionException("Omlet service not available");
 
         try {
-            service.sendText(Uri.parse("http://foo"), message);
+            service.sendText(Uri.parse(contact.getUrl()), message);
         } catch(RemoteException e) {
             throw new RuleExecutionException(e);
         }

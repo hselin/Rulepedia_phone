@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 
 /**
@@ -14,16 +13,12 @@ import java.net.URL;
  */
 public class HTTPUtil {
     public static String getString(String stringUrl) throws IOException {
-        try {
-            URL url = new URL(stringUrl);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            try (InputStream in = connection.getInputStream()) {
-                return Util.readString(in);
-            } finally {
-                connection.disconnect();
-            }
-        } catch (MalformedURLException mue) {
-            throw new IOException("Failed to parse HTTP url", mue);
+        URL url = new URL(stringUrl);
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        try (InputStream in = connection.getInputStream()) {
+            return Util.readString(in);
+        } finally {
+            connection.disconnect();
         }
     }
 
@@ -32,25 +27,21 @@ public class HTTPUtil {
     }
 
     public static String postString(String stringUrl, String data) throws IOException {
+         URL url = new URL(stringUrl);
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("POST");
         try {
-            URL url = new URL(stringUrl);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("POST");
-            try {
-                if (data != null) {
-                    connection.setDoOutput(true);
-                    try (OutputStream out = connection.getOutputStream()) {
-                        Util.writeString(out, data);
-                    }
+            if (data != null) {
+                connection.setDoOutput(true);
+                try (OutputStream out = connection.getOutputStream()) {
+                    Util.writeString(out, data);
                 }
-                try (InputStream in = connection.getInputStream()) {
-                    return Util.readString(in);
-                }
-            } finally {
-                connection.disconnect();
             }
-        } catch (MalformedURLException mue) {
-            throw new IOException("Failed to parse HTTP url", mue);
+            try (InputStream in = connection.getInputStream()) {
+                return Util.readString(in);
+            }
+        } finally {
+            connection.disconnect();
         }
     }
 }
