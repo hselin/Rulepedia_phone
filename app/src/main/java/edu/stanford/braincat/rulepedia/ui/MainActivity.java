@@ -3,6 +3,8 @@ package edu.stanford.braincat.rulepedia.ui;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
+import android.bluetooth.le.ScanRecord;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -14,6 +16,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -21,6 +24,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AlertDialog;
+import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
@@ -30,9 +34,18 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
+
 import edu.stanford.braincat.rulepedia.R;
 import edu.stanford.braincat.rulepedia.channels.Util;
 import edu.stanford.braincat.rulepedia.exceptions.DuplicatedRuleException;
+import edu.stanford.braincat.rulepedia.model.BLScanRecord;
+import edu.stanford.braincat.rulepedia.model.IBeaconDevice;
 import edu.stanford.braincat.rulepedia.model.Rule;
 import edu.stanford.braincat.rulepedia.omletUI.OmletUIService;
 import edu.stanford.braincat.rulepedia.service.AutoStarter;
@@ -163,7 +176,7 @@ public class MainActivity extends ActionBarActivity {
 
         initBLE();
         startBLE();
-        //scanLeDevice(true);
+        scanLeDevice(true);
 
         // ensure the service is running
         connection = new Connection();
@@ -486,25 +499,11 @@ public class MainActivity extends ActionBarActivity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            Log.d("!!!!!!!!", "FOUND BLE DEVICE: " + device.toString());
-
-                            Log.d("!!!!!!!!", "scanRecord: " + bytesToHex(scanRecord));
-
-                            //mLeDeviceListAdapter.addDevice(device);
-                            //mLeDeviceListAdapter.notifyDataSetChanged();
+                            //Log.d("!!!!!!!!", "FOUND BLE DEVICE: " + device.toString());
+                            IBeaconDevice ibd = IBeaconDevice.newIBeaconDevice(scanRecord);
                         }
                     });
                 }
             };
 
-    final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
-    public static String bytesToHex(byte[] bytes) {
-        char[] hexChars = new char[bytes.length * 2];
-        for ( int j = 0; j < bytes.length; j++ ) {
-            int v = bytes[j] & 0xFF;
-            hexChars[j * 2] = hexArray[v >>> 4];
-            hexChars[j * 2 + 1] = hexArray[v & 0x0F];
-        }
-        return new String(hexChars);
-    }
 }

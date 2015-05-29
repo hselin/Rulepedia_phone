@@ -123,7 +123,8 @@ public class BrowseFragment extends Fragment {
             public void run() {
                 getActivity().runOnUiThread(new Runnable() {
                     public void run() {
-                        mWebView.loadUrl("javascript:pollRules(false);");
+                        mWebView.loadUrl("javascript:" +
+                                "try { pollRules(false);} catch (e) {}");
                         //updateHTML();
                         //loadRules(getActivity().getApplicationContext());
                     }
