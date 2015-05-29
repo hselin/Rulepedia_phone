@@ -8,17 +8,34 @@ import java.util.Arrays;
  * Created by braincat on 5/29/15.
  */
 public class IBeaconDevice {
-    String uuid;
-    String major;
-    String minor;
-    String tx;
+    public String uuid;
+    public String major;
+    public String minor;
+    public String tx;
+
+    public String deviceType;
 
     public IBeaconDevice(String uuid, String major, String minor, String tx){
         this.uuid = uuid;
         this.major = major;
         this.minor = minor;
         this.tx = tx;
+
+        this.deviceType = parseDeviceType();
     }
+
+    private String parseDeviceType()
+    {
+        int major_number = Integer.parseInt(this.major, 16);
+
+        switch(major_number)
+        {
+            case 1: return "TV";
+        }
+
+        return "Unknown Device";
+    }
+
 
     final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
     public static String bytesToHexString(byte[] bytes) {
