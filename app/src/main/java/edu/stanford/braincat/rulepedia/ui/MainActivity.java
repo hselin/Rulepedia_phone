@@ -277,8 +277,11 @@ public class MainActivity extends ActionBarActivity {
                     try {
                         String webhook = new String(Base64.decode(data.getLastPathSegment(), Base64.URL_SAFE));
                         SharedPreferences prefs = getSharedPreferences("omlet", MODE_PRIVATE);
-                        if (webhook.equals(prefs.getString("webhook", null)))
+                        if (webhook.equals(prefs.getString("webhook", null))) {
+                            setResult(RESULT_OK);
+                            finish();
                             return;
+                        }
 
                         SharedPreferences.Editor editor = prefs.edit();
                         editor.putString("webhook", webhook);
@@ -287,6 +290,9 @@ public class MainActivity extends ActionBarActivity {
                         Intent intent = new Intent(this, OmletUIService.class);
                         intent.setAction(OmletUIService.WELCOME_USER);
                         startService(intent);
+                        setResult(RESULT_OK);
+                        finish();
+                        return;
                     } catch (Exception e) {
                         Log.w(LOG_TAG, "Failed to act on received webhook URL", e);
                     }
