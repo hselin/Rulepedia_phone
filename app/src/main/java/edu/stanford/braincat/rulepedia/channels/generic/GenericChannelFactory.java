@@ -51,10 +51,11 @@ public class GenericChannelFactory extends ChannelFactory {
     private final Map<String, JSONObject> actionMetas;
 
     public GenericChannelFactory(JSONObject jsonObjectFactory) throws JSONException {
-        super(jsonObjectFactory.has("urlPrefix") ? jsonObjectFactory.getString("urlPrefix") : jsonObjectFactory.getString("objectId"));
+        super(jsonObjectFactory.has("urlPrefix") && jsonObjectFactory.getString("urlPrefix").length() > 0 ?
+                jsonObjectFactory.getString("urlPrefix") : jsonObjectFactory.getString("objectId"));
         jsonFactory = jsonObjectFactory;
         id = jsonObjectFactory.getString("id");
-        if (jsonObjectFactory.has("urlRegex"))
+        if (jsonObjectFactory.has("urlRegex") && jsonObjectFactory.getString("urlRegex").length() > 0)
             pattern = Pattern.compile(jsonObjectFactory.getString("urlRegex"));
         else
             pattern = null;
