@@ -40,6 +40,9 @@ import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
 
 import edu.stanford.braincat.rulepedia.R;
@@ -47,6 +50,7 @@ import edu.stanford.braincat.rulepedia.channels.Util;
 import edu.stanford.braincat.rulepedia.exceptions.DuplicatedRuleException;
 import edu.stanford.braincat.rulepedia.model.BLScanRecord;
 import edu.stanford.braincat.rulepedia.model.IBeaconDevice;
+import edu.stanford.braincat.rulepedia.model.RandomQuotes;
 import edu.stanford.braincat.rulepedia.model.Rule;
 import edu.stanford.braincat.rulepedia.omletUI.OmletUIService;
 import edu.stanford.braincat.rulepedia.service.AutoStarter;
@@ -438,6 +442,22 @@ public class MainActivity extends ActionBarActivity {
 
         startBLE();
         scanLeDevice(true);
+
+        autoUpdate = new Timer();
+        autoUpdate.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                MainActivity.this.runOnUiThread(new Runnable() {
+                    public void run() {
+                        Intent intent = new Intent(MainActivity.this, OmletUIService.class);
+                        intent.setAction(OmletUIService.SAY_RANDOM_QUOTES);
+                        intent.putExtra("QUOTE", RandomQuotes.getQuote());
+                        startService(intent);
+                        Log.d("!!!!", "QUOTE!");
+                    }
+                });
+            }
+        }, 0, new Random().nextInt(5) * 1000 * 60);
     }
 
     //private LeDeviceListAdapter mLeDeviceListAdapter;
@@ -513,5 +533,17 @@ public class MainActivity extends ActionBarActivity {
                     });
                 }
             };
+
+
+    private Timer autoUpdate;
+
+
+
+
+    @Override
+    public void onPause() {
+        autoUpdate.cancel();
+        super.onPause();
+    }
 
 }

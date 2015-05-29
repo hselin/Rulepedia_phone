@@ -15,6 +15,8 @@ import edu.stanford.braincat.rulepedia.channels.HTTPUtil;
 public class OmletUIService extends Service {
     public static final String WELCOME_USER = "edu.stanford.braincat.rulepedia.omlet.WELCOME_USER";
     public static final String NOTIFY_USER_NEW_DEVICE_DETECTED = "edu.stanford.braincat.rulepedia.omlet.NOTIFY_USER_NEW_DEVICE_DETECTED";
+    public static final String SAY_RANDOM_QUOTES = "edu.stanford.braincat.rulepedia.omlet.SAY_RANDOM_QUOTES";
+
 
     public static final String LOG_TAG = "rulepedia.OmletUI";
 
@@ -58,10 +60,11 @@ public class OmletUIService extends Service {
                 String uuid = intent.getStringExtra("UUID");
                 String deviceType = intent.getStringExtra("TYPE");
 
-                Log.d("!!!!!", "uuid: " + uuid);
-                Log.d("!!!!!", "deviceType: " + deviceType);
-
                 doNotifyUserNewDeviceDetected(uuid, deviceType);
+                break;
+            case SAY_RANDOM_QUOTES:
+                String quote = intent.getStringExtra("QUOTE");
+                doSayRandomQuote(quote);
                 break;
 
             default:
@@ -91,6 +94,11 @@ public class OmletUIService extends Service {
     private void doNotifyUserNewDeviceDetected(String uuid, String deviceType)
     {
         sendMessage("Hello! I've detected a " + deviceType + " with UUID " + uuid);
+    }
+
+    private void doSayRandomQuote(String quote)
+    {
+        sendMessage(quote);
     }
 
     @Override
