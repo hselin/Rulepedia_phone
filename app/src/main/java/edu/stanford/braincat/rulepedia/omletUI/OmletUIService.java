@@ -41,11 +41,11 @@ public class OmletUIService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent == null)
-            return Service.START_NOT_STICKY;
+            return Service.START_REDELIVER_INTENT;
 
         if (!ensureWebHook()) {
-            stopSelf();
-            return Service.START_STICKY;
+            stopSelf(startId);
+            return Service.START_REDELIVER_INTENT;
         }
 
         switch (intent.getAction()) {
@@ -57,7 +57,7 @@ public class OmletUIService extends Service {
                 break;
         }
 
-        return Service.START_STICKY;
+        return Service.START_REDELIVER_INTENT;
     }
 
     private void sendMessage(final String message) {
