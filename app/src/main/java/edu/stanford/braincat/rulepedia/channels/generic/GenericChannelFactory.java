@@ -22,6 +22,7 @@ import java.util.regex.Pattern;
 
 import edu.stanford.braincat.rulepedia.channels.HTTPUtil;
 import edu.stanford.braincat.rulepedia.channels.ServiceBinder;
+import edu.stanford.braincat.rulepedia.channels.email.EmailSender;
 import edu.stanford.braincat.rulepedia.channels.omlet.OmletMessageEventSource;
 import edu.stanford.braincat.rulepedia.events.EventSource;
 import edu.stanford.braincat.rulepedia.events.IntentEventSource;
@@ -406,6 +407,23 @@ public class GenericChannelFactory extends ChannelFactory {
         };
     }
 
+    private static RuleRunnable parseEmailActionResult(ScriptableObject result) {
+        final String to = ScriptableObject.getProperty(result, "to").toString();
+        final String subject = ScriptableObject.getProperty(result, "subject").toString();
+        final String body = ScriptableObject.getProperty(result, "body").toString();
+
+        return new RuleRunnable() {
+            @Override
+            public void run(Context ctx, GenericChannel channel) throws RuleExecutionException {
+                try {
+                    EmailSender.sendEmail(to, subject, body);
+                } catch(IOException e) {
+                    throw new RuleExecutionException(e);
+                }
+            }
+        };
+    }
+
     public static RuleRunnable parseActionResult(ScriptableObject result) throws RuleExecutionException {
         switch (ScriptableObject.getProperty(result, "type").toString()) {
             case "http":
@@ -414,6 +432,8 @@ public class GenericChannelFactory extends ChannelFactory {
                 return parseIntentActionResult(result);
             case "omlet":
                 return parseOmletActionResult(result);
+            case "email":
+                return parseEmailActionResult(result);
             default:
                 throw new RuleExecutionException("Action code returned invalid result");
         }
