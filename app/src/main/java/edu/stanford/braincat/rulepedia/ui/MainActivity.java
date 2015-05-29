@@ -10,10 +10,12 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.RemoteException;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -23,6 +25,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
+import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -44,10 +47,12 @@ import edu.stanford.braincat.rulepedia.exceptions.DuplicatedRuleException;
 import edu.stanford.braincat.rulepedia.model.BLScanRecord;
 import edu.stanford.braincat.rulepedia.model.IBeaconDevice;
 import edu.stanford.braincat.rulepedia.model.Rule;
+import edu.stanford.braincat.rulepedia.omletUI.OmletUIService;
 import edu.stanford.braincat.rulepedia.service.AutoStarter;
 import edu.stanford.braincat.rulepedia.service.Callback;
 import edu.stanford.braincat.rulepedia.service.RuleExecutor;
 import edu.stanford.braincat.rulepedia.service.RuleExecutorService;
+import mobisocial.osm.IOsmService;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -71,6 +76,8 @@ public class MainActivity extends ActionBarActivity {
     private ServiceConnection connection;
     private RuleExecutor executor;
 
+    private ServiceConnection omletServiceConnection;
+    private IOsmService omletService;
 
     private class Connection implements ServiceConnection {
         @Override
@@ -84,12 +91,75 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
-    private void startService() {
-        AutoStarter.startService(this);
+    private void startExecutorService() {
+        AutoStarter.startExecutorService(this);
         Intent intent = new Intent(this, RuleExecutorService.class);
-        bindService(intent, connection, Context.BIND_AUTO_CREATE);
+        bindService(intent, connection, BIND_AUTO_CREATE);
     }
 
+    private void startOmletWebApp() {
+        if (omletService == null)
+            return;
+
+        try {
+            Uri sabrinaFeed = omletService.createFeed("Sabrina", Uri.parse("https://vast-hamlet-6003.herokuapp.com/images/world3.jpg"), new long[]{});
+
+            try {
+                JSONObject json = new JSONObject();
+
+                json.put("noun", "invitation");
+                json.put("displayTitle", "Sabrina");
+                json.put("displayThumbnailUrl", "https://vast-hamlet-6003.herokuapp.com/images/world3.jpg");
+                json.put("displayText", "Click here to install Sabrina!");
+                json.put("json", "true");
+                json.put("callback", "https://vast-hamlet-6003.herokuapp.com/webhook/install");
+
+                omletService.sendObj(sabrinaFeed, "rdl", json.toString());
+            } catch (JSONException je) {
+                throw new RuntimeException(je);
+            }
+
+            SharedPreferences.Editor editor = getSharedPreferences("omlet", MODE_PRIVATE).edit();
+            editor.putString("feedUri", sabrinaFeed.toString());
+            editor.apply();
+
+            if (false) {
+                // FIXME: does not seem to work, and crashes our app
+                Intent viewIntent = new Intent(Intent.ACTION_VIEW, sabrinaFeed);
+                viewIntent.setType("vnd.mobisocial/group");
+                startActivity(viewIntent);
+            }
+        } catch(RemoteException e) {
+            Log.e(LOG_TAG, "Failed to tell Omlet to show the Sabrina installation UI!", e);
+        }
+    }
+
+    private void ensureOmletUI() {
+        SharedPreferences prefs = getSharedPreferences("omlet", MODE_PRIVATE);
+        String sabrinaFeed = prefs.getString("feedUri", null);
+        if (sabrinaFeed != null)
+            return;
+
+        omletServiceConnection = new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+                omletService = IOsmService.Stub.asInterface(iBinder);
+                startOmletWebApp();
+                if (omletServiceConnection != null) {
+                    unbindService(omletServiceConnection);
+                    omletServiceConnection = null;
+                }
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName componentName) {
+                omletService = null;
+            }
+        };
+        Intent intent = new Intent("mobisocial.intent.action.BIND_SERVICE");
+        intent.setPackage("mobisocial.omlet");
+        bindService(intent, omletServiceConnection, BIND_AUTO_CREATE);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,7 +180,7 @@ public class MainActivity extends ActionBarActivity {
 
         // ensure the service is running
         connection = new Connection();
-        startService();
+        startExecutorService();
     }
 
     public void onRuleInstalled() {
@@ -203,19 +273,47 @@ public class MainActivity extends ActionBarActivity {
 
                 if (!data.getScheme().equals("https") ||
                         (!data.getHost().equals("vast-hamlet-6003.herokuapp.com") &&
-                                !data.getHost().equals("rulepedia.stanford.edu")) ||
-                        !data.getPath().startsWith("/rule/")) {
+                                !data.getHost().equals("rulepedia.stanford.edu"))) {
                     Log.w(LOG_TAG, "Received spurious intent for URL " + data);
                     return;
                 }
 
-                try {
-                    JSONObject json = Util.parseEncodedRule(startIntent.getData().getLastPathSegment());
-                    installRule(json);
-                } catch (Exception e) {
-                    Log.w(LOG_TAG, "Failed to act on received rule URL", e);
+                if (data.getPath().startsWith("/rule/")) {
+                    try {
+                        JSONObject json = Util.parseEncodedRule(data.getLastPathSegment());
+                        installRule(json);
+                    } catch (Exception e) {
+                        Log.w(LOG_TAG, "Failed to act on received rule URL", e);
+                    }
+                    return;
+                } else if (data.getPath().startsWith("/webhook/hook/")) {
+                    try {
+                        String webhook = new String(Base64.decode(data.getLastPathSegment(), Base64.URL_SAFE));
+                        SharedPreferences prefs = getSharedPreferences("omlet", MODE_PRIVATE);
+                        if (webhook.equals(prefs.getString("webhook", null))) {
+                            setResult(RESULT_OK);
+                            finish();
+                            return;
+                        }
+
+                        SharedPreferences.Editor editor = prefs.edit();
+                        editor.putString("webhook", webhook);
+                        editor.apply();
+
+                        Intent intent = new Intent(this, OmletUIService.class);
+                        intent.setAction(OmletUIService.WELCOME_USER);
+                        startService(intent);
+                        setResult(RESULT_OK);
+                        finish();
+                        return;
+                    } catch (Exception e) {
+                        Log.w(LOG_TAG, "Failed to act on received webhook URL", e);
+                    }
+                    return;
+                } else {
+                    Log.w(LOG_TAG, "Received spurious intent for URL " + data);
+                    return;
                 }
-                return;
             case RuleExecutorService.INSTALL_RULE_INTENT:
                 try {
                     installRule((JSONObject) new JSONTokener(startIntent.getStringExtra("json")).nextValue());
@@ -225,6 +323,8 @@ public class MainActivity extends ActionBarActivity {
                 return;
 
             case Intent.ACTION_MAIN:
+                // ensure that we can run the Omlet UI
+                ensureOmletUI();
                 return;
 
             default:
@@ -239,6 +339,8 @@ public class MainActivity extends ActionBarActivity {
     @Override
     public void onDestroy() {
         unbindService(connection);
+        if (omletServiceConnection != null)
+            unbindService(omletServiceConnection);
         super.onDestroy();
     }
 

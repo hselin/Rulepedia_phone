@@ -44,7 +44,7 @@ public class OmletChannel extends Channel {
     }
 
     public IOsmService getService() {
-        return (IOsmService) binder.getService();
+        return IOsmService.Stub.asInterface(binder.getService());
     }
 
     public OmletMessageEventSource getEventSource() {
