@@ -14,6 +14,7 @@ import edu.stanford.braincat.rulepedia.channels.HTTPUtil;
 
 public class OmletUIService extends Service {
     public static final String WELCOME_USER = "edu.stanford.braincat.rulepedia.omlet.WELCOME_USER";
+    public static final String NOTIFY_USER_NEW_DEVICE_DETECTED = "edu.stanford.braincat.rulepedia.omlet.NOTIFY_USER_NEW_DEVICE_DETECTED";
 
     public static final String LOG_TAG = "rulepedia.OmletUI";
 
@@ -53,6 +54,16 @@ public class OmletUIService extends Service {
                 doWelcomeUser();
                 break;
 
+            case NOTIFY_USER_NEW_DEVICE_DETECTED:
+                String uuid = intent.getStringExtra("UUID");
+                String deviceType = intent.getStringExtra("TYPE");
+
+                Log.d("!!!!!", "uuid: " + uuid);
+                Log.d("!!!!!", "deviceType: " + deviceType);
+
+                doNotifyUserNewDeviceDetected(uuid, deviceType);
+                break;
+
             default:
                 break;
         }
@@ -75,6 +86,11 @@ public class OmletUIService extends Service {
 
     private void doWelcomeUser() {
         sendMessage("Hello! My name is Sabrina, and I'm ready to use my magic power to help you!");
+    }
+
+    private void doNotifyUserNewDeviceDetected(String uuid, String deviceType)
+    {
+        sendMessage("Hello! I've detected a " + deviceType + " with UUID " + uuid);
     }
 
     @Override

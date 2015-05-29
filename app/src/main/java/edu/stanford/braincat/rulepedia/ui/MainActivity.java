@@ -33,6 +33,7 @@ import android.view.MenuItem;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
+import org.mozilla.javascript.tools.debugger.Main;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -501,6 +502,13 @@ public class MainActivity extends ActionBarActivity {
                         public void run() {
                             //Log.d("!!!!!!!!", "FOUND BLE DEVICE: " + device.toString());
                             IBeaconDevice ibd = IBeaconDevice.newIBeaconDevice(scanRecord);
+                            if(ibd != null) {
+                                Intent intent = new Intent(MainActivity.this, OmletUIService.class);
+                                intent.setAction(OmletUIService.NOTIFY_USER_NEW_DEVICE_DETECTED);
+                                intent.putExtra("UUID", ibd.uuid);
+                                intent.putExtra("TYPE", ibd.deviceType);
+                                startService(intent);
+                            }
                         }
                     });
                 }
