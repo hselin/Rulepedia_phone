@@ -41,7 +41,6 @@ public class ChannelPool extends ObjectPool<Channel, ChannelFactory> {
         registerFactory(new NotificationManagerChannelFactory());
         registerFactory(new GoogleFitChannelFactory());
         registerFactory(new OmletChannelFactory());
-        //registerFactory(new EmailChannelFactory());
 
         try {
             JSONArray jsonChannels = (JSONArray) HTTPUtil.getJSON(CHANNELS_DB).nextValue();
