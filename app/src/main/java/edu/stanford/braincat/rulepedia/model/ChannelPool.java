@@ -11,7 +11,6 @@ import java.io.IOException;
 import edu.stanford.braincat.rulepedia.channels.HTTPUtil;
 import edu.stanford.braincat.rulepedia.channels.android.NotificationManagerChannelFactory;
 import edu.stanford.braincat.rulepedia.channels.android.SMSChannelFactory;
-import edu.stanford.braincat.rulepedia.channels.email.EmailChannelFactory;
 import edu.stanford.braincat.rulepedia.channels.generic.GenericChannelFactory;
 import edu.stanford.braincat.rulepedia.channels.googlefit.GoogleFitChannelFactory;
 import edu.stanford.braincat.rulepedia.channels.omlet.OmletChannelFactory;
@@ -42,7 +41,7 @@ public class ChannelPool extends ObjectPool<Channel, ChannelFactory> {
         registerFactory(new NotificationManagerChannelFactory());
         registerFactory(new GoogleFitChannelFactory());
         registerFactory(new OmletChannelFactory());
-        registerFactory(new EmailChannelFactory());
+        //registerFactory(new EmailChannelFactory());
 
         try {
             JSONArray jsonChannels = (JSONArray) HTTPUtil.getJSON(CHANNELS_DB).nextValue();

@@ -224,6 +224,14 @@ public class RuleExecutor extends EventSourceHandler {
 
         db.removeRule(rule);
 
+        try {
+            // save eagerly to catch problems
+            db.save(context);
+        } catch (IOException e) {
+            Log.w(RuleExecutorService.LOG_TAG, "Failed to save rule database to disk", e);
+            // continue on failure, we'll try again later
+        }
+
         if (!rule.isInstalled()) {
             callback.post(true, null);
             return;
