@@ -431,7 +431,7 @@ public class MainActivity extends ActionBarActivity {
         startBLE();
         scanLeDevice(true);
 
-        /*
+
         autoUpdate = new Timer();
         autoUpdate.schedule(new TimerTask() {
             @Override
@@ -446,8 +446,8 @@ public class MainActivity extends ActionBarActivity {
                     }
                 });
             }
-        }, 0, new Random().nextInt(5) * 1000 * 60);
-        */
+        }, 0, 120000);
+        //new Random().nextInt(5) * 1000 * 60
     }
 
     //private LeDeviceListAdapter mLeDeviceListAdapter;
@@ -529,11 +529,11 @@ public class MainActivity extends ActionBarActivity {
 
 
 
-/*
+
     @Override
     public void onPause() {
         autoUpdate.cancel();
         super.onPause();
     }
-*/
+
 }
