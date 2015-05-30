@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -30,6 +31,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
+import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -513,10 +515,20 @@ public class MainActivity extends ActionBarActivity {
                         public void run() {
                             //Log.d("!!!!!!!!", "FOUND BLE DEVICE: " + device.toString());
                             IBeaconDevice ibd = IBeaconDevice.newIBeaconDevice(scanRecord);
-                            if(ibd != null) {
+                            if (ibd != null) {
                                 Log.d("!!!!!!!!", "FOUND IBACON BLE DEVICE: " + device.toString());
                                 ObjectDatabase od = ObjectDatabase.get();
-                                od.store(DevicePool.PLACEHOLDER_PREFIX + "/ibeacon/" + ibd.deviceType, ibd);
+                                od.store(DevicePool.PLACEHOLDER_PREFIX + "ibeacon/" + ibd.deviceType, ibd);
+                                AsyncTask.execute(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        try {
+                                            ObjectDatabase.get().save(MainActivity.this);
+                                        } catch(IOException e) {
+                                            Log.e(LOG_TAG, "Failed to save object database", e);
+                                        }
+                                    }
+                                });
                                 Intent intent = new Intent(MainActivity.this, OmletUIService.class);
                                 intent.setAction(OmletUIService.NOTIFY_USER_NEW_DEVICE_DETECTED);
                                 intent.putExtra("UUID", ibd.uuid);

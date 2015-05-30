@@ -33,10 +33,10 @@ public class IBeaconDevice extends Device {
 
     private String parseDeviceType() {
         switch(major) {
-            case 1: return "Corktastic";
+            case 1: return "corktastic";
         }
 
-        return "Unknown";
+        return "unknown";
     }
 
 

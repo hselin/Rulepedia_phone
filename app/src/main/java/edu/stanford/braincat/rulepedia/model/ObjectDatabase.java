@@ -80,7 +80,7 @@ public class ObjectDatabase {
     }
 
     public synchronized void store(String url, Device object) {
-        DevicePool.get().cache(url, object);
+        DevicePool.get().cache(object.getUrl(), object);
         objects.put(url, object.getUrl());
         dirty = true;
     }

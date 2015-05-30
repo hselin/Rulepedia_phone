@@ -3,6 +3,7 @@ package edu.stanford.braincat.rulepedia.channels.generic;
 import android.content.Context;
 import android.util.ArrayMap;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.mozilla.javascript.Function;
@@ -21,6 +22,7 @@ import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
 import edu.stanford.braincat.rulepedia.model.Action;
 import edu.stanford.braincat.rulepedia.model.Channel;
 import edu.stanford.braincat.rulepedia.model.ObjectPool;
+import edu.stanford.braincat.rulepedia.model.Trigger;
 import edu.stanford.braincat.rulepedia.model.Value;
 
 /**
@@ -129,6 +131,15 @@ public class GenericAction implements Action {
 
     @Override
     public JSONObject toJSON() throws JSONException {
-        return null;
+        JSONObject json = new JSONObject();
+        json.put(Action.OBJECT, channel.getUrl());
+        json.put(Action.METHOD, id);
+
+        JSONArray jsonParams = new JSONArray();
+        for (Map.Entry<String, Value> e : parameters.entrySet()) {
+            jsonParams.put(e.getValue().toJSON(e.getKey()));
+        }
+        json.put(Action.PARAMS, jsonParams);
+        return json;
     }
 }
