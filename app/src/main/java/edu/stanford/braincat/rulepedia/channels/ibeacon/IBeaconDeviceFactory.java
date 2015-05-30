@@ -21,7 +21,7 @@ public class IBeaconDeviceFactory extends DeviceFactory {
     public IBeaconDeviceFactory() {
         super(URL_PREFIX);
 
-        urlPattern = Pattern.compile("https://rulepedia\\.stanford\\.edu/oid/devices/ibeacon/([a-z0-9]+)/([0-9])+/([0-9])+/([\\-[0-9]\\.]+)");
+        urlPattern = Pattern.compile("https://rulepedia\\.stanford\\.edu/oid/devices/ibeacon/([a-z0-9]+)/([0-9])+/([0-9])+/([\\-[0-9]]+)");
     }
 
     public static IBeaconDeviceFactory getDefault() {
@@ -36,7 +36,7 @@ public class IBeaconDeviceFactory extends DeviceFactory {
 
         try {
             return new IBeaconDevice(this, m.group(1),
-                    Integer.parseInt(m.group(2), 10), Integer.parseInt(m.group(3), 10), Double.parseDouble(m.group(4)));
+                    Integer.parseInt(m.group(2), 10), Integer.parseInt(m.group(3), 10), Integer.parseInt(m.group(4), 10));
         } catch(NumberFormatException e) {
             throw new UnknownObjectException(url);
         }
