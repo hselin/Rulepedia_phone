@@ -514,6 +514,7 @@ public class MainActivity extends ActionBarActivity {
                             //Log.d("!!!!!!!!", "FOUND BLE DEVICE: " + device.toString());
                             IBeaconDevice ibd = IBeaconDevice.newIBeaconDevice(scanRecord);
                             if(ibd != null) {
+                                Log.d("!!!!!!!!", "FOUND IBACON BLE DEVICE: " + device.toString());
                                 ObjectDatabase od = ObjectDatabase.get();
                                 od.store(DevicePool.PLACEHOLDER_PREFIX + "/ibeacon/" + ibd.deviceType, ibd);
                                 Intent intent = new Intent(MainActivity.this, OmletUIService.class);

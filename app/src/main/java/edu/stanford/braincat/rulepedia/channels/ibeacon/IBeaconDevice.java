@@ -59,9 +59,9 @@ public class IBeaconDevice extends Device {
                 return null;
 
             String uuid = bytesToHexString(Arrays.copyOfRange(scanRecord, 9, 25));
-            int major = Integer.parseInt(bytesToHexString(Arrays.copyOfRange(scanRecord, 25, 27)));
-            int minor = Integer.parseInt(bytesToHexString(Arrays.copyOfRange(scanRecord, 27, 29)));
-            double tx = Double.parseDouble(bytesToHexString(Arrays.copyOfRange(scanRecord, 29, 30)));
+            int major = Integer.parseInt(bytesToHexString(Arrays.copyOfRange(scanRecord, 25, 27)), 16);
+            int minor = Integer.parseInt(bytesToHexString(Arrays.copyOfRange(scanRecord, 27, 29)), 16);
+            int tx = Integer.parseInt(bytesToHexString(Arrays.copyOfRange(scanRecord, 29, 30)), 16);
 
             return new IBeaconDevice(IBeaconDeviceFactory.getDefault(), uuid, major, minor, tx);
         } catch(NumberFormatException e) {
