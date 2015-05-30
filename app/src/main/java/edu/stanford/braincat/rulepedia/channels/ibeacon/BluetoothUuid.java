@@ -1,4 +1,4 @@
-package edu.stanford.braincat.rulepedia.model;
+package edu.stanford.braincat.rulepedia.channels.ibeacon;
 
 import android.os.ParcelUuid;
 

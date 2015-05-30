@@ -157,6 +157,28 @@ public abstract class Value {
         }
     }
 
+    public static class Device extends Object<edu.stanford.braincat.rulepedia.model.Device> {
+        public static final String ID = "device";
+
+        public Device(String url) throws URISyntaxException {
+            super(url);
+        }
+
+        public static Device fromString(String string) throws UnknownObjectException {
+            try {
+                // we should not need to trim here, but I screwed up during input so whatever
+                return new Device(string.trim());
+            } catch(URISyntaxException e) {
+                throw new UnknownObjectException(string);
+            }
+        }
+
+        @Override
+        public Value resolve(@Nullable Map<String, Value> context) throws UnknownObjectException {
+            return resolve(context, DevicePool.get());
+        }
+    }
+
     public static class Text extends Value {
         public static final String ID = "text";
 

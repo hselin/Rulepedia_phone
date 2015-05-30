@@ -1,4 +1,4 @@
-package edu.stanford.braincat.rulepedia.model;
+package edu.stanford.braincat.rulepedia.channels.ibeacon;
 
 import android.util.SparseArray;
 
@@ -16,7 +16,7 @@ public class Utils {
     /**
      * Returns a string composed from a {@link SparseArray}.
      */
-    static String toString(SparseArray<byte[]> array) {
+    public static String toString(SparseArray<byte[]> array) {
         if (array == null) {
             return "null";
         }
@@ -35,7 +35,7 @@ public class Utils {
     /**
      * Returns a string composed from a {@link Map}.
      */
-    static <T> String toString(Map<T, byte[]> map) {
+    public static <T> String toString(Map<T, byte[]> map) {
         if (map == null) {
             return "null";
         }

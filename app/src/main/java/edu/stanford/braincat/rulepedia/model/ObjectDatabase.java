@@ -60,6 +60,13 @@ public class ObjectDatabase {
         return ContactPool.get().getObject(resolvedUrl);
     }
 
+    public synchronized Device resolveDevice(String url) throws UnknownObjectException {
+        String resolvedUrl = objects.get(url);
+        if (resolvedUrl == null)
+            throw new UnknownObjectException(url);
+        return DevicePool.get().getObject(resolvedUrl);
+    }
+
     public synchronized void store(String url, ObjectPool.Object object) {
         objects.put(url, object.getUrl());
         dirty = true;

@@ -134,6 +134,8 @@ public class GenericChannelFactory extends ChannelFactory {
             case Value.Contact.ID:
             case "message-destination":
                 return Value.Contact.class;
+            case Value.Device.ID:
+                return Value.Device.class;
             default:
                 throw new TriggerValueTypeException("invalid type " + paramtype);
         }

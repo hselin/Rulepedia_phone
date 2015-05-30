@@ -30,15 +30,14 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
-import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import edu.stanford.braincat.rulepedia.R;
 import edu.stanford.braincat.rulepedia.channels.Util;
 import edu.stanford.braincat.rulepedia.exceptions.DuplicatedRuleException;
-import edu.stanford.braincat.rulepedia.model.IBeaconDevice;
-import edu.stanford.braincat.rulepedia.model.RandomQuotes;
+import edu.stanford.braincat.rulepedia.channels.ibeacon.IBeaconDevice;
+import edu.stanford.braincat.rulepedia.omletUI.RandomQuotes;
 import edu.stanford.braincat.rulepedia.model.Rule;
 import edu.stanford.braincat.rulepedia.omletUI.OmletUIService;
 import edu.stanford.braincat.rulepedia.service.AutoStarter;

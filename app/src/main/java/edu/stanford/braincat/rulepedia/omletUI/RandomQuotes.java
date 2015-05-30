@@ -1,4 +1,4 @@
-package edu.stanford.braincat.rulepedia.model;
+package edu.stanford.braincat.rulepedia.omletUI;
 
 import java.util.Random;
 

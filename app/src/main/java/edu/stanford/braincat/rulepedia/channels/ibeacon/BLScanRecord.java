@@ -1,4 +1,4 @@
-package edu.stanford.braincat.rulepedia.model;
+package edu.stanford.braincat.rulepedia.channels.ibeacon;
 
 /**
  * Created by braincat on 5/29/15.
@@ -11,8 +11,6 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import android.util.SparseArray;
 
-
-import com.google.android.gms.analytics.Logger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
