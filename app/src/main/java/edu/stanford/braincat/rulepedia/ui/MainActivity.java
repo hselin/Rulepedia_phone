@@ -37,6 +37,8 @@ import edu.stanford.braincat.rulepedia.R;
 import edu.stanford.braincat.rulepedia.channels.Util;
 import edu.stanford.braincat.rulepedia.exceptions.DuplicatedRuleException;
 import edu.stanford.braincat.rulepedia.channels.ibeacon.IBeaconDevice;
+import edu.stanford.braincat.rulepedia.model.DevicePool;
+import edu.stanford.braincat.rulepedia.model.ObjectDatabase;
 import edu.stanford.braincat.rulepedia.omletUI.RandomQuotes;
 import edu.stanford.braincat.rulepedia.model.Rule;
 import edu.stanford.braincat.rulepedia.omletUI.OmletUIService;
@@ -512,6 +514,8 @@ public class MainActivity extends ActionBarActivity {
                             //Log.d("!!!!!!!!", "FOUND BLE DEVICE: " + device.toString());
                             IBeaconDevice ibd = IBeaconDevice.newIBeaconDevice(scanRecord);
                             if(ibd != null) {
+                                ObjectDatabase od = ObjectDatabase.get();
+                                od.store(DevicePool.PLACEHOLDER_PREFIX + "/ibeacon/" + ibd.deviceType, ibd);
                                 Intent intent = new Intent(MainActivity.this, OmletUIService.class);
                                 intent.setAction(OmletUIService.NOTIFY_USER_NEW_DEVICE_DETECTED);
                                 intent.putExtra("UUID", ibd.uuid);
