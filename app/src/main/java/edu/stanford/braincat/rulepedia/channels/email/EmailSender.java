@@ -17,6 +17,7 @@ import javax.net.ssl.SSLSocketFactory;
  */
 public class EmailSender {
     private static final String USERNAME = "sabrina.assistant.app@gmail.com";
+    // I should fail CS155 for this
     private static final String PASSWORD = "sabrinaisanawesomeassistant";
 
     private static void expect(BufferedReader reader, int code) throws IOException {

@@ -3,8 +3,6 @@ package edu.stanford.braincat.rulepedia.ui;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
-import android.bluetooth.le.ScanRecord;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -16,7 +14,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -24,7 +21,6 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AlertDialog;
-import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
@@ -33,22 +29,14 @@ import android.view.MenuItem;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
-import org.mozilla.javascript.tools.debugger.Main;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.UUID;
 
 import edu.stanford.braincat.rulepedia.R;
 import edu.stanford.braincat.rulepedia.channels.Util;
 import edu.stanford.braincat.rulepedia.exceptions.DuplicatedRuleException;
-import edu.stanford.braincat.rulepedia.model.BLScanRecord;
 import edu.stanford.braincat.rulepedia.model.IBeaconDevice;
 import edu.stanford.braincat.rulepedia.model.RandomQuotes;
 import edu.stanford.braincat.rulepedia.model.Rule;
@@ -191,7 +179,7 @@ public class MainActivity extends ActionBarActivity {
     public void onRuleInstalled() {
         new AlertDialog.Builder(this)
                 .setTitle("Success")
-                .setMessage("Rule added to database")
+                .setMessage("I learned this magic spell, and I'm ready to use it!")
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         startActivityForResult(new Intent(MainActivity.this, GoogleFitAuthActivity.class), 0);
@@ -207,7 +195,7 @@ public class MainActivity extends ActionBarActivity {
         if(error instanceof DuplicatedRuleException) {
             new AlertDialog.Builder(this)
                     .setTitle("Error")
-                    .setMessage("Rule already in database")
+                    .setMessage("Magic spell already in the book")
                     .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
                             // continue with delete
@@ -217,7 +205,7 @@ public class MainActivity extends ActionBarActivity {
                     .show();
         } else {
             new AlertDialog.Builder(this)
-                    .setTitle("Error adding rule")
+                    .setTitle("Sorry, that did not work")
                     .setMessage("Internal error " + error.toString())
                     .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
@@ -231,8 +219,8 @@ public class MainActivity extends ActionBarActivity {
 
     private void installRule(final JSONObject jsonRule) throws JSONException {
         new AlertDialog.Builder(this)
-                .setTitle("Install rule")
-                .setMessage("Do you want to install the rule " + jsonRule.getString("name") + "?\n" +
+                .setTitle("Enable magic spell")
+                .setMessage("Do you want me to use the spell " + jsonRule.getString("name") + "?\n" +
                 "The description says: " + jsonRule.getString("description"))
                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
@@ -424,11 +412,11 @@ public class MainActivity extends ActionBarActivity {
         public CharSequence getPageTitle(int position) {
             switch (position) {
                 case 0:
-                    return "Create rules";
+                    return "Create spell";
                 case 1:
-                    return "Browse rules";
+                    return "Spell shop";
                 case 2:
-                    return "Manage rules";
+                    return "Learned spells";
             }
             return null;
         }
