@@ -113,7 +113,7 @@ public abstract class Value {
         }
     }
 
-    private static class Object<K extends ObjectPool.Object> extends Value {
+    private static abstract class Object<K extends ObjectPool.Object> extends Value {
         private final String url;
 
         public Object(String rep) throws URISyntaxException {
@@ -125,13 +125,16 @@ public abstract class Value {
             return url;
         }
 
+        protected abstract K resolvePlaceholder(String url) throws UnknownObjectException;
+
         // FIXME: typechecking for objects? right now we would just say "channel"
 
         protected <P extends ObjectPool<K, ?>> Value resolve(@Nullable Map<String, Value> context, P pool) throws UnknownObjectException {
             K object = pool.getObject(url);
             if (object.isPlaceholder())
-                throw new UnknownObjectException(url);
-            return new DirectObject<>(object).resolve(context);
+                return new DirectObject<>(resolvePlaceholder(url)).resolve(context);
+            else
+                return new DirectObject<>(object).resolve(context);
         }
     }
 
@@ -149,6 +152,10 @@ public abstract class Value {
             } catch(URISyntaxException e) {
                 throw new UnknownObjectException(string);
             }
+        }
+
+        protected edu.stanford.braincat.rulepedia.model.Contact resolvePlaceholder(String url) throws UnknownObjectException {
+            return ObjectDatabase.get().resolveContact(url);
         }
 
         @Override
@@ -171,6 +178,10 @@ public abstract class Value {
             } catch(URISyntaxException e) {
                 throw new UnknownObjectException(string);
             }
+        }
+
+        protected edu.stanford.braincat.rulepedia.model.Device resolvePlaceholder(String url) throws UnknownObjectException {
+            return ObjectDatabase.get().resolveDevice(url);
         }
 
         @Override
