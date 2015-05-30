@@ -93,7 +93,9 @@ public class OmletUIService extends Service {
 
     private void doNotifyUserNewDeviceDetected(String uuid, String deviceType)
     {
-        sendMessage("Hello! I've detected a " + deviceType + " with UUID " + uuid);
+        String rulepediaURL = "https://vast-hamlet-6003.herokuapp.com/query/" + deviceType;
+        sendMessage("Hello! I've detected a " + deviceType + " device with UUID " + uuid + "\n" +
+        "here is a list of spells that we could use with it " + rulepediaURL);
     }
 
     private void doSayRandomQuote(String quote)

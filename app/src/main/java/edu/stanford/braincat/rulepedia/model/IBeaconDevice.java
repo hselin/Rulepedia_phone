@@ -30,10 +30,10 @@ public class IBeaconDevice {
 
         switch(major_number)
         {
-            case 1: return "TV";
+            case 1: return "Corktastic";
         }
 
-        return "Unknown Device";
+        return "Unknown";
     }
 
 
