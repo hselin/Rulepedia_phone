@@ -67,7 +67,20 @@ public class ObjectDatabase {
         return DevicePool.get().getObject(resolvedUrl);
     }
 
-    public synchronized void store(String url, ObjectPool.Object object) {
+    public synchronized void store(String url, Contact object) {
+        ContactPool.get().cache(url, object);
+        objects.put(url, object.getUrl());
+        dirty = true;
+    }
+
+    public synchronized void store(String url, Channel object) {
+        ChannelPool.get().cache(url, object);
+        objects.put(url, object.getUrl());
+        dirty = true;
+    }
+
+    public synchronized void store(String url, Device object) {
+        DevicePool.get().cache(url, object);
         objects.put(url, object.getUrl());
         dirty = true;
     }

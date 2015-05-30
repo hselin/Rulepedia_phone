@@ -86,7 +86,7 @@ public class ObjectPool<K extends ObjectPool.Object, F extends ObjectPool.Object
     private final Map<String, F> knownFactories;
 
     protected ObjectPool(String kind) {
-        placeholderPattern = Pattern.compile("^https://rulepedia\\.stanford\\.edu/oid/placeholder/" + kind + "/([[a-z]\\-]+)$");
+        placeholderPattern = Pattern.compile("^https://rulepedia\\.stanford\\.edu/oid/placeholder/" + kind + "/([[a-z0-9]\\-]+)(?:/[[a-z][0-9]\\-]+)?$");
         knownObjects = new WeakHashMap<>();
         knownFactories = new HashMap<>();
     }
@@ -101,6 +101,11 @@ public class ObjectPool<K extends ObjectPool.Object, F extends ObjectPool.Object
 
     protected F getFactory(String name) {
         return knownFactories.get(name);
+    }
+
+    public synchronized void cache(String url, K object) {
+        if (!knownObjects.containsKey(url))
+            knownObjects.put(url, object);
     }
 
     public synchronized K getObject(String url) throws UnknownObjectException {
