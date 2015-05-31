@@ -24,7 +24,7 @@ public class MainActivity extends ActionBarActivity {
     private RuleExecutorConnection executorConnection;
     private OmletServiceConnection omletServiceConnection;
     private BluetoothScanner bluetoothScanner;
-    private RandomQuoteSender randomQuoteSender;
+    //private RandomQuoteSender randomQuoteSender;
 
     public RuleExecutor getRuleExecutor() {
         return executorConnection.getExecutor();
@@ -44,7 +44,7 @@ public class MainActivity extends ActionBarActivity {
         executorConnection = new RuleExecutorConnection(this);
         omletServiceConnection = new OmletServiceConnection(this);
         bluetoothScanner = new BluetoothScanner(this);
-        randomQuoteSender = new RandomQuoteSender(this);
+        //randomQuoteSender = new RandomQuoteSender(this);
     }
 
     @Override
@@ -52,7 +52,7 @@ public class MainActivity extends ActionBarActivity {
         executorConnection.stop();
         omletServiceConnection.stop();
         bluetoothScanner.stop();
-        randomQuoteSender.stop();
+        //randomQuoteSender.stop();
         super.onStop();
     }
 
@@ -114,7 +114,7 @@ public class MainActivity extends ActionBarActivity {
         executorConnection.start();
         omletServiceConnection.start();
         bluetoothScanner.start();
-        randomQuoteSender.start();
+        //randomQuoteSender.start();
 
         Intent startIntent = getIntent();
 
@@ -143,12 +143,12 @@ public class MainActivity extends ActionBarActivity {
     protected void onResume() {
         super.onResume();
         bluetoothScanner.resume();
-        randomQuoteSender.resume();
+        //randomQuoteSender.resume();
     }
 
     @Override
     public void onPause() {
-        randomQuoteSender.pause();
+        //randomQuoteSender.pause();
         bluetoothScanner.pause();
         super.onPause();
     }
@@ -158,7 +158,7 @@ public class MainActivity extends ActionBarActivity {
         omletServiceConnection = null;
         executorConnection = null;
         bluetoothScanner = null;
-        randomQuoteSender = null;
+        //randomQuoteSender = null;
         super.onDestroy();
     }
 

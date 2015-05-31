@@ -28,7 +28,8 @@ public class IBeaconDevice extends Device {
                 break;
 
             default:
-                throw new UnknownObjectException(getUrl());
+                deviceType = "unknown";
+                //throw new UnknownObjectException(getUrl());
         }
     }
 
@@ -44,9 +45,9 @@ public class IBeaconDevice extends Device {
                 return null;
 
             String uuid = Util.bytesToHexString(scanRecord, 9, 25);
-            // FIXME: verify endianess!
-            int major = (int)scanRecord[25] << 8 + (int)scanRecord[26];
-            int minor = (int)scanRecord[27] << 8 + (int)scanRecord[28];
+
+            int major = ((int)scanRecord[25] << 8) + ((int)scanRecord[26]);
+            int minor = ((int)scanRecord[27] << 8) + ((int)scanRecord[28]);
 
             return new IBeaconDevice(IBeaconDeviceFactory.getDefault(), uuid, major, minor);
         } catch(NumberFormatException|UnknownObjectException e) {
