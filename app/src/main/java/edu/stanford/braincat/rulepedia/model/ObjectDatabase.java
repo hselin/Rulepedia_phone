@@ -57,24 +57,22 @@ public class ObjectDatabase {
         return properties;
     }
 
-    private void storeUrl(String placeholderUrl, ObjectPool.Object object) {
+    private <K extends ObjectPool.Object<K, ?>> void storeUrl(String placeholderUrl, K object, ObjectPool<K, ?> pool) {
+        pool.cache(object);
         objects.put(placeholderUrl, object.getUrl());
         dirty = true;
     }
 
     public synchronized void store(String url, Contact object) {
-        ContactPool.get().cache(object);
-        storeUrl(url, object);
+        storeUrl(url, object, ContactPool.get());
     }
 
     public synchronized void store(String url, Channel object) {
-        ChannelPool.get().cache(object);
-        storeUrl(url, object);
+        storeUrl(url, object, ChannelPool.get());
     }
 
     public synchronized void store(String url, Device object) {
-        DevicePool.get().cache(object);
-        storeUrl(url, object);
+        storeUrl(url, object, DevicePool.get());
     }
 
     public synchronized void remove(String url) {
