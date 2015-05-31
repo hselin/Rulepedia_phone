@@ -1,22 +1,22 @@
 package edu.stanford.braincat.rulepedia.channels.ibeacon;
 
-import java.util.Arrays;
-
+import edu.stanford.braincat.rulepedia.channels.Util;
+import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
 import edu.stanford.braincat.rulepedia.model.Device;
-import edu.stanford.braincat.rulepedia.model.DeviceFactory;
 
 /**
  * Created by braincat on 5/29/15.
  */
 public class IBeaconDevice extends Device {
+    private static final int CORKTASTIC_MAJOR = 1;
+
     public final String uuid;
     public final int major;
     public final int minor;
-    public Number tx;
+    public final int tx;
+    public final String deviceType;
 
-    public String deviceType;
-
-    public IBeaconDevice(DeviceFactory factory, String uuid, int major, int minor, Number tx) {
+    public IBeaconDevice(IBeaconDeviceFactory factory, String uuid, int major, int minor, int tx) throws UnknownObjectException {
         super(factory, IBeaconDeviceFactory.URL_PREFIX + uuid + "/" + major + "/" + minor + "/" + tx);
 
         this.uuid = uuid;
@@ -24,47 +24,35 @@ public class IBeaconDevice extends Device {
         this.minor = minor;
         this.tx = tx;
 
-        this.deviceType = parseDeviceType();
+        switch(major) {
+            case CORKTASTIC_MAJOR:
+                deviceType = "corktastic";
+                break;
+
+            default:
+                throw new UnknownObjectException(getUrl());
+        }
     }
 
     public String toHumanString() {
-        return parseDeviceType();
-    }
-
-    private String parseDeviceType() {
-        switch(major) {
-            case 1: return "corktastic";
-        }
-
-        return "unknown";
-    }
-
-
-    final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
-    private static String bytesToHexString(byte[] bytes) {
-        char[] hexChars = new char[bytes.length * 2];
-        for ( int j = 0; j < bytes.length; j++ ) {
-            int v = bytes[j] & 0xFF;
-            hexChars[j * 2] = hexArray[v >>> 4];
-            hexChars[j * 2 + 1] = hexArray[v & 0x0F];
-        }
-        return new String(hexChars);
+        return deviceType;
     }
 
     public static IBeaconDevice newIBeaconDevice(final byte[] scanRecord) {
         try {
-            String prefix = bytesToHexString(Arrays.copyOf(scanRecord, 9));
+            String prefix = Util.bytesToHexString(scanRecord, 0, 9);
 
             if (!prefix.equals("02011A1AFF4C000215"))
                 return null;
 
-            String uuid = bytesToHexString(Arrays.copyOfRange(scanRecord, 9, 25));
-            int major = Integer.parseInt(bytesToHexString(Arrays.copyOfRange(scanRecord, 25, 27)), 16);
-            int minor = Integer.parseInt(bytesToHexString(Arrays.copyOfRange(scanRecord, 27, 29)), 16);
-            int tx = Integer.parseInt(bytesToHexString(Arrays.copyOfRange(scanRecord, 29, 30)), 16);
+            String uuid = Util.bytesToHexString(scanRecord, 9, 25);
+            // FIXME: verify endianess!
+            int major = (int)scanRecord[25] << 8 + (int)scanRecord[26];
+            int minor = (int)scanRecord[27] << 8 + (int)scanRecord[28];
+            int tx = (int)scanRecord[29] << 8 + (int)scanRecord[30];
 
             return new IBeaconDevice(IBeaconDeviceFactory.getDefault(), uuid, major, minor, tx);
-        } catch(NumberFormatException e) {
+        } catch(NumberFormatException|UnknownObjectException e) {
             return null;
         }
     }

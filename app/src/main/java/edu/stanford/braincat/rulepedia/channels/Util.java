@@ -24,6 +24,17 @@ import java.util.zip.DataFormatException;
  * Created by gcampagn on 5/1/15.
  */
 public class Util {
+    final private static char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
+    public static String bytesToHexString(byte[] bytes, int off, int end) {
+        char[] hexChars = new char[(end - off) * 2];
+        for ( int j = off; j < end; j++ ) {
+            int v = bytes[j] & 0xFF;
+            hexChars[(j - off) * 2] = HEX_ARRAY[v >>> 4];
+            hexChars[(j - off) * 2 + 1] = HEX_ARRAY[v & 0x0F];
+        }
+        return new String(hexChars);
+    }
+
     public static String readString(InputStream input) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(input));
         StringBuilder builder = new StringBuilder();
