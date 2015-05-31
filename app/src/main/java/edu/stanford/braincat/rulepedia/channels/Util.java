@@ -3,8 +3,6 @@ package edu.stanford.braincat.rulepedia.channels;
 import android.util.Base64;
 
 import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import java.io.BufferedReader;
@@ -76,7 +74,7 @@ public class Util {
         }
     }
 
-    public static JSONObject parseEncodedRule(String encoded) throws DataFormatException, IOException, UnsupportedEncodingException, JSONException {
+    public static String parseEncodedRule(String encoded) throws DataFormatException, UnsupportedEncodingException {
         /*ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
         InflaterOutputStream stream = new InflaterOutputStream(byteStream);
 
@@ -86,6 +84,6 @@ public class Util {
         stream.close();
 
         return (JSONObject) new JSONTokener(byteStream.toString("UTF-8")).nextValue();*/
-        return (JSONObject) new JSONTokener(new String(Base64.decode(encoded, Base64.URL_SAFE))).nextValue();
+        return new String(Base64.decode(encoded, Base64.URL_SAFE));
     }
 }
