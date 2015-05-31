@@ -43,7 +43,8 @@ public class OmletServiceConnection implements ServiceConnection {
         String sabrinaFeed = prefs.getString("feedUri", null);
         needsInstall = sabrinaFeed == null;
 
-        startOmletWebApp();
+        if (needsInstall)
+            startOmletWebApp();
     }
 
     public void setWebhook(String webhook) {
