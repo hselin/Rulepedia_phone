@@ -38,7 +38,7 @@ public class IBeaconDeviceFactory extends DeviceFactory {
             return new IBeaconDevice(this, m.group(1),
                     Integer.parseInt(m.group(2), 10), Integer.parseInt(m.group(3), 10), Integer.parseInt(m.group(4), 10));
         } catch(NumberFormatException e) {
-            throw new UnknownObjectException(url);
+            throw new UnknownObjectException(url, e);
         }
     }
 

@@ -97,7 +97,7 @@ public class GenericChannelFactory extends ChannelFactory {
             return new GenericChannel(this, url, id, jsonFactory.getString("description"),
                     jsonFactory.has("services") ? jsonFactory.getJSONArray("services") : new JSONArray());
         } catch (JSONException|UnknownChannelException e) {
-            throw new UnknownObjectException(url);
+            throw new UnknownObjectException(url, e);
         }
     }
 
@@ -165,7 +165,7 @@ public class GenericChannelFactory extends ChannelFactory {
 
             throw new UnknownChannelException(method);
         } catch (JSONException | TriggerValueTypeException e) {
-            throw new UnknownChannelException(method);
+            throw new UnknownChannelException(method, e);
         }
     }
 
@@ -192,7 +192,7 @@ public class GenericChannelFactory extends ChannelFactory {
 
             throw new UnknownChannelException(method);
         } catch (JSONException e) {
-            throw new UnknownChannelException(method);
+            throw new UnknownChannelException(method, e);
         }
 
     }
@@ -221,7 +221,7 @@ public class GenericChannelFactory extends ChannelFactory {
 
             throw new UnknownChannelException(method);
         } catch (JSONException e) {
-            throw new UnknownChannelException(method);
+            throw new UnknownChannelException(method, e);
         }
     }
 
@@ -249,7 +249,7 @@ public class GenericChannelFactory extends ChannelFactory {
             return new GenericTrigger(channel, triggerMeta.getString("id"), triggerMeta.getString("text"),
                     triggerMeta.getString("script"), buildPrivateEventSources(triggerMeta, channel, params), params);
         } catch (JSONException | MalformedURLException e) {
-            throw new UnknownChannelException(method);
+            throw new UnknownChannelException(method, e);
         }
     }
 
@@ -264,7 +264,7 @@ public class GenericChannelFactory extends ChannelFactory {
             return new GenericAction(channel, actionMeta.getString("id"), actionMeta.getString("text"),
                     actionMeta.getString("script"), params);
         } catch (JSONException e) {
-            throw new UnknownChannelException(method);
+            throw new UnknownChannelException(method, e);
         }
     }
 

@@ -103,9 +103,9 @@ public class ObjectPool<K extends ObjectPool.Object, F extends ObjectPool.Object
         return knownFactories.get(name);
     }
 
-    public synchronized void cache(String url, K object) {
-        if (!knownObjects.containsKey(url))
-            knownObjects.put(url, object);
+    public synchronized void cache(K object) {
+        if (!knownObjects.containsKey(object.getUrl()))
+            knownObjects.put(object.getUrl(), object);
     }
 
     public synchronized K getObject(String url) throws UnknownObjectException {
@@ -117,7 +117,7 @@ public class ObjectPool<K extends ObjectPool.Object, F extends ObjectPool.Object
         try {
             new URI(url);
         } catch (URISyntaxException e) {
-            throw new UnknownObjectException(url);
+            throw new UnknownObjectException(url, e);
         }
 
         for (ObjectFactory<K> factory : knownFactories.values()) {

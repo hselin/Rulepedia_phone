@@ -93,7 +93,7 @@ public abstract class Value {
         }
     }
 
-    public static class DirectObject<K extends ObjectPool.Object> extends Value {
+    public static class DirectObject<K extends ObjectPool.Object<K, ?>> extends Value {
         private final K object;
 
         public DirectObject(K object) {
@@ -113,7 +113,7 @@ public abstract class Value {
         }
     }
 
-    private static abstract class Object<K extends ObjectPool.Object> extends Value {
+    private static abstract class Object<K extends ObjectPool.Object<K, ?>> extends Value {
         private final String url;
 
         public Object(String rep) throws URISyntaxException {
@@ -124,17 +124,14 @@ public abstract class Value {
         public String toString() {
             return url;
         }
-
-        protected abstract K resolvePlaceholder(String url) throws UnknownObjectException;
-
         // FIXME: typechecking for objects? right now we would just say "channel"
 
-        protected <P extends ObjectPool<K, ?>> Value resolve(@Nullable Map<String, Value> context, P pool) throws UnknownObjectException {
+        protected DirectObject<K> resolve(@Nullable Map<String, Value> context, ObjectPool<K, ?> pool) throws UnknownObjectException {
             K object = pool.getObject(url);
             if (object.isPlaceholder())
-                return new DirectObject<>(resolvePlaceholder(url)).resolve(context);
-            else
-                return new DirectObject<>(object).resolve(context);
+                object = ObjectDatabase.get().resolve(pool, object);
+
+            return new DirectObject<>(object).resolve(context);
         }
     }
 
@@ -150,12 +147,8 @@ public abstract class Value {
                 // we should not need to trim here, but I screwed up during input so whatever
                 return new Contact(string.trim());
             } catch(URISyntaxException e) {
-                throw new UnknownObjectException(string);
+                throw new UnknownObjectException(string, e);
             }
-        }
-
-        protected edu.stanford.braincat.rulepedia.model.Contact resolvePlaceholder(String url) throws UnknownObjectException {
-            return ObjectDatabase.get().resolveContact(url);
         }
 
         @Override
@@ -176,12 +169,8 @@ public abstract class Value {
                 // we should not need to trim here, but I screwed up during input so whatever
                 return new Device(string.trim());
             } catch(URISyntaxException e) {
-                throw new UnknownObjectException(string);
+                throw new UnknownObjectException(string, e);
             }
-        }
-
-        protected edu.stanford.braincat.rulepedia.model.Device resolvePlaceholder(String url) throws UnknownObjectException {
-            return ObjectDatabase.get().resolveDevice(url);
         }
 
         @Override
@@ -363,7 +352,7 @@ public abstract class Value {
                 try {
                     return new DirectPicture(rep, BitmapFactory.decodeStream(ctx.getContentResolver().openInputStream(Uri.parse(rep))));
                 } catch(FileNotFoundException e) {
-                    throw new UnknownObjectException(rep);
+                    throw new UnknownObjectException(rep, e);
                 }
             }
 
@@ -379,10 +368,8 @@ public abstract class Value {
                         ((HttpURLConnection) connection).disconnect();
                 }
             } catch(IOException e) {
-                // fall through
+                throw new UnknownObjectException(rep, e);
             }
-
-            throw new UnknownObjectException(rep);
         }
 
         public static Picture fromString(String string) throws UnknownObjectException {
@@ -394,7 +381,7 @@ public abstract class Value {
                     ContentUris.parseId(Uri.parse(string));
                     return new Picture(string);
                 } catch(NumberFormatException|UnsupportedOperationException e) {
-                    throw new UnknownObjectException(string);
+                    throw new UnknownObjectException(string, e);
                 }
             }
 
@@ -402,7 +389,7 @@ public abstract class Value {
                 new URL(string);
                 return new Picture(string);
             } catch(MalformedURLException e){
-                throw new UnknownObjectException(string);
+                throw new UnknownObjectException(string, e);
             }
         }
     }

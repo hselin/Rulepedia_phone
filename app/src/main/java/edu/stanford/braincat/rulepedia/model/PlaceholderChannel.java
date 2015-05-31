@@ -14,7 +14,7 @@ public class PlaceholderChannel extends Channel {
     }
 
     public Channel resolve() throws UnknownObjectException {
-        return ObjectDatabase.get().resolveChannel(getUrl());
+        return ObjectDatabase.get().resolve(ChannelPool.get(), this);
     }
 
     @Override

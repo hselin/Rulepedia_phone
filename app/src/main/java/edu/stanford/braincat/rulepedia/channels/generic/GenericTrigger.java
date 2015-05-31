@@ -168,7 +168,7 @@ public class GenericTrigger implements Trigger {
         try {
             eventSources.putAll(((GenericChannel) channel).getEventSources());
         } catch (MalformedURLException | JSONException | TriggerValueTypeException e) {
-            throw new UnknownObjectException(newChannel.getUrl());
+            throw new UnknownObjectException(newChannel.getUrl(), e);
         }
 
         script = ((GenericChannel) newChannel).compileFunction(scriptBody);

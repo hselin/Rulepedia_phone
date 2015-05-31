@@ -1,7 +1,5 @@
 package edu.stanford.braincat.rulepedia.model;
 
-import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
-
 /**
  * Created by gcampagn on 5/10/15.
  */
@@ -11,10 +9,6 @@ public class PlaceholderContact extends Contact {
     public PlaceholderContact(ContactFactory factory, String url, String text) {
         super(factory, url);
         this.text = text;
-    }
-
-    public Contact resolve() throws UnknownObjectException {
-        return ObjectDatabase.get().resolveContact(getUrl());
     }
 
     @Override

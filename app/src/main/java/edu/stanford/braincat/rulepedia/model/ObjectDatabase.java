@@ -36,11 +36,15 @@ public class ObjectDatabase {
         return instance;
     }
 
-    public synchronized Channel resolveChannel(String url) throws UnknownObjectException {
+    private String resolveUrl(String url) throws UnknownObjectException {
         String resolvedUrl = objects.get(url);
         if (resolvedUrl == null)
             throw new UnknownObjectException(url);
-        return ChannelPool.get().getObject(resolvedUrl);
+        return resolvedUrl;
+    }
+
+    public <K extends ObjectPool.Object<K, ?>> K resolve(ObjectPool<K, ?> pool, ObjectPool.Object<K, ?> placeholder) throws UnknownObjectException {
+        return pool.getObject(resolveUrl(placeholder.getUrl()));
     }
 
     public synchronized Collection<Property> getAllProperties() {
@@ -53,36 +57,24 @@ public class ObjectDatabase {
         return properties;
     }
 
-    public synchronized Contact resolveContact(String url) throws UnknownObjectException {
-        String resolvedUrl = objects.get(url);
-        if (resolvedUrl == null)
-            throw new UnknownObjectException(url);
-        return ContactPool.get().getObject(resolvedUrl);
-    }
-
-    public synchronized Device resolveDevice(String url) throws UnknownObjectException {
-        String resolvedUrl = objects.get(url);
-        if (resolvedUrl == null)
-            throw new UnknownObjectException(url);
-        return DevicePool.get().getObject(resolvedUrl);
+    private void storeUrl(String placeholderUrl, ObjectPool.Object object) {
+        objects.put(placeholderUrl, object.getUrl());
+        dirty = true;
     }
 
     public synchronized void store(String url, Contact object) {
-        ContactPool.get().cache(url, object);
-        objects.put(url, object.getUrl());
-        dirty = true;
+        ContactPool.get().cache(object);
+        storeUrl(url, object);
     }
 
     public synchronized void store(String url, Channel object) {
-        ChannelPool.get().cache(url, object);
-        objects.put(url, object.getUrl());
-        dirty = true;
+        ChannelPool.get().cache(object);
+        storeUrl(url, object);
     }
 
     public synchronized void store(String url, Device object) {
-        DevicePool.get().cache(object.getUrl(), object);
-        objects.put(url, object.getUrl());
-        dirty = true;
+        DevicePool.get().cache(object);
+        storeUrl(url, object);
     }
 
     public synchronized void remove(String url) {
