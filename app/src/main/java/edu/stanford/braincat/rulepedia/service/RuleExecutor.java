@@ -43,7 +43,7 @@ public class RuleExecutor extends EventSourceHandler {
         try {
             ObjectDatabase.get().load(ctx);
             RuleDatabase.get().load(ctx);
-        } catch (IOException | UnknownObjectException | UnknownChannelException e) {
+        } catch (IOException e) {
             Log.e(RuleExecutorService.LOG_TAG, "Failed to load database", e);
         }
     }

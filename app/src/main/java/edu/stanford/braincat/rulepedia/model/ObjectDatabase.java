@@ -1,6 +1,7 @@
 package edu.stanford.braincat.rulepedia.model;
 
 import android.content.Context;
+import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -96,8 +97,10 @@ public class ObjectDatabase {
                         break;
 
                     String[] split = line.split(" ");
-                    if (split.length != 2)
-                        throw new IOException("Invalid object database format on disk");
+                    if (split.length != 2) {
+                        Log.w(RuleDatabase.LOG_TAG, "Invalid object database format: " + line);
+                        continue;
+                    }
 
                     objects.put(split[0], split[1]);
                 }

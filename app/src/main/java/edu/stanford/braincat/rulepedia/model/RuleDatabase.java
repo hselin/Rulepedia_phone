@@ -31,6 +31,8 @@ import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
  * Created by gcampagn on 4/30/15.
  */
 public class RuleDatabase {
+    public static final String LOG_TAG = "rulepedia.Database";
+
     private final Map<String, Rule> rules;
     private final SortedSet<Rule> sortedRules;
     private boolean dirty;
@@ -198,7 +200,7 @@ public class RuleDatabase {
         sortedRules.add(rule);
     }
 
-    public synchronized void load(Context ctx) throws IOException, UnknownObjectException, UnknownChannelException {
+    public synchronized void load(Context ctx) throws IOException {
         if (loaded)
             return;
 
@@ -207,9 +209,18 @@ public class RuleDatabase {
             try {
                 JSONArray root = (JSONArray) Util.readJSON(file).nextValue();
 
-                for (int i = 0; i < root.length(); i++)
-                    loadRule(root.getJSONObject(i), i);
-            } catch (TriggerValueTypeException | NullPointerException | ClassCastException | JSONException e) {
+                for (int i = 0; i < root.length(); i++) {
+                    try {
+                        loadRule(root.getJSONObject(i), i);
+                    } catch (TriggerValueTypeException | UnknownObjectException | UnknownChannelException
+                            | NullPointerException | ArrayIndexOutOfBoundsException | ClassCastException
+                            | JSONException e) {
+                        Log.w(LOG_TAG, "Failed to load rule from disk", e);
+                    } catch (RuntimeException e) {
+                        Log.e(LOG_TAG, "RuntimeException loading rule from disk!", e);
+                    }
+                }
+            } catch (JSONException e) {
                 throw new IOException("Invalid database format on disk", e);
             }
         } catch (FileNotFoundException e) {
