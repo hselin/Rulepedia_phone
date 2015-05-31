@@ -13,16 +13,14 @@ public class IBeaconDevice extends Device {
     public final String uuid;
     public final int major;
     public final int minor;
-    public final int tx;
     public final String deviceType;
 
-    public IBeaconDevice(IBeaconDeviceFactory factory, String uuid, int major, int minor, int tx) throws UnknownObjectException {
-        super(factory, IBeaconDeviceFactory.URL_PREFIX + uuid + "/" + major + "/" + minor + "/" + tx);
+    public IBeaconDevice(IBeaconDeviceFactory factory, String uuid, int major, int minor) throws UnknownObjectException {
+        super(factory, IBeaconDeviceFactory.URL_PREFIX + uuid + "/" + major + "/" + minor);
 
         this.uuid = uuid;
         this.major = major;
         this.minor = minor;
-        this.tx = tx;
 
         switch(major) {
             case CORKTASTIC_MAJOR:
@@ -49,9 +47,8 @@ public class IBeaconDevice extends Device {
             // FIXME: verify endianess!
             int major = (int)scanRecord[25] << 8 + (int)scanRecord[26];
             int minor = (int)scanRecord[27] << 8 + (int)scanRecord[28];
-            int tx = (int)scanRecord[29] << 8 + (int)scanRecord[30];
 
-            return new IBeaconDevice(IBeaconDeviceFactory.getDefault(), uuid, major, minor, tx);
+            return new IBeaconDevice(IBeaconDeviceFactory.getDefault(), uuid, major, minor);
         } catch(NumberFormatException|UnknownObjectException e) {
             return null;
         }
