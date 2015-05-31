@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import edu.stanford.braincat.rulepedia.exceptions.TriggerValueTypeException;
+import edu.stanford.braincat.rulepedia.exceptions.UnexpectedPlaceholderException;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
 
 /**
@@ -324,14 +325,14 @@ public abstract class Value {
         @Override
         public Value resolve(@Nullable Map<String, Value> context) throws UnknownObjectException {
             if (rep.equals(PLACEHOLDER))
-                throw new UnknownObjectException(rep);
+                throw new UnexpectedPlaceholderException(rep);
 
             return this;
         }
 
         public Value.DirectPicture toPicture(Context ctx) throws UnknownObjectException {
             if (rep.equals(PLACEHOLDER))
-                throw new UnknownObjectException(rep);
+                throw new UnexpectedPlaceholderException(rep);
 
             if (rep.startsWith("data:")) {
                 String[] split = rep.split(",");

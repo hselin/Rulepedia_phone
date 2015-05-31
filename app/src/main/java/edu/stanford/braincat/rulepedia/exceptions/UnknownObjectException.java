@@ -11,4 +11,9 @@ public class UnknownObjectException extends Exception {
     public UnknownObjectException(String url) {
         super("Object referenced by " + url + " is not known");
     }
+
+    // For subclasses to change the message
+    protected UnknownObjectException(String message, int unused) {
+        super(message);
+    }
 }

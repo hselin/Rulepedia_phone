@@ -18,6 +18,7 @@ import edu.stanford.braincat.rulepedia.events.EventSourceHandler;
 import edu.stanford.braincat.rulepedia.exceptions.DuplicatedRuleException;
 import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
 import edu.stanford.braincat.rulepedia.exceptions.TriggerValueTypeException;
+import edu.stanford.braincat.rulepedia.exceptions.UnexpectedPlaceholderException;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownChannelException;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
 import edu.stanford.braincat.rulepedia.model.Channel;
@@ -32,28 +33,24 @@ public class RuleExecutor extends EventSourceHandler {
     private final Context context;
     private final Set<EventSource> eventSources;
     private final Set<Channel> channels;
-    private ObjectDatabase objectdb;
-    private RuleDatabase ruledb;
 
-    public RuleExecutor(Context ctx, Looper looper) throws IOException {
+    public RuleExecutor(Context ctx, Looper looper) {
         super(looper);
         context = ctx;
         eventSources = new HashSet<>();
         channels = new HashSet<>();
 
         try {
-            objectdb = ObjectDatabase.get();
-            objectdb.load(ctx);
-            ruledb = RuleDatabase.get();
-            ruledb.load(ctx);
-        } catch (UnknownObjectException | UnknownChannelException e) {
-            throw new IOException("Failed to load database", e);
+            ObjectDatabase.get().load(ctx);
+            RuleDatabase.get().load(ctx);
+        } catch (IOException | UnknownObjectException | UnknownChannelException e) {
+            Log.e(RuleExecutorService.LOG_TAG, "Failed to load database", e);
         }
     }
 
     public void save() throws IOException {
-        objectdb.save(context);
-        ruledb.save(context);
+        ObjectDatabase.get().save(context);
+        RuleDatabase.get().save(context);
     }
 
     public void installRule(final JSONObject jsonRule, final edu.stanford.braincat.rulepedia.service.Callback<Rule> callback) {
@@ -172,6 +169,9 @@ public class RuleExecutor extends EventSourceHandler {
         } catch (UnknownChannelException | TriggerValueTypeException | JSONException e) {
             Log.e(RuleExecutorService.LOG_TAG, "Failed to install rule (parsing problem)", e);
             callback.post(null, e);
+        } catch (UnexpectedPlaceholderException e) {
+            Log.d(RuleExecutorService.LOG_TAG, "Failed to install rule (contains placeholders)", e);
+            callback.post(null, e);
         } catch (UnknownObjectException e) {
             Log.e(RuleExecutorService.LOG_TAG, "Failed to install rule (object resolution problem)", e);
             callback.post(null, e);
@@ -202,6 +202,9 @@ public class RuleExecutor extends EventSourceHandler {
             else
                 doDisableRule(rule);
             callback.post(rule, null);
+        } catch (UnexpectedPlaceholderException e) {
+            Log.d(RuleExecutorService.LOG_TAG, "Failed to reload rule (contains placeholders)", e);
+            callback.post(null, e);
         } catch (UnknownObjectException e) {
             Log.e(RuleExecutorService.LOG_TAG, "Failed to reload rule (object resolution problem)", e);
             callback.post(null, e);
@@ -240,6 +243,9 @@ public class RuleExecutor extends EventSourceHandler {
         try {
             doDisableRule(rule);
             callback.post(true, null);
+        } catch (UnexpectedPlaceholderException e) {
+            Log.d(RuleExecutorService.LOG_TAG, "Failed to delete rule (contains placeholders)", e);
+            callback.post(null, e);
         } catch (UnknownObjectException e) {
             Log.e(RuleExecutorService.LOG_TAG, "Failed to delete rule (object resolution problem)", e);
             callback.post(null, e);
@@ -271,6 +277,15 @@ public class RuleExecutor extends EventSourceHandler {
             }
         }
         eventSources.clear();
+
+        for (Channel c : channels) {
+            try {
+                c.disable(context);
+            } catch (IOException e) {
+                Log.e(RuleExecutorService.LOG_TAG, "Failed to uninstall channel " + c.toString(), e);
+            }
+        }
+        channels.clear();
 
         for (Rule r : RuleDatabase.get().getAllRules())
             r.setInstalled(false);

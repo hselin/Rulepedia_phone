@@ -16,6 +16,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import edu.stanford.braincat.rulepedia.exceptions.UnexpectedPlaceholderException;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
 
 /**
@@ -39,7 +40,7 @@ public class ObjectDatabase {
     private String resolveUrl(String url) throws UnknownObjectException {
         String resolvedUrl = objects.get(url);
         if (resolvedUrl == null)
-            throw new UnknownObjectException(url);
+            throw new UnexpectedPlaceholderException(url);
         return resolvedUrl;
     }
 

@@ -35,20 +35,12 @@ public class RuleExecutorThread extends Thread {
     public void run() {
         Looper.prepare();
 
-        boolean ok = true;
         synchronized (this) {
-            try {
-                executor = new RuleExecutor(context, Looper.myLooper());
-            } catch (IOException e) {
-                Log.e(RuleExecutorService.LOG_TAG, "Failed to initialize rule executor", e);
-                ok = false;
-            }
+            executor = new RuleExecutor(context, Looper.myLooper());
             looper = Looper.myLooper();
             started = true;
             notifyAll();
         }
-        if (!ok)
-            return;
 
         executor.prepare();
         Looper.loop();
