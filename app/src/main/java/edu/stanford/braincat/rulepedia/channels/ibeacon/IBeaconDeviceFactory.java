@@ -14,7 +14,7 @@ import edu.stanford.braincat.rulepedia.model.PlaceholderDevice;
  */
 public class IBeaconDeviceFactory extends DeviceFactory {
     public static final String ID = "ibeacon";
-    public static final String URL_PREFIX = DevicePool.PREFIX + "/" + ID + "/";
+    public static final String URL_PREFIX = DevicePool.PREFIX + ID + "/";
 
     private Pattern urlPattern;
 
