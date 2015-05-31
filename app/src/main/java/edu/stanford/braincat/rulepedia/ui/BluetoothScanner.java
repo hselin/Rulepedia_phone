@@ -13,6 +13,7 @@ import android.util.Log;
 import java.io.IOException;
 
 import edu.stanford.braincat.rulepedia.channels.ibeacon.IBeaconDevice;
+import edu.stanford.braincat.rulepedia.model.DeviceDatabase;
 import edu.stanford.braincat.rulepedia.model.DevicePool;
 import edu.stanford.braincat.rulepedia.model.ObjectDatabase;
 import edu.stanford.braincat.rulepedia.omletUI.OmletUIService;
@@ -61,11 +62,18 @@ public class BluetoothScanner extends Handler implements BluetoothAdapter.LeScan
         od.store(DevicePool.PLACEHOLDER_PREFIX + "ibeacon/" + ibd.deviceType, ibd);
         asyncSaveDB();
 
-        Intent intent = new Intent(parentActivity, OmletUIService.class);
-        intent.setAction(OmletUIService.NOTIFY_USER_NEW_DEVICE_DETECTED);
-        intent.putExtra("UUID", ibd.uuid);
-        intent.putExtra("TYPE", ibd.deviceType);
-        parentActivity.startService(intent);
+        DeviceDatabase dd = DeviceDatabase.get();
+        if(dd.addDevice(ibd)) {
+            Log.d(MainActivity.LOG_TAG, "New Device: " + ibd.uuid);
+            Intent intent = new Intent(parentActivity, OmletUIService.class);
+            intent.setAction(OmletUIService.NOTIFY_USER_NEW_DEVICE_DETECTED);
+            intent.putExtra("UUID", ibd.uuid);
+            intent.putExtra("TYPE", ibd.deviceType);
+            parentActivity.startService(intent);
+        }
+        else {
+            Log.d(MainActivity.LOG_TAG, "Device already seen: " + ibd.uuid);
+        }
     }
 
     private void asyncSaveDB() {
