@@ -43,7 +43,7 @@ public class OmletUIService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (intent == null)
+        if (intent == null || intent.getAction() == null)
             return Service.START_REDELIVER_INTENT;
 
         if (!ensureWebHook()) {
