@@ -31,7 +31,7 @@ public class EmailSender {
 
         try {
             if (Integer.parseInt(tokens[0]) != code)
-                throw new IOException("Server returned code: " + tokens[0]);
+                throw new IOException("Server returned unexpected code " + line);
         } catch(NumberFormatException e) {
             throw new IOException("Server returned something that does not parse: " + tokens[0]);
         }
