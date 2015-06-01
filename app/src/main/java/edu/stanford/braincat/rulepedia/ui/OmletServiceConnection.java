@@ -45,6 +45,11 @@ public class OmletServiceConnection implements ServiceConnection {
 
         if (needsInstall)
             startOmletWebApp();
+        else
+            Log.i(MainActivity.LOG_TAG, "Sabrina feed is already created with URI " + sabrinaFeed);
+
+        if (prefs.getString("webhook", null) != null)
+            Log.i(MainActivity.LOG_TAG, "Sabrina webhook is already configured at " + prefs.getString("webhook", null));
     }
 
     public void setWebhook(String webhook) {
@@ -101,12 +106,10 @@ public class OmletServiceConnection implements ServiceConnection {
             editor.apply();
             needsInstall = false;
 
-            if (false) {
-                // FIXME: does not seem to work, and crashes our app
-                Intent viewIntent = new Intent(Intent.ACTION_VIEW, sabrinaFeed);
-                viewIntent.setType("vnd.mobisocial/group");
-                parentContext.startActivity(viewIntent);
-            }
+            Intent viewIntent = new Intent(Intent.ACTION_VIEW);
+            viewIntent.setPackage("mobisocial.omlet");
+            viewIntent.setDataAndType(sabrinaFeed, "vnd.mobisocial/group");
+            parentContext.startActivity(viewIntent);
         } catch(RemoteException e) {
             Log.e(MainActivity.LOG_TAG, "Failed to tell Omlet to show the Sabrina installation UI!", e);
         }
