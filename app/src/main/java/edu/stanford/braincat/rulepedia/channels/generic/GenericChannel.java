@@ -1,6 +1,7 @@
 package edu.stanford.braincat.rulepedia.channels.generic;
 
 import android.os.IBinder;
+import android.support.annotation.Nullable;
 import android.util.ArrayMap;
 import android.util.Log;
 
@@ -10,17 +11,18 @@ import org.mozilla.javascript.BaseFunction;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.NativeJSON;
+import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.Undefined;
 
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.net.MalformedURLException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import edu.stanford.braincat.rulepedia.channels.ServiceBinder;
 import edu.stanford.braincat.rulepedia.events.EventSource;
 import edu.stanford.braincat.rulepedia.events.EventSourceHandler;
 import edu.stanford.braincat.rulepedia.exceptions.TriggerValueTypeException;
@@ -37,8 +39,9 @@ public class GenericChannel extends Channel {
     private final String text;
     private final Context ctx;
     private final Scriptable global;
+    private final ScriptableObject self;
 
-    private final Map<String, ServiceBinder> services;
+    private final Map<String, GenericChannelPlugin> plugins;
     private final Map<String, WeakReference<EventSource>> eventSourceRefs;
 
     public GenericChannel(GenericChannelFactory factory, String url, final String id, String text, JSONArray jsonServices)
@@ -47,16 +50,18 @@ public class GenericChannel extends Channel {
         this.text = text;
         eventSourceRefs = new HashMap<>();
 
-        services = new ArrayMap<>();
+        plugins = new ArrayMap<>();
         for (int i = 0; i < jsonServices.length(); i++) {
             String serviceType = jsonServices.getString(i);
-            services.put(serviceType, GenericChannelFactory.createServiceBinder(id));
+            plugins.put(serviceType, GenericChannelFactory.createChannelPlugin(id));
         }
 
         ctx = Context.enter();
         ctx.setLanguageVersion(Context.VERSION_1_8);
         ctx.setOptimizationLevel(-1);
         global = ctx.initSafeStandardObjects();
+        self = new NativeObject();
+        ScriptableObject.putProperty(global, "self", self);
 
         ScriptableObject.putProperty(global, "log", new BaseFunction() {
             @Override
@@ -79,15 +84,17 @@ public class GenericChannel extends Channel {
     }
 
     @Override
-    public void enable(android.content.Context ctx, EventSourceHandler handler) {
-        for (ServiceBinder b : services.values())
-            b.enable(ctx, handler);
+    public void enable(android.content.Context ctx, EventSourceHandler handler) throws IOException {
+        for (GenericChannelPlugin p : plugins.values()) {
+            p.enable(ctx, handler);
+            p.update(ctx, self);
+        }
     }
 
     @Override
-    public void disable(android.content.Context ctx) {
-        for (ServiceBinder b : services.values())
-            b.disable(ctx);
+    public void disable(android.content.Context ctx) throws IOException {
+        for (GenericChannelPlugin p : plugins.values())
+            p.disable(ctx);
     }
 
     public Function compileFunction(String body) {
@@ -119,11 +126,12 @@ public class GenericChannel extends Channel {
         });
     }
 
+    @Nullable
     public IBinder getService(String serviceType) {
-        ServiceBinder binder = services.get(serviceType);
-        if (binder == null)
+        GenericChannelPlugin plugin = plugins.get(serviceType);
+        if (plugin == null)
             return null;
-        return binder.getService();
+        return plugin.getService();
     }
 
     public Map<String, EventSource> getEventSources() throws

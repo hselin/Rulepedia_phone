@@ -1,10 +1,12 @@
 package edu.stanford.braincat.rulepedia.ui;
 
 import android.content.ComponentName;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -50,6 +52,26 @@ public class OmletServiceConnection implements ServiceConnection {
 
         if (prefs.getString("webhook", null) != null)
             Log.i(MainActivity.LOG_TAG, "Sabrina webhook is already configured at " + prefs.getString("webhook", null));
+
+        ContentResolver resolver = parentContext.getContentResolver();
+        try (Cursor cursor = resolver.query(Uri.parse("content://mobisocial.osm/identities"), new String[] { "id", "principal", "name", "hasApp" },
+                "owned = 1 and hasApp = 1 and principal like 'omlet:%'", null, null)) {
+            if (cursor == null) {
+                Log.e("rulepedia.Games", "Can't get cursor to identities list");
+                return;
+            }
+
+            if (!cursor.moveToFirst()) {
+                Log.e("rulepedia.Games", "Can't find Omlet owner in identities list");
+                return;
+            }
+
+            while (!cursor.isAfterLast()) {
+                Log.i(MainActivity.LOG_TAG, "Sabrina owner is " + cursor.getString(1) + ", " + cursor.getString(2));
+                Log.i(MainActivity.LOG_TAG, "Sabrina owner has id " + cursor.getLong(0) + ", has app " + cursor.getInt(3));
+                cursor.moveToNext();
+            }
+        }
     }
 
     public void setWebhook(String webhook) {

@@ -21,7 +21,6 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import edu.stanford.braincat.rulepedia.channels.HTTPUtil;
-import edu.stanford.braincat.rulepedia.channels.ServiceBinder;
 import edu.stanford.braincat.rulepedia.channels.email.EmailSender;
 import edu.stanford.braincat.rulepedia.channels.omlet.OmletMessageEventSource;
 import edu.stanford.braincat.rulepedia.events.EventSource;
@@ -441,13 +440,10 @@ public class GenericChannelFactory extends ChannelFactory {
         }
     }
 
-    public static ServiceBinder createServiceBinder(String type) throws UnknownChannelException {
+    public static GenericChannelPlugin createChannelPlugin(String type) throws UnknownChannelException {
         switch (type) {
-            case "omlet": {
-                Intent intent = new Intent("mobisocial.intent.action.BIND_SERVICE");
-                intent.setPackage("mobisocial.omlet");
-                return new ServiceBinder(intent);
-            }
+            case "omlet":
+                return new OmletChannelPlugin();
 
             default:
                 throw new UnknownChannelException(type);
