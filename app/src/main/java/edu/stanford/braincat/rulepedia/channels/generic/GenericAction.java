@@ -22,7 +22,6 @@ import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
 import edu.stanford.braincat.rulepedia.model.Action;
 import edu.stanford.braincat.rulepedia.model.Channel;
 import edu.stanford.braincat.rulepedia.model.ObjectPool;
-import edu.stanford.braincat.rulepedia.model.Trigger;
 import edu.stanford.braincat.rulepedia.model.Value;
 
 /**
@@ -114,7 +113,6 @@ public class GenericAction implements Action {
 
         try {
             NativeObject jsParameters = JSUtil.parametersToJavascript(resolved);
-            ScriptableObject.putProperty(jsParameters, "url", getChannel().getUrl());
             result = (ScriptableObject) ((GenericChannel) channel).callFunction(script, thisArg,
                     jsParameters);
         } catch (Exception e) {

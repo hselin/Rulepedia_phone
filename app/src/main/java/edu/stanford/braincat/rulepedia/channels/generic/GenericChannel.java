@@ -52,7 +52,7 @@ public class GenericChannel extends Channel {
         plugins = new ArrayMap<>();
         for (int i = 0; i < jsonServices.length(); i++) {
             String serviceType = jsonServices.getString(i);
-            plugins.put(serviceType, GenericChannelFactory.createChannelPlugin(id));
+            plugins.put(serviceType, GenericChannelFactory.createChannelPlugin(serviceType));
         }
 
         ctx = Context.enter();
@@ -61,6 +61,7 @@ public class GenericChannel extends Channel {
         global = ctx.initSafeStandardObjects();
         self = new NativeObject();
         ScriptableObject.putProperty(global, "self", self);
+        ScriptableObject.putProperty(self, "url", url);
 
         ScriptableObject.putProperty(global, "log", new BaseFunction() {
             @Override
