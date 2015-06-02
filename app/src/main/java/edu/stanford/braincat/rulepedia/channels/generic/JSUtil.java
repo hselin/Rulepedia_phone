@@ -11,6 +11,7 @@ import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.ScriptableObject;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Map;
 
 import edu.stanford.braincat.rulepedia.channels.omlet.OmletMessage;
@@ -106,7 +107,11 @@ public class JSUtil {
         ScriptableObject object = new NativeObject();
 
         ScriptableObject.putProperty(object, "action", intent.getAction());
-        ScriptableObject.putProperty(object, "categories", new NativeArray(intent.getCategories().toArray()));
+        Collection<String> categories = intent.getCategories();
+        if (categories != null)
+            ScriptableObject.putProperty(object, "categories", new NativeArray(categories.toArray()));
+        else
+            ScriptableObject.putProperty(object, "categories", new NativeArray(new String[0]));
 
         ScriptableObject jsExtras = new NativeObject();
         ScriptableObject.putProperty(object, "extras", jsExtras);

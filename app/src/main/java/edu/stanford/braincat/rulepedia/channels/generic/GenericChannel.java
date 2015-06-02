@@ -17,12 +17,11 @@ import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.Undefined;
 
 import java.io.IOException;
-import java.lang.ref.WeakReference;
 import java.net.MalformedURLException;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 
+import edu.stanford.braincat.rulepedia.channels.Util;
 import edu.stanford.braincat.rulepedia.events.EventSource;
 import edu.stanford.braincat.rulepedia.events.EventSourceHandler;
 import edu.stanford.braincat.rulepedia.exceptions.TriggerValueTypeException;
@@ -42,13 +41,13 @@ public class GenericChannel extends Channel {
     private final ScriptableObject self;
 
     private final Map<String, GenericChannelPlugin> plugins;
-    private final Map<String, WeakReference<EventSource>> eventSourceRefs;
+    private final Map<String, EventSource> eventSourceRefs;
 
     public GenericChannel(GenericChannelFactory factory, String url, final String id, String text, JSONArray jsonServices)
             throws JSONException, UnknownChannelException {
         super(factory, url);
         this.text = text;
-        eventSourceRefs = new HashMap<>();
+        eventSourceRefs = new Util.WeakMap<>();
 
         plugins = new ArrayMap<>();
         for (int i = 0; i < jsonServices.length(); i++) {
@@ -141,12 +140,11 @@ public class GenericChannel extends Channel {
         Collection<String> names = ((GenericChannelFactory) getFactory()).getEventSourceNames();
 
         for (String name : names) {
-            WeakReference<EventSource> sourceRef = eventSourceRefs.get(name);
-            EventSource source = sourceRef.get();
+            EventSource source = eventSourceRefs.get(name);
 
             if (source == null) {
                 source = ((GenericChannelFactory) getFactory()).createEventSource(this, name);
-                eventSourceRefs.put(name, new WeakReference<>(source));
+                eventSourceRefs.put(name, source);
             }
 
             result.put(name, source);
