@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Message;
 import android.os.Messenger;
 
-import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.Queue;
 
@@ -41,12 +40,12 @@ public class OmletMessageEventSource extends MessengerEventSource {
     }
 
     @Override
-    public boolean checkEvent() throws IOException {
+    public boolean checkEvent() {
         return !messageQueue.isEmpty();
     }
 
     @Override
-    public void updateState() throws IOException {
+    public void updateState() {
         messageQueue.poll();
     }
 }

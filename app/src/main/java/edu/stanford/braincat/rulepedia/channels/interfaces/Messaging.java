@@ -6,6 +6,7 @@ package edu.stanford.braincat.rulepedia.channels.interfaces;
 public interface Messaging {
     // channels
     String MESSAGE_RECEIVED = "message-received";
+    String PICTURE_RECEIVED = "picture-received";
     String SEND_MESSAGE = "send-message";
     String SHARE_PICTURE = "share-picture";
 

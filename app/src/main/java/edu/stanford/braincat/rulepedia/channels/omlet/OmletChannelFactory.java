@@ -27,6 +27,22 @@ public class OmletChannelFactory extends ChannelFactory {
     @Override
     public Class<? extends Value> getParamType(String method, String name) throws UnknownChannelException, TriggerValueTypeException {
         switch (method) {
+            case Messaging.MESSAGE_RECEIVED:
+                switch (name) {
+                    case Messaging.CONTENT_CONTAINS:
+                        return Value.Text.class;
+                    case Messaging.SENDER_MATCHES:
+                        return Value.Contact.class;
+                    default:
+                        throw new TriggerValueTypeException("invalid param " + name);
+                }
+            case Messaging.PICTURE_RECEIVED:
+                switch (name) {
+                    case Messaging.SENDER_MATCHES:
+                        return Value.Contact.class;
+                    default:
+                        throw new TriggerValueTypeException("invalid param " + name);
+                }
             case Messaging.SEND_MESSAGE:
                 switch (name) {
                     case Messaging.MESSAGE:
@@ -52,7 +68,14 @@ public class OmletChannelFactory extends ChannelFactory {
 
     @Override
     public Trigger createTrigger(Channel channel, String method, Map<String, Value> params) throws UnknownObjectException, UnknownChannelException, TriggerValueTypeException {
-        throw new UnknownChannelException(method);
+        switch (method) {
+            case Messaging.MESSAGE_RECEIVED:
+                return new OmletMessageReceivedTrigger(channel, params.get(Messaging.CONTENT_CONTAINS), params.get(Messaging.SENDER_MATCHES));
+            case Messaging.PICTURE_RECEIVED:
+                return new OmletPictureReceivedTrigger(channel, params.get(Messaging.SENDER_MATCHES));
+            default:
+                throw new UnknownChannelException(method);
+        }
     }
 
     @Override
