@@ -9,6 +9,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.Messenger;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import java.io.IOException;
 
@@ -18,6 +19,7 @@ import java.io.IOException;
 public abstract class MessengerEventSource implements EventSource {
     private volatile IBinder service;
     private ServiceConnection connection;
+    private Messenger messenger;
 
     private static class MessageHandler extends EventSourceHandler {
         private final MessengerEventSource source;
@@ -35,6 +37,12 @@ public abstract class MessengerEventSource implements EventSource {
 
         public void messageReceived() {
             chained.messageReceived();
+        }
+
+        @Override
+        protected void finalize() throws Throwable {
+            Log.e("rulepedia.Channels", "MessengerEventSource finalized!");
+            super.finalize();
         }
     }
 
@@ -57,9 +65,9 @@ public abstract class MessengerEventSource implements EventSource {
     @Override
     public void install(Context ctx, EventSourceHandler handler) throws IOException {
         MessageHandler self = new MessageHandler(handler.getLooper(), this, handler);
-
         connection = new MessengerServiceConnection();
-        ctx.bindService(createIntent(new Messenger(self)), connection, Context.BIND_AUTO_CREATE);
+        messenger = new Messenger(self);
+        ctx.bindService(createIntent(messenger), connection, Context.BIND_AUTO_CREATE);
     }
 
     protected abstract Intent createIntent(Messenger messenger);

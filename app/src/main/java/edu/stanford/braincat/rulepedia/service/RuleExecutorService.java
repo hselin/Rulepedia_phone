@@ -144,5 +144,7 @@ public class RuleExecutorService extends Service {
         executorThread = null;
 
         Log.i(LOG_TAG, "Destroyed service");
+
+        super.onDestroy();
     }
 }

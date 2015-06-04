@@ -47,14 +47,15 @@ public class OmletMessage {
 
         try (Cursor queryCursor = ctx.getContentResolver().query(Uri.parse(getFeedUri()),
                 new String[]{"json"},
-                "id = ? and type = ?",
+                "Id = ? and type = ?",
                 new String[]{String.valueOf(objectId), objectType}, null)) {
 
             if (!queryCursor.moveToFirst())
                 return;
 
             try {
-                json = (JSONObject) new JSONTokener(queryCursor.getString(0)).nextValue();
+                String jsonString = queryCursor.getString(0);
+                json = (JSONObject) new JSONTokener(jsonString).nextValue();
             } catch(JSONException | ClassCastException e) {
                 json = null;
             }
@@ -64,7 +65,10 @@ public class OmletMessage {
     @Nullable
     public String getJSON(Context ctx) {
         ensureJSON(ctx);
-        return json.toString();
+        if (json != null)
+            return json.toString();
+        else
+            return null;
     }
 
     @Nullable

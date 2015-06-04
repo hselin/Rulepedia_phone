@@ -18,4 +18,5 @@ public interface Messaging {
     String SENDER = "sender";
     String DESTINATION = "destination";
     String MESSAGE = "content";
+    String MESSAGE_CONTENT = "message-content";
 }

@@ -83,6 +83,7 @@ public abstract class SharePictureAction implements Action {
         Value.DirectPicture resolvedPicture = ((Value.Picture) message.resolve(context)).toPicture(ctx);
 
         sharePicture(ctx, (Contact) resolvedDestination.getObject(), resolvedPicture);
+        context.put(Messaging.MESSAGE_CONTENT, resolvedPicture);
     }
 
     @Override

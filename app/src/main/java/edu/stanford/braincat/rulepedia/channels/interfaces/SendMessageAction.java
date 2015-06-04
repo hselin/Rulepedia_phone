@@ -83,6 +83,7 @@ public abstract class SendMessageAction implements Action {
         Value.Text resolvedMessage = (Value.Text) message.resolve(context);
 
         sendMessage(ctx, (Contact) resolvedDestination.getObject(), resolvedMessage.getText());
+        context.put(Messaging.MESSAGE_CONTENT, resolvedMessage);
     }
 
     @Override
