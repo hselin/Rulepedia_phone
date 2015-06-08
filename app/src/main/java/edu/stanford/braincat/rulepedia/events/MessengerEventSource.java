@@ -41,7 +41,7 @@ public abstract class MessengerEventSource implements EventSource {
 
         @Override
         protected void finalize() throws Throwable {
-            Log.e("rulepedia.Channels", "MessengerEventSource finalized!");
+            Log.e("rulepedia.Channels", "MessengerHandler finalized!");
             super.finalize();
         }
     }
@@ -60,6 +60,12 @@ public abstract class MessengerEventSource implements EventSource {
 
     public IBinder getService() {
         return service;
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        Log.e("rulepedia.Channels", "MessengerEventSource finalized!");
+        super.finalize();
     }
 
     @Override

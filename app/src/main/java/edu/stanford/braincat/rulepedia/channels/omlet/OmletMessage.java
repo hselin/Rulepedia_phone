@@ -6,10 +6,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.json.JSONTokener;
-
+import edu.stanford.braincat.rulepedia.channels.Util;
 import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
 import edu.stanford.braincat.rulepedia.model.Contact;
 import edu.stanford.braincat.rulepedia.model.ContactPool;
@@ -21,7 +18,9 @@ public class OmletMessage {
     private final long objectId;
     private final String objectType;
     private final long feedId;
-    private JSONObject json;
+    private String cachedJson;
+    private String cachedText;
+    private String cachedImageUrl;
 
     private OmletMessage(long objectId, String objectType, long feedId) {
         this.objectId = objectId;
@@ -41,64 +40,43 @@ public class OmletMessage {
         return ContactPool.get().getObject(getFeedUri());
     }
 
-    private void ensureJSON(Context ctx) {
-        if (json != null)
-            return;
-
-        try (Cursor queryCursor = ctx.getContentResolver().query(Uri.parse(getFeedUri()),
-                new String[]{"json"},
-                "Id = ? and type = ?",
-                new String[]{String.valueOf(objectId), objectType}, null)) {
-
-            if (!queryCursor.moveToFirst())
-                return;
-
-            try {
-                String jsonString = queryCursor.getString(0);
-                json = (JSONObject) new JSONTokener(jsonString).nextValue();
-            } catch(JSONException | ClassCastException e) {
-                json = null;
-            }
-        }
-    }
-
-    @Nullable
-    public String getJSON(Context ctx) {
-        ensureJSON(ctx);
-        if (json != null)
-            return json.toString();
-        else
-            return null;
-    }
-
     @Nullable
     public String getText(Context ctx) {
-        try {
-            ensureJSON(ctx);
-            if (json != null) {
-                return json.getString("text");
-            } else {
-                return null;
-            }
-        } catch(JSONException e) {
+        if (cachedText != null)
+            return cachedText;
+
+        if (ctx == null)
             return null;
+
+        try (Cursor queryCursor = ctx.getContentResolver().query(Uri.parse(OmletChannel.CONTENT_URI),
+                new String[]{"text"},
+                "Id = ?",
+                new String[]{String.valueOf(objectId)}, null)) {
+            if (!queryCursor.moveToFirst())
+                return null;
+
+            cachedText = queryCursor.getString(0);
+            return cachedText;
         }
     }
 
     @Nullable
     public String getPicture(Context ctx) {
-        try {
-            ensureJSON(ctx);
-            if (json != null) {
-                if (json.has("imageUrl"))
-                    return json.getString("imageUrl");
-                else
-                    return "data:base64," + json.getString("imageData");
-            } else {
-                return null;
-            }
-        } catch(JSONException e) {
+        if (cachedImageUrl != null)
+            return cachedImageUrl;
+
+        if (ctx == null)
             return null;
+
+        try (Cursor queryCursor = ctx.getContentResolver().query(Uri.parse(OmletChannel.CONTENT_URI),
+                new String[]{"fullsizeHash"},
+                "Id = ?",
+                new String[]{String.valueOf(objectId)}, null)) {
+            if (!queryCursor.moveToFirst())
+                return null;
+
+            cachedImageUrl = "content://mobisocial.osm/blobs/" + Util.bytesToHexString(queryCursor.getBlob(0)).toLowerCase();
+            return cachedImageUrl;
         }
     }
 

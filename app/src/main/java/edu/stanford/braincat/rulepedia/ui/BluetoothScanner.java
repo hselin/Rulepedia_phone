@@ -67,8 +67,7 @@ public class BluetoothScanner extends Handler implements BluetoothAdapter.LeScan
             Log.d(MainActivity.LOG_TAG, "New Device: " + ibd.uuid);
             Intent intent = new Intent(parentActivity, OmletUIService.class);
             intent.setAction(OmletUIService.NOTIFY_USER_NEW_DEVICE_DETECTED);
-            intent.putExtra("UUID", ibd.uuid);
-            intent.putExtra("TYPE", ibd.deviceType);
+            intent.putExtra("URL", ibd.getUrl());
             parentActivity.startService(intent);
         }
         else {

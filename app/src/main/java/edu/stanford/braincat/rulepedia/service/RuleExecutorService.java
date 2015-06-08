@@ -4,6 +4,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 import android.os.Looper;
+import android.os.StrictMode;
 import android.util.Log;
 
 import org.json.JSONException;
@@ -40,6 +41,19 @@ public class RuleExecutorService extends Service {
     @Override
     public void onCreate() {
         Log.i(LOG_TAG, "Creating service...");
+
+        StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
+                        .detectNetwork()
+                        .penaltyLog()
+                        .build()
+        );
+
+        StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
+                        .detectAll()
+                        .penaltyLog()
+                        .penaltyDeath()
+                        .build()
+        );
 
         Log.i(LOG_TAG, "Created service");
     }

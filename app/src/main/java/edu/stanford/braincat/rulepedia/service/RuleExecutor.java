@@ -305,6 +305,9 @@ public class RuleExecutor extends EventSourceHandler {
 
     private void updateTriggers() {
         for (Rule r : RuleDatabase.get().getAllRules()) {
+            if (!r.isInstalled())
+                    continue;
+
             try {
                 r.updateTrigger(context);
             } catch (RuleExecutionException e) {
@@ -318,6 +321,9 @@ public class RuleExecutor extends EventSourceHandler {
 
     private void dispatchRules() {
         for (Rule r : RuleDatabase.get().getAllRules()) {
+            if (!r.isInstalled())
+                continue;
+
             try {
                 if (r.isFiring())
                     r.fire(context);

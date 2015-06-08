@@ -11,6 +11,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import edu.stanford.braincat.rulepedia.channels.HTTPUtil;
+import edu.stanford.braincat.rulepedia.channels.ibeacon.IBeaconDevice;
+import edu.stanford.braincat.rulepedia.exceptions.UnknownObjectException;
+import edu.stanford.braincat.rulepedia.model.DevicePool;
 
 public class OmletUIService extends Service {
     public static final String WELCOME_USER = "edu.stanford.braincat.rulepedia.omlet.WELCOME_USER";
@@ -57,10 +60,9 @@ public class OmletUIService extends Service {
                 break;
 
             case NOTIFY_USER_NEW_DEVICE_DETECTED:
-                String uuid = intent.getStringExtra("UUID");
-                String deviceType = intent.getStringExtra("TYPE");
+                String url = intent.getStringExtra("URL");
 
-                doNotifyUserNewDeviceDetected(uuid, deviceType);
+                doNotifyUserNewDeviceDetected(url);
                 break;
             case SAY_RANDOM_QUOTES:
                 String quote = intent.getStringExtra("QUOTE");
@@ -80,7 +82,7 @@ public class OmletUIService extends Service {
             public void run() {
                 try {
                     HTTPUtil.postString(webHook, message);
-                } catch(IOException e) {
+                } catch (IOException e) {
                     Log.e(LOG_TAG, "Failed to send message to Omlet!", e);
                 }
             }
@@ -91,11 +93,16 @@ public class OmletUIService extends Service {
         sendMessage("Hello! My name is Sabrina, and I'm ready to use my magic power to help you!");
     }
 
-    private void doNotifyUserNewDeviceDetected(String uuid, String deviceType)
+    private void doNotifyUserNewDeviceDetected(String url)
     {
-        String rulepediaURL = "https://vast-hamlet-6003.herokuapp.com/query/" + deviceType;
-        sendMessage("Hello! I've detected a " + deviceType + " device with UUID " + uuid + "\n" +
-        "here is a list of spells that we could use with it " + rulepediaURL);
+        try {
+            IBeaconDevice ibd = (IBeaconDevice) DevicePool.get().getObject(url);
+            String rulepediaURL = "https://vast-hamlet-6003.herokuapp.com/query/" + ibd.deviceType;
+            sendMessage("Hello! I've detected a " + ibd.toHumanString() + " device with UUID " + ibd.uuid + "\n" +
+                    "here is a list of spells that we could use with it " + rulepediaURL);
+        } catch(UnknownObjectException e) {
+
+        }
     }
 
     private void doSayRandomQuote(String quote)

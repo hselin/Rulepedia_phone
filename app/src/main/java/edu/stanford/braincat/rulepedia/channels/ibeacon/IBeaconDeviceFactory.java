@@ -21,7 +21,7 @@ public class IBeaconDeviceFactory extends DeviceFactory {
     public IBeaconDeviceFactory() {
         super(URL_PREFIX);
 
-        urlPattern = Pattern.compile("https://rulepedia\\.stanford\\.edu/oid/devices/ibeacon/(\\p{XDigit}+)/([0-9])+/([0-9])+");
+        urlPattern = Pattern.compile("https://rulepedia\\.stanford\\.edu/oid/device/ibeacon/(\\p{XDigit}+)/([0-9])+/([0-9])+");
     }
 
     public static IBeaconDeviceFactory getDefault() {

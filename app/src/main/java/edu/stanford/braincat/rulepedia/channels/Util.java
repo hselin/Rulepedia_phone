@@ -122,6 +122,10 @@ public class Util {
         }
     }
 
+    public static String bytesToHexString(byte[] bytes) {
+        return bytesToHexString(bytes, 0, bytes.length);
+    }
+
     final private static char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
     public static String bytesToHexString(byte[] bytes, int off, int end) {
         char[] hexChars = new char[(end - off) * 2];

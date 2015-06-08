@@ -9,6 +9,8 @@ import edu.stanford.braincat.rulepedia.model.Device;
  */
 public class IBeaconDevice extends Device {
     private static final int CORKTASTIC_MAJOR = 1;
+    private static final int DOORBELL_MAJOR = 2;
+    private static final int ANDROID_WEAR_DEVICE_MAJOR = 3;
 
     public final String uuid;
     public final int major;
@@ -27,6 +29,14 @@ public class IBeaconDevice extends Device {
                 deviceType = "corktastic";
                 break;
 
+            case DOORBELL_MAJOR:
+                deviceType = "doorbell";
+                break;
+
+            case ANDROID_WEAR_DEVICE_MAJOR:
+                deviceType = "google";
+                break;
+
             default:
                 deviceType = "unknown";
                 //throw new UnknownObjectException(getUrl());
@@ -34,7 +44,19 @@ public class IBeaconDevice extends Device {
     }
 
     public String toHumanString() {
-        return deviceType;
+        switch (deviceType) {
+            case "corktastic":
+                return "Corktastic";
+
+            case "google":
+                return "Android Wear";
+
+            case "doorbell":
+                return "iDoorbell";
+
+            default:
+                return deviceType;
+        }
     }
 
     public static IBeaconDevice newIBeaconDevice(final byte[] scanRecord) {

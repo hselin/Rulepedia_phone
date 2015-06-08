@@ -72,7 +72,7 @@ public abstract class SharePictureAction implements Action {
     @Override
     public void typeCheck(Map<String, Class<? extends Value>> context) throws TriggerValueTypeException {
         destination.typeCheck(context, Value.Contact.class);
-        message.typeCheck(context, Value.Text.class);
+        message.typeCheck(context, Value.Picture.class);
     }
 
     protected abstract void sharePicture(Context ctx, Contact destination, Value.DirectPicture picture) throws UnknownObjectException, RuleExecutionException;

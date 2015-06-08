@@ -126,15 +126,24 @@ public class JSUtil {
     }
 
     public static ScriptableObject omletMessageToJavascript(OmletMessage message, GenericChannel channel, Context ctx) {
-        String json = message.getJSON(ctx);
-        if (json == null)
-            return null;
+        String messageString;
+        switch (message.getType()) {
+            case "text":
+                messageString = message.getText(ctx);
+                break;
+            case "picture":
+                messageString = message.getPicture(ctx);
+                break;
+            default:
+                messageString = null;
+                break;
+        }
 
         ScriptableObject object = new NativeObject();
 
         ScriptableObject.putProperty(object, "feedUri", message.getFeedUri());
         ScriptableObject.putProperty(object, "type", message.getType());
-        ScriptableObject.putProperty(object, "message", channel.fromJSON(json));
+        ScriptableObject.putProperty(object, "message", messageString);
 
         return object;
     }

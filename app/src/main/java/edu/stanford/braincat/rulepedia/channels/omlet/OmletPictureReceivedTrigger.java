@@ -13,7 +13,6 @@ import java.util.HashSet;
 import java.util.Map;
 
 import edu.stanford.braincat.rulepedia.channels.SingleEventTrigger;
-import edu.stanford.braincat.rulepedia.channels.android.TelephoneContact;
 import edu.stanford.braincat.rulepedia.channels.interfaces.Messaging;
 import edu.stanford.braincat.rulepedia.exceptions.RuleExecutionException;
 import edu.stanford.braincat.rulepedia.exceptions.TriggerValueTypeException;
@@ -122,8 +121,7 @@ public class OmletPictureReceivedTrigger extends SingleEventTrigger<OmletMessage
         if (!(newChannel instanceof OmletChannel))
             throw new UnknownObjectException(newChannel.getUrl());
         Contact newSenderMatches = senderMatches != null ? senderMatches.resolve() : null;
-        if (newSenderMatches != null && !(newSenderMatches instanceof TelephoneContact))
-            throw new UnknownObjectException(newSenderMatches.getUrl());
+        senderMatches = newSenderMatches;
 
         setSource(((OmletChannel) newChannel).getEventSource());
         channel = newChannel;
